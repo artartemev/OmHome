@@ -267,22 +267,23 @@ export function HeroSection() {
           style={{ right: '40%' }}
         >
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, -15, 0],
               rotate: [0, 1, 0],
               filter: ["blur(0px)", "blur(0.5px)", "blur(0px)"]
             }}
-            transition={{ 
-              duration: 8, 
-              repeat: Infinity, 
+            transition={{
+              duration: 8,
+              repeat: Infinity,
               ease: "easeInOut",
               times: [0, 0.5, 1]
             }}
+            whileHover={{ scale: 1.08, rotate: 2 }}
             className="relative"
           >
-            <div 
-              className="w-48 h-80 lg:w-64 lg:h-[420px] bg-cover bg-center rounded-full shadow-2xl"
-              style={{ 
+            <div
+              className="w-56 h-96 lg:w-72 lg:h-[480px] bg-cover bg-center rounded-full shadow-2xl cursor-pointer"
+              style={{
                 backgroundImage: `url(${imgRectangle14})`,
                 filter: 'saturate(1.1) contrast(1.05)'
               }}
@@ -308,22 +309,23 @@ export function HeroSection() {
           style={{ right: '20%' }}
         >
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, 12, 0],
               rotate: [0, -1.5, 0],
               opacity: [0.8, 1, 0.8]
             }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity, 
+            transition={{
+              duration: 10,
+              repeat: Infinity,
               ease: "easeInOut",
               delay: 2
             }}
+            whileHover={{ scale: 1.08, rotate: 2 }}
             className="relative"
           >
-            <div 
-              className="w-36 h-56 lg:w-48 lg:h-72 bg-cover bg-center rounded-full shadow-xl"
-              style={{ 
+            <div
+              className="w-44 h-72 lg:w-56 lg:h-80 bg-cover bg-center rounded-full shadow-xl cursor-pointer"
+              style={{
                 backgroundImage: `url(https://images.unsplash.com/photo-1570093895856-9dc9acd87da5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcG9ydHJhaXQlMjBwZWFjZWZ1bCUyMHZlcnRpY2FsfGVufDF8fHx8MTc1NzQzOTY4Mnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                 filter: 'sepia(0.1) saturate(1.2)'
               }}
@@ -349,23 +351,24 @@ export function HeroSection() {
           style={{ right: '60%' }}
         >
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, -20, 0],
               x: [0, 5, 0],
               rotate: [0, 2, 0],
               scale: [1, 1.02, 1]
             }}
-            transition={{ 
-              duration: 12, 
-              repeat: Infinity, 
+            transition={{
+              duration: 12,
+              repeat: Infinity,
               ease: "easeInOut",
               delay: 4
             }}
+            whileHover={{ scale: 1.08, rotate: 2 }}
             className="relative"
           >
-            <div 
-              className="w-32 h-52 lg:w-40 lg:h-64 bg-cover bg-center rounded-full shadow-lg"
-              style={{ 
+            <div
+              className="w-40 h-64 lg:w-48 lg:h-72 bg-cover bg-center rounded-full shadow-lg cursor-pointer"
+              style={{
                 backgroundImage: `url(${imgRectangle34})`,
                 filter: 'brightness(1.1) contrast(0.95)'
               }}
@@ -391,23 +394,24 @@ export function HeroSection() {
           style={{ right: '80%' }}
         >
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, 18, 0],
               rotate: [0, -2, 0],
               opacity: [0.7, 0.95, 0.7],
               filter: ["blur(0px)", "blur(1px)", "blur(0px)"]
             }}
-            transition={{ 
-              duration: 14, 
-              repeat: Infinity, 
+            transition={{
+              duration: 14,
+              repeat: Infinity,
               ease: "easeInOut",
               delay: 6
             }}
+            whileHover={{ scale: 1.08, rotate: 2 }}
             className="relative"
           >
-            <div 
-              className="w-28 h-44 lg:w-36 lg:h-56 bg-cover bg-center rounded-full shadow-xl"
-              style={{ 
+            <div
+              className="w-36 h-60 lg:w-44 lg:h-72 bg-cover bg-center rounded-full shadow-xl cursor-pointer"
+              style={{
                 backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjB2ZXJ0aWNhbHxlbnwxfHx8fDE3NTc0Mzk2ODV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                 filter: 'hue-rotate(10deg) saturate(1.1)'
               }}
@@ -433,23 +437,24 @@ export function HeroSection() {
           style={{ right: '0%' }}
         >
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, -25, 0],
               rotate: [0, 3, 0],
               opacity: [0.6, 0.9, 0.6],
               scale: [1, 1.05, 1]
             }}
-            transition={{ 
-              duration: 16, 
-              repeat: Infinity, 
+            transition={{
+              duration: 16,
+              repeat: Infinity,
               ease: "easeInOut",
               delay: 8
             }}
+            whileHover={{ scale: 1.08, rotate: 2 }}
             className="relative"
           >
-            <div 
-              className="w-24 h-40 lg:w-32 lg:h-52 bg-cover bg-center rounded-full shadow-md"
-              style={{ 
+            <div
+              className="w-32 h-52 lg:w-40 lg:h-60 bg-cover bg-center rounded-full shadow-md cursor-pointer"
+              style={{
                 backgroundImage: `url(https://images.unsplash.com/photo-1689258077068-75eb291e503b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHBlcnNvbiUyMHBlYWNlZnVsJTIwcG9ydHJhaXQlMjB2ZXJ0aWNhbHxlbnwxfHx8fDE3NTc0Mzk2ODh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                 filter: 'brightness(1.05) saturate(0.9)'
               }}
