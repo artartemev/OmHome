@@ -11,6 +11,9 @@ const allEventImages = Object.values(eventImagesGlob).sort();
 const leftColumnImages = allEventImages.filter((_, idx) => idx % 2 === 0);
 const rightColumnImages = allEventImages.filter((_, idx) => idx % 2 === 1);
 
+const leftColumnLoop = [...leftColumnImages, ...leftColumnImages];
+const rightColumnLoop = [...rightColumnImages, ...rightColumnImages];
+
 export function ProgramsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
@@ -54,30 +57,26 @@ export function ProgramsSection() {
               {/* Left column - scrolling up */}
                 <div className="relative overflow-hidden">
                   <motion.div
-                    animate={{ y: [0, -100] }}
+                    animate={{ y: ['0%', '-50%'] }}
                     transition={{
-                      duration: 15,
+                      duration: 10,
                       repeat: Infinity,
-                      ease: "linear"
+                      ease: 'linear'
                     }}
                     className="space-y-4"
                   >
-                    {[...Array(3)].map((_, repeatIndex) => (
-                      <div key={repeatIndex} className="space-y-4">
-                        {leftColumnImages.map((img, index) => (
-                          <motion.div
-                            key={`left-${repeatIndex}-${index}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                            transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                            className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
-                            style={{ backgroundImage: `url(${img})` }}
-                          >
-                            <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
-                          </motion.div>
-                        ))}
-                      </div>
+                    {leftColumnLoop.map((img, index) => (
+                      <motion.div
+                        key={`left-${index}`}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                        transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
+                        style={{ backgroundImage: `url(${img})` }}
+                      >
+                        <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
+                      </motion.div>
                     ))}
                   </motion.div>
                 </div>
@@ -85,30 +84,26 @@ export function ProgramsSection() {
               {/* Right column - scrolling down */}
                 <div className="relative overflow-hidden">
                   <motion.div
-                    animate={{ y: [0, 100] }}
+                    animate={{ y: ['-50%', '0%'] }}
                     transition={{
-                      duration: 20,
+                      duration: 12,
                       repeat: Infinity,
-                      ease: "linear"
+                      ease: 'linear'
                     }}
                     className="space-y-4"
                   >
-                    {[...Array(3)].map((_, repeatIndex) => (
-                      <div key={repeatIndex} className="space-y-4">
-                        {rightColumnImages.map((img, index) => (
-                          <motion.div
-                            key={`right-${repeatIndex}-${index}`}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                            transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                            className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
-                            style={{ backgroundImage: `url(${img})` }}
-                          >
-                            <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
-                          </motion.div>
-                        ))}
-                      </div>
+                    {rightColumnLoop.map((img, index) => (
+                      <motion.div
+                        key={`right-${index}`}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                        transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
+                        style={{ backgroundImage: `url(${img})` }}
+                      >
+                        <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
+                      </motion.div>
                     ))}
                   </motion.div>
                 </div>
