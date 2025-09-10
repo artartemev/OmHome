@@ -59,7 +59,7 @@ export function ProgramsSection() {
                   <motion.div
                     animate={{ y: ['0%', '-50%'] }}
                     transition={{
-                      duration: 42,
+                      duration: 62,
                       repeat: Infinity,
                       ease: 'linear'
                     }}
@@ -86,7 +86,7 @@ export function ProgramsSection() {
                   <motion.div
                     animate={{ y: ['-50%', '0%'] }}
                     transition={{
-                      duration: 54,
+                      duration: 74,
                       repeat: Infinity,
                       ease: 'linear'
                     }}
