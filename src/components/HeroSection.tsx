@@ -42,10 +42,10 @@ export function HeroSection() {
           <div className="md:hidden my-8 relative overflow-hidden">
             <motion.div
               animate={{
-                x: [0, -100 * 6] // Move by width of all images
+                x: [0, -100 * 6 * 3] // Move by width of all images (adjusted for larger size)
               }}
               transition={{
-                duration: 20,
+                duration: 60,
                 repeat: Infinity,
                 ease: "linear"
               }}
@@ -54,7 +54,7 @@ export function HeroSection() {
             >
               {/* First set of images */}
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(${imgRectangle14})`,
                   filter: 'saturate(1.1) contrast(1.05)'
@@ -64,7 +64,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'sepia(0.1) saturate(1.2)'
@@ -74,7 +74,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1712249238849-cf2742bf7443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcGVhY2VmdWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'brightness(1.1) contrast(0.95)'
@@ -84,7 +84,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(${imgRectangle34})`,
                   filter: 'hue-rotate(10deg) saturate(1.1)'
@@ -94,7 +94,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1602827114685-efbb2717da9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwY29tbXVuaXR5JTIwaG9yaXpvbnRhbHxlbnwxfHx8fDE3NTc0NDU5NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'brightness(1.05) saturate(0.9)'
@@ -104,7 +104,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1642391326182-3b72644c48bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW1wbGUlMjBzcGlyaXR1YWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'contrast(1.1) saturate(1.05)'
@@ -115,7 +115,7 @@ export function HeroSection() {
 
               {/* Duplicate set for seamless loop */}
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(${imgRectangle14})`,
                   filter: 'saturate(1.1) contrast(1.05)'
@@ -125,7 +125,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'sepia(0.1) saturate(1.2)'
@@ -135,7 +135,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1712249238849-cf2742bf7443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcGVhY2VmdWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'brightness(1.1) contrast(0.95)'
@@ -145,7 +145,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(${imgRectangle34})`,
                   filter: 'hue-rotate(10deg) saturate(1.1)'
@@ -155,7 +155,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1602827114685-efbb2717da9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwY29tbXVuaXR5JTIwaG9yaXpvbnRhbHxlbnwxfHx8fDE3NTc0NDU5NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'brightness(1.05) saturate(0.9)'
@@ -165,7 +165,7 @@ export function HeroSection() {
               </div>
 
               <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
+                className="flex-shrink-0 w-72 h-48 sm:w-96 sm:h-60 bg-cover bg-center rounded-xl shadow-lg relative"
                 style={{ 
                   backgroundImage: `url(https://images.unsplash.com/photo-1642391326182-3b72644c48bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW1wbGUlMjBzcGlyaXR1YWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
                   filter: 'contrast(1.1) saturate(1.05)'
@@ -263,7 +263,8 @@ export function HeroSection() {
           initial={{ opacity: 0, x: 100, scale: 0.8 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
-          className="absolute right-16 lg:right-24 top-[20%]"
+          className="absolute top-[20%]"
+          style={{ right: '40%' }}
         >
           <motion.div
             animate={{ 
@@ -303,7 +304,8 @@ export function HeroSection() {
           initial={{ opacity: 0, y: -50, x: 80 }}
           animate={{ opacity: 1, y: 0, x: 0 }}
           transition={{ duration: 2.5, delay: 1, ease: "easeOut" }}
-          className="absolute right-8 lg:right-16 top-[8%]"
+          className="absolute top-[8%]"
+          style={{ right: '20%' }}
         >
           <motion.div
             animate={{ 
@@ -343,7 +345,8 @@ export function HeroSection() {
           initial={{ opacity: 0, x: 120, y: 30 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           transition={{ duration: 3, delay: 1.5, ease: "easeOut" }}
-          className="absolute right-4 lg:right-8 top-[45%]"
+          className="absolute top-[45%]"
+          style={{ right: '60%' }}
         >
           <motion.div
             animate={{ 
@@ -384,7 +387,8 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 100, x: 60 }}
           animate={{ opacity: 1, y: 0, x: 0 }}
           transition={{ duration: 3.5, delay: 2, ease: "easeOut" }}
-          className="absolute right-12 lg:right-20 top-[68%]"
+          className="absolute top-[68%]"
+          style={{ right: '80%' }}
         >
           <motion.div
             animate={{ 
@@ -425,7 +429,8 @@ export function HeroSection() {
           initial={{ opacity: 0, x: 150, scale: 0.5 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 4, delay: 2.5, ease: "easeOut" }}
-          className="absolute right-2 lg:right-4 top-[35%]"
+          className="absolute top-[35%]"
+          style={{ right: '0%' }}
         >
           <motion.div
             animate={{ 
