@@ -229,10 +229,7 @@ export function SupportSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 1.6 }}
           className="mt-12 text-center"
-        >
-          <p className="text-xl lg:text-2xl text-[#241f74] font-['Menorah_Grotesk:Medium'] leading-relaxed max-w-2xl mx-auto">
-            «Отчёт о поступлениях и расходах — ежемесячно. Благодарим за ваше служение!»
-          </p>
+        > 
         </motion.div>
       </div>
     </section>
