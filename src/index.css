@@ -6888,6 +6888,10 @@ html {
   }
 }
 
-h1, h2, h3, h4, h5, h6, blockquote, .text-5xl, .text-4xl, .text-lg {
+body {
+  font-family: 'Ysabeau', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, blockquote, .text-5xl, .text-4xl, .text-3xl, .text-lg {
   font-family: 'MenorahGrotesk', sans-serif;
 }
