@@ -1,5 +1,26 @@
 @import url("https://fonts.googleapis.com/css2?family=Ysabeau:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@font-face {
+  font-family: 'MenorahGrotesk';
+  src: url('./fonts/MenorahGrotesk-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MenorahGrotesk';
+  src: url('./fonts/MenorahGrotesk-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MenorahGrotesk';
+  src: url('./fonts/MenorahGrotesk-Semi.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
 /*! tailwindcss v4.1.3 | MIT License | https://tailwindcss.com */
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
@@ -6865,4 +6886,12 @@ html {
   20%, 50% {
     opacity: 0;
   }
+}
+
+body {
+  font-family: 'Ysabeau', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, blockquote, .text-5xl, .text-4xl, .text-3xl, .text-lg {
+  font-family: 'MenorahGrotesk', sans-serif;
 }
