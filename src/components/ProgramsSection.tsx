@@ -1,12 +1,18 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
-import imgRectangle18 from "figma:asset/0b917eac1956948274d79e317113450c54acfb78.png";
-import imgRectangle19 from "figma:asset/837f30a0bcbad9644745da73b9a4f25e64c6f2c0.png";
-import imgRectangle20 from "figma:asset/189c96f7c85e5b32d3927643564a8458fbead576.png";
-import imgRectangle21 from "figma:asset/195a1792d90fc32038b445cff4419cf3dcb0fc86.png";
-import imgRectangle22 from "figma:asset/efe1e185f3a2326580e5a9601b8652ce49652d44.png";
-import imgRectangle23 from "figma:asset/f95174cadaf3c67681fa9565a8d67d13fbabaae5.png";
+
+const eventImagesGlob = import.meta.glob('../assets/events/*.{jpg,jpeg,png}', {
+  eager: true,
+  import: 'default'
+}) as Record<string, string>;
+
+const allEventImages = Object.values(eventImagesGlob).sort();
+const leftColumnImages = allEventImages.filter((_, idx) => idx % 2 === 0);
+const rightColumnImages = allEventImages.filter((_, idx) => idx % 2 === 1);
+
+const leftColumnLoop = [...leftColumnImages, ...leftColumnImages];
+const rightColumnLoop = [...rightColumnImages, ...rightColumnImages];
 
 export function ProgramsSection() {
   const ref = useRef(null);
@@ -25,15 +31,6 @@ export function ProgramsSection() {
     "Йога и мастер‑классы (вегетарианская кулинария, творчество и т.д.)",
     "Настольные игры и квизы",
     "Музыкальные квартирники"
-  ];
-
-  const images = [
-    imgRectangle18,
-    imgRectangle19,
-    imgRectangle20,
-    imgRectangle21,
-    imgRectangle22,
-    imgRectangle23
   ];
 
   return (
@@ -58,66 +55,58 @@ export function ProgramsSection() {
           >
             <div className="grid grid-cols-2 gap-4 h-full">
               {/* Left column - scrolling up */}
-              <div className="relative overflow-hidden">
-                <motion.div
-                  animate={{ y: [0, -100] }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                  className="space-y-4"
-                >
-                  {[...Array(3)].map((_, repeatIndex) => (
-                    <div key={repeatIndex} className="space-y-4">
-                      {[images[0], images[2], images[4]].map((img, index) => (
-                        <motion.div
-                          key={`left-${repeatIndex}-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                          transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                          whileHover={{ scale: 1.05 }}
-                          className="h-48 bg-cover bg-center rounded-2xl cursor-pointer"
-                          style={{ backgroundImage: `url(${img})` }}
-                        >
-                          <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
-                        </motion.div>
-                      ))}
-                    </div>
-                  ))}
-                </motion.div>
-              </div>
+                <div className="relative overflow-hidden">
+                  <motion.div
+                    animate={{ y: ['0%', '-50%'] }}
+                    transition={{
+                      duration: 42,
+                      repeat: Infinity,
+                      ease: 'linear'
+                    }}
+                    className="space-y-4"
+                  >
+                    {leftColumnLoop.map((img, index) => (
+                      <motion.div
+                        key={`left-${index}`}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                        transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
+                        style={{ backgroundImage: `url(${img})` }}
+                      >
+                        <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
 
               {/* Right column - scrolling down */}
-              <div className="relative overflow-hidden">
-                <motion.div
-                  animate={{ y: [0, 100] }}
-                  transition={{
-                    duration: 25,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                  className="space-y-4"
-                >
-                  {[...Array(3)].map((_, repeatIndex) => (
-                    <div key={repeatIndex} className="space-y-4">
-                      {[images[1], images[3], images[5]].map((img, index) => (
-                        <motion.div
-                          key={`right-${repeatIndex}-${index}`}
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                          transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                          whileHover={{ scale: 1.05 }}
-                          className="h-52 bg-cover bg-center rounded-2xl cursor-pointer"
-                          style={{ backgroundImage: `url(${img})` }}
-                        >
-                          <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
-                        </motion.div>
-                      ))}
-                    </div>
-                  ))}
-                </motion.div>
-              </div>
+                <div className="relative overflow-hidden">
+                  <motion.div
+                    animate={{ y: ['-50%', '0%'] }}
+                    transition={{
+                      duration: 54,
+                      repeat: Infinity,
+                      ease: 'linear'
+                    }}
+                    className="space-y-4"
+                  >
+                    {rightColumnLoop.map((img, index) => (
+                      <motion.div
+                        key={`right-${index}`}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+                        transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
+                        whileHover={{ scale: 1.05 }}
+                        className="w-full aspect-square bg-cover bg-center rounded-2xl cursor-pointer"
+                        style={{ backgroundImage: `url(${img})` }}
+                      >
+                        <div className="w-full h-full bg-gradient-to-t from-black/20 to-transparent rounded-2xl" />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
             </div>
           </motion.div>
 
