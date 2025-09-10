@@ -200,31 +200,6 @@ export function ProgramsSection() {
             </motion.div>
           </motion.div>
         </div>
-
-        {/* Testimonial */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16 text-center"
-        >
-          <div className="bg-[#e1bfa7] rounded-full p-8 max-w-4xl mx-auto">
-            <p className="text-2xl lg:text-3xl text-[#895c3d] font-['Menorah_Grotesk:Medium'] leading-relaxed">
-              «Важно, что здесь говорят о вечных ценностях просто и по-доброму. Это даёт ориентиры и спокойствие.»
-            </p>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-2xl lg:text-4xl text-[#73729b] font-['Menorah_Grotesk:Medium'] leading-relaxed max-w-6xl mx-auto">
-            «Регулярная программа на любой вкус: киртаны, бхакти-врикша, чтения, воскреска — всегда есть куда прийти и с кем быть.»
-          </p>
-        </motion.div>
       </div>
     </section>
   );
