@@ -1,0 +1,149 @@
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  background-color: #e6e2df;
+  padding: 7rem 0 4rem;
+  overflow: hidden;
+}
+
+.hero-section__container {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.hero-section__ovals {
+  display: none;
+  gap: 1.5rem;
+}
+
+.hero-oval-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-oval {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(19, 18, 56, 0.08);
+  box-shadow: 0 32px 60px rgba(36, 31, 116, 0.18);
+  isolation: isolate;
+}
+
+.hero-oval--logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1b3a2c;
+}
+
+.hero-oval__media,
+.hero-oval__photo,
+.hero-oval__placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-oval__media {
+  object-fit: cover;
+}
+
+.hero-oval__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  background-color: rgba(115, 114, 155, 0.12);
+  color: #73729b;
+}
+
+.hero-oval__gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-oval__gradient--video {
+  background: linear-gradient(115deg, rgba(246, 197, 106, 0.35), transparent 55%, rgba(115, 114, 155, 0.25));
+}
+
+.hero-oval__gradient--logo {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 60%, rgba(0, 0, 0, 0.3));
+}
+
+.hero-oval__gradient--photos {
+  background: linear-gradient(130deg, rgba(0, 0, 0, 0.25), transparent 55%, rgba(115, 114, 155, 0.2));
+}
+
+.hero-oval__logo-overlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 70%;
+  max-width: 260px;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.35));
+}
+
+.hero-oval__photo {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 2s ease-in-out;
+}
+
+.hero-oval__photo.is-active {
+  opacity: 1;
+}
+
+.hero-section__mobile-oval {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.hero-section__mobile-oval .hero-oval {
+  max-width: 320px;
+}
+
+.hero-section__cta {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .hero-section__cta {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-section__ovals {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-section__mobile-oval {
+    display: none;
+  }
+
+  .hero-oval {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-section__ovals {
+    gap: 2.5rem;
+  }
+}
