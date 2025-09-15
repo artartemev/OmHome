@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
+import './HeroSection.css';
 
 const heroPhotos = (Object.values(
   import.meta.glob('../assets/hero_photo/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', {
@@ -20,8 +21,7 @@ const heroVideos = (Object.values(
 
 const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4')) ?? heroVideos[0];
 
-const ovalContainerClasses =
-  'relative w-full aspect-[3/4] overflow-hidden rounded-full shadow-2xl border border-white/10';
+const heroOvalBaseClass = 'hero-oval';
 
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -47,7 +47,7 @@ export function HeroSection() {
   };
 
   const renderVideoOval = (withLogoOverlay = false) => (
-    <div className={`${ovalContainerClasses} bg-black/10`}>
+    <div className={`${heroOvalBaseClass} hero-oval--video`}>
       {heroVideo ? (
         <video
           key={heroVideo}
@@ -56,65 +56,63 @@ export function HeroSection() {
           muted
           loop
           playsInline
-          className="absolute inset-0 h-full w-full object-cover"
+          className="hero-oval__media"
         />
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#73729b]/10 text-[#73729b]">
+        <div className="hero-oval__placeholder">
           Видео скоро будет
         </div>
       )}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f6c56a]/35 via-transparent to-[#73729b]/25" />
+      <div className="hero-oval__gradient hero-oval__gradient--video" />
       {withLogoOverlay ? (
         <img
           src={logoSvg}
           alt="Логотип OmHome"
-          className="pointer-events-none absolute inset-0 m-auto w-[70%] max-w-[260px] drop-shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
+          className="hero-oval__logo-overlay"
         />
       ) : null}
     </div>
   );
 
   return (
-    <section className="relative min-h-screen bg-[#e6e2df] pt-28 pb-16 overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="hero-section">
+      <div className="container mx-auto hero-section__container">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="hidden md:grid grid-cols-3 gap-6 lg:gap-10"
+          className="hero-section__ovals"
         >
-          <div className="flex justify-center">{renderVideoOval(false)}</div>
+          <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
 
-          <div className="flex justify-center">
-            <div className={`${ovalContainerClasses} flex items-center justify-center bg-[#1b3a2c]`}>
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/30" />
+          <div className="hero-oval-wrapper">
+            <div className={`${heroOvalBaseClass} hero-oval--logo`}>
+              <div className="hero-oval__gradient hero-oval__gradient--logo" />
               <img
                 src={logoSvg}
                 alt="Логотип OmHome"
-                className="relative z-10 w-[78%] max-w-[260px] drop-shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                className="hero-oval__logo-overlay"
               />
             </div>
           </div>
 
-          <div className="flex justify-center">
-            <div className={`${ovalContainerClasses} bg-black/10`}>
+          <div className="hero-oval-wrapper">
+            <div className={`${heroOvalBaseClass} hero-oval--photos`}>
               {heroPhotos.length ? (
                 heroPhotos.map((photo, index) => (
                   <img
                     key={photo}
                     src={photo}
                     alt="Участники OmHome"
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[2000ms] ease-in-out ${
-                      index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
-                    }`}
+                    className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
                   />
                 ))
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-[#73729b]/10 text-[#73729b]">
+                <div className="hero-oval__placeholder">
                   Фото скоро будут
                 </div>
               )}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-black/25 via-transparent to-[#73729b]/20" />
+              <div className="hero-oval__gradient hero-oval__gradient--photos" />
             </div>
           </div>
         </motion.div>
@@ -123,16 +121,16 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="md:hidden flex justify-center"
+          className="hero-section__mobile-oval"
         >
-          <div className="max-w-[320px] w-full">{renderVideoOval(true)}</div>
+          <div>{renderVideoOval(true)}</div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-12 flex flex-col sm:flex-row gap-4 justify-center"
+          className="hero-section__cta"
         >
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(115, 114, 155, 0.3)' }}
