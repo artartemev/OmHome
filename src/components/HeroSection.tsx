@@ -1,8 +1,43 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import imgRectangle14 from "figma:asset/2730f52b4eb67de99a5640171106da588153391f.png";
-import imgRectangle34 from "figma:asset/e70830a5d50c21485811d96667a824a1cb39a5e5.png";
+import logoSvg from '../assets/Logo.svg?url';
+
+const heroPhotos = (Object.values(
+  import.meta.glob('../assets/hero_photo/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', {
+    eager: true,
+    import: 'default',
+    query: '?url'
+  })
+) as string[]).sort();
+
+const heroVideos = (Object.values(
+  import.meta.glob('../assets/hero_video/*.{mp4,MP4,webm,WEBM}', {
+    eager: true,
+    import: 'default',
+    query: '?url'
+  })
+) as string[]).sort();
+
+const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4')) ?? heroVideos[0];
+
+const ovalContainerClasses =
+  'relative w-full aspect-[3/4] overflow-hidden rounded-full shadow-2xl border border-white/10';
 
 export function HeroSection() {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  useEffect(() => {
+    if (heroPhotos.length <= 1) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setCurrentPhotoIndex((prev) => (prev + 1) % heroPhotos.length);
+    }, 6000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
   const scrollToJoin = () => {
     document.querySelector('#join')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -11,507 +46,112 @@ export function HeroSection() {
     document.querySelector('#support')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const renderVideoOval = (withLogoOverlay = false) => (
+    <div className={`${ovalContainerClasses} bg-black/10`}>
+      {heroVideo ? (
+        <video
+          key={heroVideo}
+          src={heroVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-[#73729b]/10 text-[#73729b]">
+          Видео скоро будет
+        </div>
+      )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f6c56a]/35 via-transparent to-[#73729b]/25" />
+      {withLogoOverlay ? (
+        <img
+          src={logoSvg}
+          alt="Логотип OmHome"
+          className="pointer-events-none absolute inset-0 m-auto w-[70%] max-w-[260px] drop-shadow-[0_12px_30px_rgba(0,0,0,0.35)]"
+        />
+      ) : null}
+    </div>
+  );
+
   return (
-    <section className="relative min-h-screen bg-[#e6e2df] pt-20 lg:pt-32 pb-16 overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
+    <section className="relative min-h-screen bg-[#e6e2df] pt-28 pb-16 overflow-hidden">
+      <div className="container mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center lg:text-left max-w-4xl"
+          className="hidden md:grid grid-cols-3 gap-6 lg:gap-10"
         >
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="font-menorah text-[#73729b] text-5xl md:text-7xl lg:text-8xl font-medium mb-6"
-          >
-            OmHome
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-2xl md:text-3xl text-black mb-8 max-w-2xl"
-          >
-            пространство единства, вдохновения и служения
-          </motion.p>
+          <div className="flex justify-center">{renderVideoOval(false)}</div>
 
-          {/* Mobile Infinite Scroll Images */}
-          <div className="md:hidden my-8 relative overflow-hidden">
-            <motion.div
-              animate={{
-                x: [0, -100 * 6] // Move by width of all images
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              className="flex gap-4"
-              style={{ width: 'calc(200% + 1rem)' }} // Double width for seamless loop
-            >
-              {/* First set of images */}
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(${imgRectangle14})`,
-                  filter: 'saturate(1.1) contrast(1.05)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'sepia(0.1) saturate(1.2)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1712249238849-cf2742bf7443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcGVhY2VmdWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'brightness(1.1) contrast(0.95)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/15 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(${imgRectangle34})`,
-                  filter: 'hue-rotate(10deg) saturate(1.1)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1602827114685-efbb2717da9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwY29tbXVuaXR5JTIwaG9yaXpvbnRhbHxlbnwxfHx8fDE3NTc0NDU5NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'brightness(1.05) saturate(0.9)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/25 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1642391326182-3b72644c48bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW1wbGUlMjBzcGlyaXR1YWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'contrast(1.1) saturate(1.05)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/15 to-transparent" />
-              </div>
-
-              {/* Duplicate set for seamless loop */}
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(${imgRectangle14})`,
-                  filter: 'saturate(1.1) contrast(1.05)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'sepia(0.1) saturate(1.2)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1712249238849-cf2742bf7443?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcGVhY2VmdWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'brightness(1.1) contrast(0.95)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/15 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(${imgRectangle34})`,
-                  filter: 'hue-rotate(10deg) saturate(1.1)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/20 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1602827114685-efbb2717da9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwY29tbXVuaXR5JTIwaG9yaXpvbnRhbHxlbnwxfHx8fDE3NTc0NDU5NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'brightness(1.05) saturate(0.9)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#73729b]/25 to-transparent" />
-              </div>
-
-              <div 
-                className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-cover bg-center rounded-xl shadow-lg relative"
-                style={{ 
-                  backgroundImage: `url(https://images.unsplash.com/photo-1642391326182-3b72644c48bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZW1wbGUlMjBzcGlyaXR1YWwlMjBob3Jpem9udGFsfGVufDF8fHx8MTc1NzQ0NTk2OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                  filter: 'contrast(1.1) saturate(1.05)'
-                }}
-              >
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#86af8d]/15 to-transparent" />
-              </div>
-            </motion.div>
-
-            {/* Gradient fade effects */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#e6e2df] to-transparent pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#e6e2df] to-transparent pointer-events-none" />
+          <div className="flex justify-center">
+            <div className={`${ovalContainerClasses} flex items-center justify-center bg-[#1b3a2c]`}>
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/30" />
+              <img
+                src={logoSvg}
+                alt="Логотип OmHome"
+                className="relative z-10 w-[78%] max-w-[260px] drop-shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+              />
+            </div>
           </div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-lg md:text-xl text-[#73729b] mb-8 max-w-3xl"
-          >
-            Создаём живые вайшнавские комьюнити там, где их не хватает: Грузия, Сербия — теперь Чиангмай.
-          </motion.div>
+          <div className="flex justify-center">
+            <div className={`${ovalContainerClasses} bg-black/10`}>
+              {heroPhotos.length ? (
+                heroPhotos.map((photo, index) => (
+                  <img
+                    key={photo}
+                    src={photo}
+                    alt="Участники OmHome"
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-[2000ms] ease-in-out ${
+                      index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                ))
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#73729b]/10 text-[#73729b]">
+                  Фото скоро будут
+                </div>
+              )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-black/25 via-transparent to-[#73729b]/20" />
+            </div>
+          </div>
+        </motion.div>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-lg md:text-xl text-black mb-12 max-w-2xl"
-          >
-            Открыто для всех, кто разделяет ценности доброты, уважения и служения
-          </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="md:hidden flex justify-center"
+        >
+          <div className="max-w-[320px] w-full">{renderVideoOval(true)}</div>
+        </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-12 flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(115, 114, 155, 0.3)' }}
+            whileTap={{ scale: 0.95 }}
+            onClick={scrollToJoin}
+            className="bg-[#73729b] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#5a5982]"
           >
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(115, 114, 155, 0.3)' }}
-              whileTap={{ scale: 0.95 }}
-              onClick={scrollToJoin}
-              className="bg-[#73729b] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#5a5982]"
-            >
-              Принять участие
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(134, 175, 141, 0.3)' }}
-              whileTap={{ scale: 0.95 }}
-              onClick={scrollToSupport}
-              className="bg-[#86af8d] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#6d8f74]"
-            >
-              Поддержать проект
-            </motion.button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="text-left max-w-md relative"
+            Принять участие
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(134, 175, 141, 0.3)' }}
+            whileTap={{ scale: 0.95 }}
+            onClick={scrollToSupport}
+            className="bg-[#86af8d] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#6d8f74]"
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="bg-gradient-to-r from-[#73729b]/10 to-[#86af8d]/10 p-6 rounded-2xl border-l-4 border-[#73729b] backdrop-blur-sm shadow-lg"
-            >
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 1, delay: 1.5 }}
-                className="h-0.5 bg-gradient-to-r from-[#73729b] to-[#86af8d] mb-4 rounded-full"
-              />
-              <p className="text-lg md:text-xl text-[#73729b] font-menorah italic leading-relaxed">
-                «Здесь находишь друзей и поддержку. Исчезает чувство одиночества — появляется близость и смысл.»
-              </p>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 2 }}
-                className="mt-2 text-sm text-[#73729b]/70"
-              >
-                — Участник сообщества
-              </motion.div>
-            </motion.div>
-          </motion.div>
+            Поддержать проект
+          </motion.button>
         </motion.div>
       </div>
-
-
-
-      {/* Floating Images - Right Side Composition */}
-      <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block overflow-hidden">
-        {/* Main large portrait - center right */}
-        <motion.div
-          initial={{ opacity: 0, x: 100, scale: 0.8 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
-          className="absolute right-16 lg:right-24 top-[20%]"
-        >
-          <motion.div
-            animate={{ 
-              y: [0, -15, 0],
-              rotate: [0, 1, 0],
-              filter: ["blur(0px)", "blur(0.5px)", "blur(0px)"]
-            }}
-            transition={{ 
-              duration: 8, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              times: [0, 0.5, 1]
-            }}
-            className="relative"
-          >
-            <div 
-              className="w-48 h-80 lg:w-64 lg:h-[420px] bg-cover bg-center rounded-full shadow-2xl"
-              style={{ 
-                backgroundImage: `url(${imgRectangle14})`,
-                filter: 'saturate(1.1) contrast(1.05)'
-              }}
-            />
-            {/* Floating glow effect */}
-            <motion.div
-              animate={{ 
-                opacity: [0.2, 0.6, 0.2],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-full bg-gradient-to-b from-[#73729b]/20 to-[#86af8d]/20 backdrop-blur-sm"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Secondary portrait - upper right */}
-        <motion.div
-          initial={{ opacity: 0, y: -50, x: 80 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          transition={{ duration: 2.5, delay: 1, ease: "easeOut" }}
-          className="absolute right-8 lg:right-16 top-[8%]"
-        >
-          <motion.div
-            animate={{ 
-              y: [0, 12, 0],
-              rotate: [0, -1.5, 0],
-              opacity: [0.8, 1, 0.8]
-            }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              delay: 2
-            }}
-            className="relative"
-          >
-            <div 
-              className="w-36 h-56 lg:w-48 lg:h-72 bg-cover bg-center rounded-full shadow-xl"
-              style={{ 
-                backgroundImage: `url(https://images.unsplash.com/photo-1570093895856-9dc9acd87da5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpdGF0aW9uJTIwcG9ydHJhaXQlMjBwZWFjZWZ1bCUyMHZlcnRpY2FsfGVufDF8fHx8MTc1NzQzOTY4Mnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                filter: 'sepia(0.1) saturate(1.2)'
-              }}
-            />
-            {/* Dreamy overlay */}
-            <motion.div
-              animate={{ 
-                opacity: [0, 0.3, 0],
-                rotate: [0, 360, 0]
-              }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full bg-gradient-radial from-white/10 via-transparent to-transparent"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Third portrait - mid right */}
-        <motion.div
-          initial={{ opacity: 0, x: 120, y: 30 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          transition={{ duration: 3, delay: 1.5, ease: "easeOut" }}
-          className="absolute right-4 lg:right-8 top-[45%]"
-        >
-          <motion.div
-            animate={{ 
-              y: [0, -20, 0],
-              x: [0, 5, 0],
-              rotate: [0, 2, 0],
-              scale: [1, 1.02, 1]
-            }}
-            transition={{ 
-              duration: 12, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              delay: 4
-            }}
-            className="relative"
-          >
-            <div 
-              className="w-32 h-52 lg:w-40 lg:h-64 bg-cover bg-center rounded-full shadow-lg"
-              style={{ 
-                backgroundImage: `url(${imgRectangle34})`,
-                filter: 'brightness(1.1) contrast(0.95)'
-              }}
-            />
-            {/* Morphing border */}
-            <motion.div
-              animate={{ 
-                borderRadius: ["50%", "40% 60% 70% 30%", "50%"],
-                opacity: [0.3, 0.7, 0.3]
-              }}
-              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -inset-1 border-2 border-[#73729b]/30"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Fourth portrait - lower right */}
-        <motion.div
-          initial={{ opacity: 0, y: 100, x: 60 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          transition={{ duration: 3.5, delay: 2, ease: "easeOut" }}
-          className="absolute right-12 lg:right-20 top-[68%]"
-        >
-          <motion.div
-            animate={{ 
-              y: [0, 18, 0],
-              rotate: [0, -2, 0],
-              opacity: [0.7, 0.95, 0.7],
-              filter: ["blur(0px)", "blur(1px)", "blur(0px)"]
-            }}
-            transition={{ 
-              duration: 14, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              delay: 6
-            }}
-            className="relative"
-          >
-            <div 
-              className="w-28 h-44 lg:w-36 lg:h-56 bg-cover bg-center rounded-full shadow-xl"
-              style={{ 
-                backgroundImage: `url(https://images.unsplash.com/photo-1555069855-e580a9adbf43?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlyaXR1YWwlMjBjb21tdW5pdHklMjBnYXRoZXJpbmclMjB2ZXJ0aWNhbHxlbnwxfHx8fDE3NTc0Mzk2ODV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                filter: 'hue-rotate(10deg) saturate(1.1)'
-              }}
-            />
-            {/* Pulse effect */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.3, 1],
-                opacity: [0, 0.2, 0]
-              }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeOut" }}
-              className="absolute inset-0 rounded-full bg-[#86af8d]/30"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Fifth portrait - far right edge */}
-        <motion.div
-          initial={{ opacity: 0, x: 150, scale: 0.5 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 4, delay: 2.5, ease: "easeOut" }}
-          className="absolute right-2 lg:right-4 top-[35%]"
-        >
-          <motion.div
-            animate={{ 
-              y: [0, -25, 0],
-              rotate: [0, 3, 0],
-              opacity: [0.6, 0.9, 0.6],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{ 
-              duration: 16, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              delay: 8
-            }}
-            className="relative"
-          >
-            <div 
-              className="w-24 h-40 lg:w-32 lg:h-52 bg-cover bg-center rounded-full shadow-md"
-              style={{ 
-                backgroundImage: `url(https://images.unsplash.com/photo-1689258077068-75eb291e503b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHBlcnNvbiUyMHBlYWNlZnVsJTIwcG9ydHJhaXQlMjB2ZXJ0aWNhbHxlbnwxfHx8fDE3NTc0Mzk2ODh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral)`,
-                filter: 'brightness(1.05) saturate(0.9)'
-              }}
-            />
-            {/* Gradient shimmer */}
-            <motion.div
-              animate={{ 
-                background: [
-                  "linear-gradient(45deg, transparent, rgba(115,114,155,0.2), transparent)",
-                  "linear-gradient(225deg, transparent, rgba(134,175,141,0.2), transparent)",
-                  "linear-gradient(45deg, transparent, rgba(115,114,155,0.2), transparent)"
-                ]
-              }}
-              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-full"
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* Ambient floating particles */}
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            animate={{ 
-              opacity: [0, 0.4, 0],
-              y: [0, -120],
-              x: [0, Math.sin(i) * 40],
-              scale: [0.5, 1, 0.5]
-            }}
-            transition={{
-              duration: 12 + i * 2,
-              repeat: Infinity,
-              delay: i * 3,
-              ease: "easeInOut"
-            }}
-            className="absolute w-3 h-3 bg-gradient-to-r from-[#73729b]/20 to-[#86af8d]/20 rounded-full backdrop-blur-sm"
-            style={{
-              right: `${15 + i * 8}%`,
-              top: `${70 + Math.random() * 20}%`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Floating particles */}
-      {[...Array(5)].map((_, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0 }}
-          animate={{ 
-            opacity: [0, 1, 0],
-            y: [0, -100],
-            x: [0, Math.random() * 100 - 50]
-          }}
-          transition={{
-            duration: 4 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2
-          }}
-          className="absolute w-2 h-2 bg-[#73729b]/30 rounded-full"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${60 + Math.random() * 30}%`
-          }}
-        />
-      ))}
     </section>
   );
 }
