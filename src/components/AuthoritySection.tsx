@@ -35,7 +35,7 @@ export function AuthoritySection() {
               Мы действуем в духе уважения к старшим вайшнавам и стремимся к благословениям и наставлениям GBC и местной ятры. В новых регионах мы заранее делимся планами, обсуждаем формат служения и выстраиваем сотрудничество.
             </p>
           </motion.div>
-/*
+
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -51,7 +51,7 @@ export function AuthoritySection() {
                 className="bg-white px-4 py-2 rounded-full shadow-md text-[#73729b] font-medium"
               >
                 {leader}
-              </motion.div>  */
+              </motion.div>  
             ))}
           </motion.div>
         </div>
