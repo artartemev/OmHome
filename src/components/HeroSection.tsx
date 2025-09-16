@@ -24,18 +24,48 @@ const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4'
 
 const heroOvalBaseClass = 'hero-oval';
 
+const HAVE_CURRENT_DATA =
+  typeof HTMLMediaElement !== 'undefined'
+    ? HTMLMediaElement.HAVE_CURRENT_DATA
+    : 2;
+
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const updateVideoReadyState = () => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    if (video.readyState >= HAVE_CURRENT_DATA) {
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(() => setIsVideoReady(true));
+      } else {
+        setIsVideoReady(true);
+      }
+    }
+  };
 
   const handleVideoLoaded = () => {
-    setIsVideoLoaded(true);
+    updateVideoReadyState();
+  };
+
+  const handleVideoPlaying = () => {
+    updateVideoReadyState();
   };
 
   const handleVideoLoadStart = () => {
-    setIsVideoLoaded(false);
+    setIsVideoReady(false);
+  };
+
+  const handleVideoWaiting = () => {
+    setIsVideoReady(false);
   };
 
   useEffect(() => {
@@ -82,7 +112,7 @@ export function HeroSection() {
 
   const renderVideoOval = (withLogoOverlay = false) => (
     <div className={`${heroOvalBaseClass} hero-oval--video`}>
-      {(!isVideoLoaded || !heroVideo) ? (
+      {(!isVideoReady || !heroVideo) ? (
         <div
           className="hero-oval__placeholder hero-oval__placeholder--image"
           style={{ backgroundImage: `url(${videoPlaceholderImage})` }}
@@ -101,9 +131,13 @@ export function HeroSection() {
           loop
           playsInline
           className="hero-oval__media"
+          ref={videoRef}
           onCanPlay={handleVideoLoaded}
           onLoadedData={handleVideoLoaded}
+          onPlaying={handleVideoPlaying}
           onLoadStart={handleVideoLoadStart}
+          onWaiting={handleVideoWaiting}
+          onStalled={handleVideoWaiting}
         />
       ) : null}
       <div className="hero-oval__gradient hero-oval__gradient--video" />
