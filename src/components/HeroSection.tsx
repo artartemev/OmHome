@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
+import videoPlaceholderImage from '../assets/hero_photo/2_4.jpeg?url';
 import './HeroSection.css';
 
 const heroPhotos = (Object.values(
@@ -25,6 +26,15 @@ const heroOvalBaseClass = 'hero-oval';
 
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  const handleVideoLoaded = () => {
+    setIsVideoLoaded(true);
+  };
+
+  const handleVideoLoadStart = () => {
+    setIsVideoLoaded(false);
+  };
 
   useEffect(() => {
     if (heroPhotos.length <= 1) {
@@ -48,6 +58,16 @@ export function HeroSection() {
 
   const renderVideoOval = (withLogoOverlay = false) => (
     <div className={`${heroOvalBaseClass} hero-oval--video`}>
+      {(!isVideoLoaded || !heroVideo) ? (
+        <div
+          className="hero-oval__placeholder hero-oval__placeholder--image"
+          style={{ backgroundImage: `url(${videoPlaceholderImage})` }}
+        >
+          {!heroVideo ? (
+            <span className="hero-oval__placeholder-message">Видео скоро будет</span>
+          ) : null}
+        </div>
+      ) : null}
       {heroVideo ? (
         <video
           key={heroVideo}
@@ -57,12 +77,11 @@ export function HeroSection() {
           loop
           playsInline
           className="hero-oval__media"
+          onCanPlay={handleVideoLoaded}
+          onLoadedData={handleVideoLoaded}
+          onLoadStart={handleVideoLoadStart}
         />
-      ) : (
-        <div className="hero-oval__placeholder">
-          Видео скоро будет
-        </div>
-      )}
+      ) : null}
       <div className="hero-oval__gradient hero-oval__gradient--video" />
       {withLogoOverlay ? (
         <img

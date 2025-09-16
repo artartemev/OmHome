@@ -39,6 +39,10 @@
   align-items: center;
   justify-content: center;
   background-color: #1b3a2c;
+  background-image: url('../assets/oval.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .hero-oval__media,
@@ -52,6 +56,7 @@
 
 .hero-oval__media {
   object-fit: cover;
+  z-index: 1;
 }
 
 .hero-oval__placeholder {
@@ -62,12 +67,33 @@
   font-size: 1rem;
   background-color: rgba(115, 114, 155, 0.12);
   color: #73729b;
+  z-index: 2;
+}
+
+.hero-oval__placeholder--image {
+  background-color: transparent;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #ffffff;
+}
+
+.hero-oval__placeholder-message {
+  position: relative;
+  z-index: 1;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  background-color: rgba(27, 58, 44, 0.75);
+  backdrop-filter: blur(2px);
+  color: #ffffff;
+  text-align: center;
 }
 
 .hero-oval__gradient {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 3;
 }
 
 .hero-oval__gradient--video {
@@ -90,12 +116,14 @@
   max-width: 260px;
   pointer-events: none;
   filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.35));
+  z-index: 4;
 }
 
 .hero-oval__photo {
   object-fit: cover;
   opacity: 0;
   transition: opacity 2s ease-in-out;
+  z-index: 1;
 }
 
 .hero-oval__photo.is-active {
