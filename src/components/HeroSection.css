@@ -19,6 +19,16 @@
 .hero-oval-wrapper {
   display: flex;
   justify-content: center;
+  position: relative;
+}
+
+.hero-oval-wrapper--logo {
+  padding: 3.5rem 0;
+}
+
+.hero-oval-wrapper--photos {
+  padding-bottom: 3rem;
+  padding-right: 1.75rem;
 }
 
 .hero-oval {
@@ -92,6 +102,33 @@
   filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.35));
 }
 
+.hero-oval__decor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-oval__decor--logo-top,
+.hero-oval__decor--logo-bottom {
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(12rem, 80%, 20rem);
+}
+
+.hero-oval__decor--logo-top {
+  top: -2.75rem;
+}
+
+.hero-oval__decor--logo-bottom {
+  bottom: -2.75rem;
+}
+
+.hero-oval__decor--photos-following {
+  bottom: -2.5rem;
+  right: -1.5rem;
+  width: clamp(9rem, 55%, 13.5rem);
+}
+
 .hero-oval__photo {
   object-fit: cover;
   opacity: 0;
@@ -145,5 +182,28 @@
 @media (min-width: 1024px) {
   .hero-section__ovals {
     gap: 2.5rem;
+  }
+
+  .hero-oval-wrapper--logo {
+    padding: 5rem 0;
+  }
+
+  .hero-oval-wrapper--photos {
+    padding-bottom: 4rem;
+    padding-right: 2.5rem;
+  }
+
+  .hero-oval__decor--logo-top {
+    top: -3.5rem;
+  }
+
+  .hero-oval__decor--logo-bottom {
+    bottom: -3.5rem;
+  }
+
+  .hero-oval__decor--photos-following {
+    bottom: -3rem;
+    right: -2.25rem;
+    width: clamp(10.5rem, 50%, 15.5rem);
   }
 }
