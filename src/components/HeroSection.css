@@ -161,6 +161,10 @@
   padding-right: 0.5rem;
 }
 
+.hero-section__mobile-slide .hero-oval-wrapper {
+  width: 100%;
+}
+
 .hero-section__mobile-slide .hero-oval {
   max-width: 544px;
 }

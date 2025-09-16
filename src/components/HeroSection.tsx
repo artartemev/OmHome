@@ -124,6 +124,17 @@ export function HeroSection() {
     </div>
   );
 
+  type HeroOvalType = 'video' | 'logo' | 'photos';
+
+  const heroOvalRenderers: Record<HeroOvalType, () => JSX.Element> = {
+    video: () => renderVideoOval(false),
+    logo: renderLogoOval,
+    photos: renderPhotosOval
+  };
+
+  const desktopOvalOrder: HeroOvalType[] = ['video', 'logo', 'photos'];
+  const mobileOvalOrder: HeroOvalType[] = ['logo', 'photos', 'video'];
+
   return (
     <section className="hero-section">
       <div className="container mx-auto hero-section__container">
@@ -133,11 +144,11 @@ export function HeroSection() {
           transition={{ duration: 0.8 }}
           className="hero-section__ovals"
         >
-          <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
-
-          <div className="hero-oval-wrapper">{renderLogoOval()}</div>
-
-          <div className="hero-oval-wrapper">{renderPhotosOval()}</div>
+          {desktopOvalOrder.map((ovalType) => (
+            <div key={`desktop-${ovalType}`} className="hero-oval-wrapper">
+              {heroOvalRenderers[ovalType]()}
+            </div>
+          ))}
         </motion.div>
 
         <motion.div
@@ -146,9 +157,11 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="hero-section__mobile-slider"
         >
-          <div className="hero-section__mobile-slide">{renderLogoOval()}</div>
-          <div className="hero-section__mobile-slide">{renderPhotosOval()}</div>
-          <div className="hero-section__mobile-slide">{renderVideoOval(false)}</div>
+          {mobileOvalOrder.map((ovalType) => (
+            <div key={`mobile-${ovalType}`} className="hero-section__mobile-slide">
+              <div className="hero-oval-wrapper">{heroOvalRenderers[ovalType]()}</div>
+            </div>
+          ))}
         </motion.div>
 
         <motion.div
