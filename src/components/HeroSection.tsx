@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
 import videoPlaceholderImage from '../assets/hero_photo/2_4.jpeg?url';
@@ -27,6 +27,8 @@ const heroOvalBaseClass = 'hero-oval';
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const handleVideoLoaded = () => {
     setIsVideoLoaded(true);
@@ -54,6 +56,28 @@ export function HeroSection() {
 
   const scrollToSupport = () => {
     document.querySelector('#support')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSliderScroll = () => {
+    if (!sliderRef.current) return;
+    
+    const slider = sliderRef.current;
+    const slideWidth = slider.offsetWidth;
+    const scrollLeft = slider.scrollLeft;
+    const newSlide = Math.round(scrollLeft / slideWidth);
+    
+    setCurrentSlide(newSlide);
+  };
+
+  const scrollToSlide = (slideIndex: number) => {
+    if (!sliderRef.current) return;
+    
+    const slider = sliderRef.current;
+    const slideWidth = slider.offsetWidth;
+    slider.scrollTo({
+      left: slideIndex * slideWidth,
+      behavior: 'smooth'
+    });
   };
 
   const renderVideoOval = (withLogoOverlay = false) => (
@@ -93,9 +117,41 @@ export function HeroSection() {
     </div>
   );
 
+  const renderLogoOval = () => (
+    <div className={`${heroOvalBaseClass} hero-oval--logo`}>
+      <div className="hero-oval__gradient hero-oval__gradient--logo" />
+      <img
+        src={logoSvg}
+        alt="Логотип OmHome"
+        className="hero-oval__logo-overlay hero-oval__logo-overlay--large"
+      />
+    </div>
+  );
+
+  const renderPhotosOval = () => (
+    <div className={`${heroOvalBaseClass} hero-oval--photos`}>
+      {heroPhotos.length ? (
+        heroPhotos.map((photo, index) => (
+          <img
+            key={photo}
+            src={photo}
+            alt="Участники OmHome"
+            className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
+          />
+        ))
+      ) : (
+        <div className="hero-oval__placeholder">
+          Фото скоро будут
+        </div>
+      )}
+      <div className="hero-oval__gradient hero-oval__gradient--photos" />
+    </div>
+  );
+
   return (
     <section className="hero-section">
       <div className="container mx-auto hero-section__container">
+        {/* Desktop version */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,46 +159,64 @@ export function HeroSection() {
           className="hero-section__ovals"
         >
           <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
-
-          <div className="hero-oval-wrapper">
-            <div className={`${heroOvalBaseClass} hero-oval--logo`}>
-              <div className="hero-oval__gradient hero-oval__gradient--logo" />
-              <img
-                src={logoSvg}
-                alt="Логотип OmHome"
-                className="hero-oval__logo-overlay hero-oval__logo-overlay--large"
-              />
-            </div>
-          </div>
-
-          <div className="hero-oval-wrapper">
-            <div className={`${heroOvalBaseClass} hero-oval--photos`}>
-              {heroPhotos.length ? (
-                heroPhotos.map((photo, index) => (
-                  <img
-                    key={photo}
-                    src={photo}
-                    alt="Участники OmHome"
-                    className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
-                  />
-                ))
-              ) : (
-                <div className="hero-oval__placeholder">
-                  Фото скоро будут
-                </div>
-              )}
-              <div className="hero-oval__gradient hero-oval__gradient--photos" />
-            </div>
-          </div>
+          <div className="hero-oval-wrapper">{renderLogoOval()}</div>
+          <div className="hero-oval-wrapper">{renderPhotosOval()}</div>
         </motion.div>
 
+        {/* Mobile slider version */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="hero-section__mobile-oval"
+          className="hero-section__mobile-slider"
         >
-          <div>{renderVideoOval(true)}</div>
+          <div 
+            className="hero-section__slider-container"
+            ref={sliderRef}
+            onScroll={handleSliderScroll}
+          >
+            <div className="hero-section__slide">
+              {renderLogoOval()}
+            </div>
+            <div className="hero-section__slide">
+              {renderPhotosOval()}
+            </div>
+            <div className="hero-section__slide">
+              {renderVideoOval(false)}
+            </div>
+          </div>
+          
+          {/* Dots indicator */}
+          <div className="hero-section__dots">
+            {[0, 1, 2].map((index) => (
+              <button
+                key={index}
+                className={`hero-section__dot ${currentSlide === index ? 'active' : ''}`}
+                onClick={() => scrollToSlide(index)}
+                aria-label={`Перейти к слайду ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Swipe hint */}
+          <div className="hero-section__swipe-hint">
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              className="hero-section__swipe-icon"
+            >
+              <path 
+                d="M8 5L15 12L8 19" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>Пролистай</span>
+          </div>
         </motion.div>
 
         <motion.div

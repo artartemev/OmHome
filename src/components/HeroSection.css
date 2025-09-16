@@ -135,14 +135,113 @@
   opacity: 1;
 }
 
-.hero-section__mobile-oval {
-  display: flex;
-  justify-content: center;
+/* Mobile slider styles */
+.hero-section__mobile-slider {
+  display: block;
   margin-top: 2.5rem;
+  position: relative;
 }
 
-.hero-section__mobile-oval .hero-oval {
+.hero-section__slider-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hero-section__slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-section__slide {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  scroll-snap-align: start;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.hero-section__slide .hero-oval {
   max-width: 544px;
+  width: 100%;
+}
+
+/* Dots indicator */
+.hero-section__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.hero-section__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(115, 114, 155, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-section__dot.active {
+  background-color: #73729b;
+  transform: scale(1.2);
+}
+
+.hero-section__dot:hover {
+  background-color: rgba(115, 114, 155, 0.6);
+}
+
+/* Swipe hint */
+.hero-section__swipe-hint {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(115, 114, 155, 0.7);
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: swipePulse 2s infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hero-section__swipe-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+}
+
+@keyframes swipePulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: translateY(-50%) translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(4px);
+  }
+}
+
+/* Hide swipe hint after first interaction */
+.hero-section__slider-container:not(:first-child) + .hero-section__swipe-hint,
+.hero-section__slider-container[data-interacted="true"] ~ .hero-section__swipe-hint {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 .hero-section__cta {
@@ -168,7 +267,7 @@
     gap: 0;
   }
 
-  .hero-section__mobile-oval {
+  .hero-section__mobile-slider {
     display: none;
   }
 
