@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
-import imgEllipse10 from "figma:asset/62045b0f21b8b1e4a29aa4c897296899aaf01741.png";
 
 export function TestimonialsSection() {
   const ref = useRef(null);
@@ -25,18 +24,15 @@ export function TestimonialsSection() {
   const testimonials = [
     {
       text: "«Здесь находишь друзей и поддержку. Исчезает чувство одиночества — появляется близость и смысл.»",
-      author: "Участник сообщества",
-      avatar: "https://images.unsplash.com/photo-1625395694544-079d163b769b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwcGVhY2VmdWwlMjBtZWRpdGF0aW9ufGVufDF8fHx8MTc1NzM1ODA1Nnww&ixlib=rb-4.1.0&q=80&w=1080"
+      author: "Участник сообщества"
     },
     {
       text: "«Дом, порядок и забота о деталях — от алтаря до уборки. Хочется тоже взять ответственность и служить.»",
-      author: "Волонтёр проекта",
-      avatar: "https://images.unsplash.com/photo-1745500872419-2143e3dde193?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdCUyMHNwaXJpdHVhbCUyMGNhbG18ZW58MXx8fHwxNzU3MzU4MDU5fDA&ixlib=rb-4.1.0&q=80&w=1080"
+      author: "Волонтёр проекта"
     },
     {
       text: "«Удивительно: где бы ни оказался, можно встретить это настроение и людей, с которыми хочешь идти дальше.»",
-      author: "Гость программ",
-      avatar: "https://images.unsplash.com/photo-1709202967828-e1a7823ccdf6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMHBlcnNvbiUyMHBvcnRyYWl0JTIwc21pbGluZyUyMHBlYWNlZnVsfGVufDF8fHx8MTc1NzM1ODA2M3ww&ixlib=rb-4.1.0&q=80&w=1080"
+      author: "Гость программ"
     }
   ];
 
@@ -87,24 +83,10 @@ export function TestimonialsSection() {
               {/* Decorative gradient background */}
               <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#73729b] to-[#86af8d]" />
               
-              {/* Avatar */}
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="relative -mt-4 mb-6"
-              >
-                <div 
-                  className="w-20 h-20 bg-cover bg-center rounded-full shadow-xl border-4 border-white mx-auto"
-                  style={{ backgroundImage: `url(${testimonial.avatar})` }}
-                />
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-[#86af8d] rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full" />
-                </div>
-              </motion.div>
-              
               {/* Quote */}
               <div className="text-center">
-                <motion.p 
-                  className="text-lg text-[#241f74] font-menorah leading-relaxed mb-4 italic"
+                <motion.p
+                  className="mt-6 text-lg text-[#241f74] font-menorah leading-relaxed mb-4"
                   initial={{ opacity: 0 }}
                   animate={isInView ? { opacity: 1 } : {}}
                   transition={{ duration: 0.8, delay: 1 + index * 0.2 }}

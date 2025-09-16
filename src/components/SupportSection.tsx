@@ -194,8 +194,8 @@ export function SupportSection() {
             >
               <div className="text-5xl mb-4 text-center">{category.emoji}</div>
               <h4 className="text-xl font-bold text-center mb-4">{category.title}</h4>
-              <p className="text-sm leading-relaxed mb-4">{category.description}</p>
-              <p className="text-sm italic leading-relaxed">{category.quote}</p>
+              <p className="text-base leading-relaxed mb-4">{category.description}</p>
+              <p className="text-base font-semibold leading-relaxed">{category.quote}</p>
             </motion.div>
           ))}
         </div>
