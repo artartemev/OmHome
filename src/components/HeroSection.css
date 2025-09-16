@@ -30,7 +30,6 @@
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background-color: rgba(19, 18, 56, 0.08);
-  box-shadow: 0 32px 60px rgba(36, 31, 116, 0.18);
   isolation: isolate;
 }
 
@@ -115,13 +114,12 @@
   width: 70%;
   max-width: 260px;
   pointer-events: none;
-  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.35));
   z-index: 4;
 }
 
 .hero-oval__logo-overlay--large {
-  width: 140%;
-  max-width: 520px;
+  width: 88%;
+  max-width: 360px;
 }
 
 .hero-oval__photo {
@@ -260,6 +258,11 @@
 }
 
 @media (min-width: 768px) {
+  .hero-oval__logo-overlay--large {
+    width: 140%;
+    max-width: 520px;
+  }
+
   .hero-section__ovals {
     display: flex;
     justify-content: center;
