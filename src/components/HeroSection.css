@@ -55,7 +55,7 @@
 }
 
 .hero-oval__media--tint {
-  filter: sepia(0.3) hue-rotate(-15deg) saturate(1.2);
+  filter: sepia(0.85) hue-rotate(-18deg) saturate(1.45) contrast(0.85) brightness(1.1);
   transition: filter 0.4s ease;
 }
 
@@ -77,11 +77,13 @@
 
 .hero-oval__gradient--video {
   background: linear-gradient(
-    120deg,
-    rgba(134, 175, 141, 0.32),
-    transparent 55%,
-    rgba(115, 114, 155, 0.22)
+    130deg,
+    rgba(246, 197, 133, 0.72) 0%,
+    rgba(184, 110, 63, 0.46) 42%,
+    rgba(49, 80, 67, 0.48) 100%
   );
+  mix-blend-mode: soft-light;
+  opacity: 0.95;
 }
 
 .hero-oval__gradient--logo {
@@ -90,11 +92,13 @@
 
 .hero-oval__gradient--photos {
   background: linear-gradient(
-    135deg,
-    rgba(30, 55, 47, 0.35),
-    transparent 50%,
-    rgba(134, 175, 141, 0.24)
+    140deg,
+    rgba(244, 203, 154, 0.68) 10%,
+    rgba(166, 105, 70, 0.5) 55%,
+    rgba(54, 86, 73, 0.52) 100%
   );
+  mix-blend-mode: soft-light;
+  opacity: 0.95;
 }
 
 .hero-oval__logo-overlay {
