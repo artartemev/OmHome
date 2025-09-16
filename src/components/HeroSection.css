@@ -20,21 +20,30 @@
   display: flex;
   justify-content: center;
   position: relative;
+  width: 100%;
+  max-width: clamp(17rem, 72vw, 23rem);
 }
 
 .hero-oval-wrapper--logo {
-  padding: 3.5rem 0;
+  --hero-oval-logo-gap: clamp(3.25rem, 8vw, 4.75rem);
+  --hero-oval-logo-offset-top: clamp(0.35rem, 1vw, 0.75rem);
+  --hero-oval-logo-offset-bottom: clamp(0.75rem, 1.6vw, 1.2rem);
+  padding: var(--hero-oval-logo-gap) 0;
 }
 
 .hero-oval-wrapper--photos {
-  padding-bottom: 3rem;
-  padding-right: 1.75rem;
+  --hero-oval-photos-gap-bottom: clamp(3rem, 7.5vw, 4.5rem);
+  --hero-oval-photos-gap-right: clamp(1.75rem, 5vw, 3.5rem);
+  --hero-oval-photos-offset-x: clamp(0.75rem, 1.4vw, 1.75rem);
+  --hero-oval-photos-offset-y: clamp(1.25rem, 2vw, 2.5rem);
+  padding-bottom: var(--hero-oval-photos-gap-bottom);
+  padding-right: var(--hero-oval-photos-gap-right);
 }
 
 .hero-oval {
   position: relative;
   width: 100%;
-  max-width: 360px;
+  max-width: clamp(17rem, 72vw, 23rem);
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: 9999px;
@@ -112,22 +121,24 @@
 .hero-oval__decor--logo-top,
 .hero-oval__decor--logo-bottom {
   left: 50%;
-  transform: translateX(-50%);
-  width: clamp(12rem, 80%, 20rem);
+  width: clamp(18.5rem, 102%, 25rem);
 }
 
 .hero-oval__decor--logo-top {
-  top: -2.75rem;
+  top: var(--hero-oval-logo-gap, 0rem);
+  transform: translate(-50%, calc(-100% - var(--hero-oval-logo-offset-top, 0rem)));
 }
 
 .hero-oval__decor--logo-bottom {
-  bottom: -2.75rem;
+  top: calc(100% - var(--hero-oval-logo-gap, 0rem));
+  transform: translate(-50%, var(--hero-oval-logo-offset-bottom, 0rem));
 }
 
 .hero-oval__decor--photos-following {
-  bottom: -2.5rem;
-  right: -1.5rem;
-  width: clamp(9rem, 55%, 13.5rem);
+  top: calc(100% - var(--hero-oval-photos-gap-bottom, 0rem));
+  left: calc(100% - var(--hero-oval-photos-gap-right, 0rem));
+  transform: translate(calc(35% + var(--hero-oval-photos-offset-x, 0rem)), calc(40% + var(--hero-oval-photos-offset-y, 0rem)));
+  width: clamp(12.5rem, 56%, 18.5rem);
 }
 
 .hero-oval__photo {
@@ -175,8 +186,12 @@
     display: none;
   }
 
+  .hero-oval-wrapper {
+    max-width: clamp(20rem, 34vw, 25rem);
+  }
+
   .hero-oval {
-    max-width: 100%;
+    max-width: clamp(20rem, 34vw, 25rem);
   }
 }
 
@@ -185,26 +200,32 @@
     gap: 2.5rem;
   }
 
+  .hero-oval-wrapper {
+    max-width: clamp(22rem, 30vw, 27rem);
+  }
+
   .hero-oval-wrapper--logo {
-    padding: 5rem 0;
+    --hero-oval-logo-gap: clamp(4rem, 7vw, 5.5rem);
+    --hero-oval-logo-offset-top: clamp(0.45rem, 1.1vw, 0.85rem);
+    --hero-oval-logo-offset-bottom: clamp(0.85rem, 1.8vw, 1.4rem);
+    padding: var(--hero-oval-logo-gap) 0;
   }
 
   .hero-oval-wrapper--photos {
-    padding-bottom: 4rem;
-    padding-right: 2.5rem;
+    --hero-oval-photos-gap-bottom: clamp(3.5rem, 6vw, 5rem);
+    --hero-oval-photos-gap-right: clamp(2rem, 5vw, 4rem);
+    --hero-oval-photos-offset-x: clamp(1.25rem, 1.8vw, 2.5rem);
+    --hero-oval-photos-offset-y: clamp(1.75rem, 2.4vw, 3.25rem);
+    padding-bottom: var(--hero-oval-photos-gap-bottom);
+    padding-right: var(--hero-oval-photos-gap-right);
   }
 
-  .hero-oval__decor--logo-top {
-    top: -3.5rem;
-  }
-
+  .hero-oval__decor--logo-top,
   .hero-oval__decor--logo-bottom {
-    bottom: -3.5rem;
+    width: clamp(21rem, 108%, 27rem);
   }
 
   .hero-oval__decor--photos-following {
-    bottom: -3rem;
-    right: -2.25rem;
-    width: clamp(10.5rem, 50%, 15.5rem);
+    width: clamp(14rem, 46%, 20rem);
   }
 }
