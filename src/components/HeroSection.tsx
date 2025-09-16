@@ -27,6 +27,13 @@ const heroOvalBaseClass = 'hero-oval';
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isDesktopLayout, setIsDesktopLayout] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return window.matchMedia('(min-width: 768px)').matches;
+  });
 
   const handleVideoLoaded = () => {
     setIsVideoLoaded(true);
@@ -46,6 +53,30 @@ export function HeroSection() {
     }, 6000);
 
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsDesktopLayout(event.matches);
+    };
+
+    setIsDesktopLayout(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleChange);
+
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    }
+
+    mediaQuery.addListener(handleChange);
+
+    return () => mediaQuery.removeListener(handleChange);
   }, []);
 
   const scrollToJoin = () => {
@@ -126,43 +157,52 @@ export function HeroSection() {
 
   type HeroOvalType = 'video' | 'logo' | 'photos';
 
-  const heroOvalRenderers: Record<HeroOvalType, () => JSX.Element> = {
-    video: () => renderVideoOval(false),
-    logo: renderLogoOval,
-    photos: renderPhotosOval
-  };
-
   const desktopOvalOrder: HeroOvalType[] = ['video', 'logo', 'photos'];
   const mobileOvalOrder: HeroOvalType[] = ['logo', 'photos', 'video'];
+
+  const renderHeroOval = (ovalType: HeroOvalType) => {
+    switch (ovalType) {
+      case 'video':
+        return renderVideoOval(false);
+      case 'logo':
+        return renderLogoOval();
+      case 'photos':
+        return renderPhotosOval();
+      default:
+        return null;
+    }
+  };
 
   return (
     <section className="hero-section">
       <div className="container mx-auto hero-section__container">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="hero-section__ovals"
-        >
-          {desktopOvalOrder.map((ovalType) => (
-            <div key={`desktop-${ovalType}`} className="hero-oval-wrapper">
-              {heroOvalRenderers[ovalType]()}
-            </div>
-          ))}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="hero-section__mobile-slider"
-        >
-          {mobileOvalOrder.map((ovalType) => (
-            <div key={`mobile-${ovalType}`} className="hero-section__mobile-slide">
-              <div className="hero-oval-wrapper">{heroOvalRenderers[ovalType]()}</div>
-            </div>
-          ))}
-        </motion.div>
+        {isDesktopLayout ? (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="hero-section__ovals"
+          >
+            {desktopOvalOrder.map((ovalType) => (
+              <div key={`desktop-${ovalType}`} className="hero-oval-wrapper">
+                {renderHeroOval(ovalType)}
+              </div>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hero-section__mobile-slider"
+          >
+            {mobileOvalOrder.map((ovalType) => (
+              <div key={`mobile-${ovalType}`} className="hero-section__mobile-slide">
+                <div className="hero-oval-wrapper">{renderHeroOval(ovalType)}</div>
+              </div>
+            ))}
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
