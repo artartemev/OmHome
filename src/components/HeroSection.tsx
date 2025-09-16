@@ -45,7 +45,7 @@ export function HeroSection() {
 
     const interval = window.setInterval(() => {
       setCurrentPhotoIndex((prev) => (prev + 1) % heroPhotos.length);
-    }, 6000);
+    }, 3000);
 
     return () => window.clearInterval(interval);
   }, []);
