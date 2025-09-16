@@ -23,18 +23,30 @@ export default defineConfig({
         'figma:asset/efe1e185f3a2326580e5a9601b8652ce49652d44.png': path.resolve(__dirname, './src/assets/efe1e185f3a2326580e5a9601b8652ce49652d44.png'),
         'figma:asset/e70830a5d50c21485811d96667a824a1cb39a5e5.png': path.resolve(__dirname, './src/assets/e70830a5d50c21485811d96667a824a1cb39a5e5.png'),
         'figma:asset/e5af353556f0ccc88d364bf9e9de41dab821cb94.png': path.resolve(__dirname, './src/assets/e5af353556f0ccc88d364bf9e9de41dab821cb94.png'),
-        'figma:asset/cfedf5a9193ac76690698538c31643e06074839c.png': path.resolve(__dirname, './src/assets/cfedf5a9193ac76690698538c31643e06074839c.png'),
-        'figma:asset/ca4aea19419ba04cf0f90e9ab20624be82edf82a.png': path.resolve(__dirname, './src/assets/ca4aea19419ba04cf0f90e9ab20624be82edf82a.png'),
+        'figma:asset/cfedf5a9193ac76690698538c31643e06074839c.png': path.resolve(
+          __dirname,
+          './src/assets/seniors_support/cfedf5a9193ac76690698538c31643e06074839c.png'
+        ),
+        'figma:asset/ca4aea19419ba04cf0f90e9ab20624be82edf82a.png': path.resolve(
+          __dirname,
+          './src/assets/seniors_support/ca4aea19419ba04cf0f90e9ab20624be82edf82a.png'
+        ),
         'figma:asset/837f30a0bcbad9644745da73b9a4f25e64c6f2c0.png': path.resolve(__dirname, './src/assets/837f30a0bcbad9644745da73b9a4f25e64c6f2c0.png'),
         'figma:asset/7079ed6ac33259adcd696c14440f8602d1e716fc.png': path.resolve(__dirname, './src/assets/7079ed6ac33259adcd696c14440f8602d1e716fc.png'),
         'figma:asset/6775cce1800612867a453bb21cc0771a92e645cc.png': path.resolve(__dirname, './src/assets/6775cce1800612867a453bb21cc0771a92e645cc.png'),
         'figma:asset/62045b0f21b8b1e4a29aa4c897296899aaf01741.png': path.resolve(__dirname, './src/assets/62045b0f21b8b1e4a29aa4c897296899aaf01741.png'),
-        'figma:asset/57bdb3d6544af7253ac87496ecd348f669914c3b.png': path.resolve(__dirname, './src/assets/57bdb3d6544af7253ac87496ecd348f669914c3b.png'),
+        'figma:asset/57bdb3d6544af7253ac87496ecd348f669914c3b.png': path.resolve(
+          __dirname,
+          './src/assets/seniors_support/57bdb3d6544af7253ac87496ecd348f669914c3b.png'
+        ),
         'figma:asset/49e7b10a1659d4b39f939b273c126b64498f3bd3.png': path.resolve(__dirname, './src/assets/49e7b10a1659d4b39f939b273c126b64498f3bd3.png'),
         'figma:asset/2730f52b4eb67de99a5640171106da588153391f.png': path.resolve(__dirname, './src/assets/2730f52b4eb67de99a5640171106da588153391f.png'),
         'figma:asset/195a1792d90fc32038b445cff4419cf3dcb0fc86.png': path.resolve(__dirname, './src/assets/195a1792d90fc32038b445cff4419cf3dcb0fc86.png'),
         'figma:asset/189c96f7c85e5b32d3927643564a8458fbead576.png': path.resolve(__dirname, './src/assets/189c96f7c85e5b32d3927643564a8458fbead576.png'),
-        'figma:asset/0f6babe4268406b7ddf855a6d902d52cadf0cd93.png': path.resolve(__dirname, './src/assets/0f6babe4268406b7ddf855a6d902d52cadf0cd93.png'),
+        'figma:asset/0f6babe4268406b7ddf855a6d902d52cadf0cd93.png': path.resolve(
+          __dirname,
+          './src/assets/seniors_support/0f6babe4268406b7ddf855a6d902d52cadf0cd93.png'
+        ),
         'figma:asset/0b917eac1956948274d79e317113450c54acfb78.png': path.resolve(__dirname, './src/assets/0b917eac1956948274d79e317113450c54acfb78.png'),
         'figma:asset/08a25526285379767f1b263f0136d84372b8d790.png': path.resolve(__dirname, './src/assets/08a25526285379767f1b263f0136d84372b8d790.png'),
         'embla-carousel-react@8.6.0': 'embla-carousel-react',
