@@ -1,0 +1,29 @@
+.hero-section__ovals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-oval-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-oval-wrapper:not(:first-child) {
+  margin-left: -2.5rem;
+}
+
+.hero-oval-wrapper:nth-child(2) {
+  transform: translateX(-0.75rem);
+  z-index: 5;
+}
+
+.hero-oval-wrapper:nth-child(3) {
+  transform: translateX(-1.5rem);
+  z-index: 4;
+}
+
+.hero-oval--logo {
+  position: relative;
+  z-index: 10;
+}
