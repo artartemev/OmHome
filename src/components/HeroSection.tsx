@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
-import videoPlaceholderImage from '../assets/hero_photo/2_4.jpeg?url';
+import videoPlaceholderImage from '../assets/cover.png?url';
 import './HeroSection.css';
 
 const heroPhotos = (Object.values(
