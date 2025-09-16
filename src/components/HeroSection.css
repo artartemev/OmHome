@@ -28,9 +28,9 @@
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(19, 18, 56, 0.08);
-  box-shadow: 0 32px 60px rgba(36, 31, 116, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background-color: rgba(19, 18, 56, 0.12);
+  box-shadow: 0 32px 60px rgba(36, 31, 116, 0.2), 0 18px 40px rgba(78, 53, 33, 0.18);
   isolation: isolate;
 }
 
@@ -54,6 +54,11 @@
   object-fit: cover;
 }
 
+.hero-oval__media--tint {
+  filter: sepia(0.82) hue-rotate(-15deg) saturate(1.55) contrast(1.08) brightness(0.97);
+  transition: filter 0.4s ease;
+}
+
 .hero-oval__placeholder {
   display: flex;
   align-items: center;
@@ -71,7 +76,15 @@
 }
 
 .hero-oval__gradient--video {
-  background: linear-gradient(115deg, rgba(246, 197, 106, 0.35), transparent 55%, rgba(115, 114, 155, 0.25));
+  background: linear-gradient(
+      132deg,
+      rgba(206, 142, 86, 0.78) 2%,
+      rgba(132, 77, 45, 0.6) 48%,
+      rgba(44, 71, 58, 0.62) 100%
+    ),
+    radial-gradient(circle at 50% 120%, rgba(23, 18, 7, 0.32), transparent 70%);
+  mix-blend-mode: color;
+  opacity: 0.72;
 }
 
 .hero-oval__gradient--logo {
@@ -79,7 +92,15 @@
 }
 
 .hero-oval__gradient--photos {
-  background: linear-gradient(130deg, rgba(0, 0, 0, 0.25), transparent 55%, rgba(115, 114, 155, 0.2));
+  background: linear-gradient(
+      138deg,
+      rgba(214, 162, 102, 0.76) 12%,
+      rgba(142, 79, 46, 0.6) 56%,
+      rgba(46, 74, 60, 0.64) 100%
+    ),
+    radial-gradient(circle at 48% 118%, rgba(25, 18, 7, 0.34), transparent 68%);
+  mix-blend-mode: color;
+  opacity: 0.75;
 }
 
 .hero-oval__logo-overlay {
