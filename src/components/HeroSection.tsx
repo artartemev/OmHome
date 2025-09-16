@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
+import coLivingCoWorkingSvg from '../assets/Co-living, Co-working, Co-serving.svg?url';
+import followingSvg from '../assets/Following.svg?url';
 import logoSvg from '../assets/Logo.svg?url';
+import spaceOfSpiritualEventsSvg from '../assets/Space of Spiritual Events.svg?url';
 import './HeroSection.css';
 
 const heroPhotos = (Object.values(
@@ -85,7 +88,12 @@ export function HeroSection() {
         >
           <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
 
-          <div className="hero-oval-wrapper">
+          <div className="hero-oval-wrapper hero-oval-wrapper--logo">
+            <img
+              src={spaceOfSpiritualEventsSvg}
+              alt="Space of Spiritual Events"
+              className="hero-oval__decor hero-oval__decor--logo-top"
+            />
             <div className={`${heroOvalBaseClass} hero-oval--logo`}>
               <div className="hero-oval__gradient hero-oval__gradient--logo" />
               <img
@@ -94,9 +102,14 @@ export function HeroSection() {
                 className="hero-oval__logo-overlay"
               />
             </div>
+            <img
+              src={coLivingCoWorkingSvg}
+              alt="Co-living, Co-working, Co-serving"
+              className="hero-oval__decor hero-oval__decor--logo-bottom"
+            />
           </div>
 
-          <div className="hero-oval-wrapper">
+          <div className="hero-oval-wrapper hero-oval-wrapper--photos">
             <div className={`${heroOvalBaseClass} hero-oval--photos`}>
               {heroPhotos.length ? (
                 heroPhotos.map((photo, index) => (
@@ -114,6 +127,11 @@ export function HeroSection() {
               )}
               <div className="hero-oval__gradient hero-oval__gradient--photos" />
             </div>
+            <img
+              src={followingSvg}
+              alt="Following in the footsteps of Srila Prabhupada"
+              className="hero-oval__decor hero-oval__decor--photos-following"
+            />
           </div>
         </motion.div>
 
