@@ -110,7 +110,7 @@ export function HeroSection() {
               <img
                 src={logoSvg}
                 alt="Логотип OmHome"
-                className="hero-oval__logo-overlay"
+                className="hero-oval__logo-overlay hero-oval__logo-overlay--large"
               />
             </div>
           </div>
