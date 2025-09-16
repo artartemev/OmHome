@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
+import videoPlaceholderImage from '../assets/hero_photo/2_4.jpeg?url';
 import './HeroSection.css';
 
 const heroPhotos = (Object.values(
@@ -25,6 +26,15 @@ const heroOvalBaseClass = 'hero-oval';
 
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  const handleVideoLoaded = () => {
+    setIsVideoLoaded(true);
+  };
+
+  const handleVideoLoadStart = () => {
+    setIsVideoLoaded(false);
+  };
 
   useEffect(() => {
     if (heroPhotos.length <= 1) {
@@ -48,6 +58,16 @@ export function HeroSection() {
 
   const renderVideoOval = (withLogoOverlay = false) => (
     <div className={`${heroOvalBaseClass} hero-oval--video`}>
+      {(!isVideoLoaded || !heroVideo) ? (
+        <div
+          className="hero-oval__placeholder hero-oval__placeholder--image"
+          style={{ backgroundImage: `url(${videoPlaceholderImage})` }}
+        >
+          {!heroVideo ? (
+            <span className="hero-oval__placeholder-message">Видео скоро будет</span>
+          ) : null}
+        </div>
+      ) : null}
       {heroVideo ? (
         <video
           key={heroVideo}
@@ -57,12 +77,11 @@ export function HeroSection() {
           loop
           playsInline
           className="hero-oval__media"
+          onCanPlay={handleVideoLoaded}
+          onLoadedData={handleVideoLoaded}
+          onLoadStart={handleVideoLoadStart}
         />
-      ) : (
-        <div className="hero-oval__placeholder">
-          Видео скоро будет
-        </div>
-      )}
+      ) : null}
       <div className="hero-oval__gradient hero-oval__gradient--video" />
       {withLogoOverlay ? (
         <img
@@ -71,6 +90,37 @@ export function HeroSection() {
           className="hero-oval__logo-overlay"
         />
       ) : null}
+    </div>
+  );
+
+  const renderLogoOval = () => (
+    <div className={`${heroOvalBaseClass} hero-oval--logo`}>
+      <div className="hero-oval__gradient hero-oval__gradient--logo" />
+      <img
+        src={logoSvg}
+        alt="Логотип OmHome"
+        className="hero-oval__logo-overlay hero-oval__logo-overlay--large"
+      />
+    </div>
+  );
+
+  const renderPhotosOval = () => (
+    <div className={`${heroOvalBaseClass} hero-oval--photos`}>
+      {heroPhotos.length ? (
+        heroPhotos.map((photo, index) => (
+          <img
+            key={photo}
+            src={photo}
+            alt="Участники OmHome"
+            className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
+          />
+        ))
+      ) : (
+        <div className="hero-oval__placeholder">
+          Фото скоро будут
+        </div>
+      )}
+      <div className="hero-oval__gradient hero-oval__gradient--photos" />
     </div>
   );
 
@@ -85,45 +135,20 @@ export function HeroSection() {
         >
           <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
 
-          <div className="hero-oval-wrapper">
-            <div className={`${heroOvalBaseClass} hero-oval--logo`}>
-              <div className="hero-oval__gradient hero-oval__gradient--logo" />
-              <img
-                src={logoSvg}
-                alt="Логотип OmHome"
-                className="hero-oval__logo-overlay"
-              />
-            </div>
-          </div>
+          <div className="hero-oval-wrapper">{renderLogoOval()}</div>
 
-          <div className="hero-oval-wrapper">
-            <div className={`${heroOvalBaseClass} hero-oval--photos`}>
-              {heroPhotos.length ? (
-                heroPhotos.map((photo, index) => (
-                  <img
-                    key={photo}
-                    src={photo}
-                    alt="Участники OmHome"
-                    className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
-                  />
-                ))
-              ) : (
-                <div className="hero-oval__placeholder">
-                  Фото скоро будут
-                </div>
-              )}
-              <div className="hero-oval__gradient hero-oval__gradient--photos" />
-            </div>
-          </div>
+          <div className="hero-oval-wrapper">{renderPhotosOval()}</div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="hero-section__mobile-oval"
+          className="hero-section__mobile-slider"
         >
-          <div>{renderVideoOval(true)}</div>
+          <div className="hero-section__mobile-slide">{renderLogoOval()}</div>
+          <div className="hero-section__mobile-slide">{renderPhotosOval()}</div>
+          <div className="hero-section__mobile-slide">{renderVideoOval(false)}</div>
         </motion.div>
 
         <motion.div
