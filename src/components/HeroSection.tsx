@@ -56,7 +56,7 @@ export function HeroSection() {
           muted
           loop
           playsInline
-          className="hero-oval__media"
+          className="hero-oval__media hero-oval__media--tint"
         />
       ) : (
         <div className="hero-oval__placeholder">
@@ -104,7 +104,7 @@ export function HeroSection() {
                     key={photo}
                     src={photo}
                     alt="Участники OmHome"
-                    className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
+                    className={`hero-oval__photo hero-oval__media--tint ${index === currentPhotoIndex ? 'is-active' : ''}`}
                   />
                 ))
               ) : (
