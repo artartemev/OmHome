@@ -19,6 +19,7 @@
 .hero-oval-wrapper {
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .hero-oval {
@@ -68,6 +69,40 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.hero-oval__text-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hero-oval__text-svg {
+  width: 108%;
+  height: 108%;
+  overflow: visible;
+}
+
+.hero-oval__text-ellipse {
+  fill: none;
+  stroke: transparent;
+}
+
+.hero-oval__text {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-size: clamp(0.65rem, 1.1vw, 0.95rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  fill: #f8f6f3;
+}
+
+.hero-oval__text-path {
+  text-decoration: none;
 }
 
 .hero-oval__gradient--video {

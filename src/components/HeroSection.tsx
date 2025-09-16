@@ -23,6 +23,35 @@ const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4'
 
 const heroOvalBaseClass = 'hero-oval';
 
+const heroOvalCaptions = {
+  video: 'The Spiritual Events',
+  logo: 'Co-living, Co-working, Co-serving',
+  photos: 'OmHome Participants'
+} as const;
+
+const renderOvalTextLayer = (idSuffix: string, text: string) => (
+  <div className="hero-oval__text-layer" aria-hidden="true">
+    <svg className="hero-oval__text-svg" viewBox="0 0 360 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path
+          id={`hero-oval-text-path-${idSuffix}`}
+          d="M 180 20 a 160 220 0 1 1 0 440 a 160 220 0 1 1 0 -440"
+        />
+      </defs>
+      <ellipse className="hero-oval__text-ellipse" cx="180" cy="240" rx="160" ry="220" />
+      <text className="hero-oval__text" textAnchor="middle" dominantBaseline="middle">
+        <textPath
+          xlinkHref={`#hero-oval-text-path-${idSuffix}`}
+          startOffset="50%"
+          className="hero-oval__text-path"
+        >
+          {text}
+        </textPath>
+      </text>
+    </svg>
+  </div>
+);
+
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
@@ -83,9 +112,13 @@ export function HeroSection() {
           transition={{ duration: 0.8 }}
           className="hero-section__ovals"
         >
-          <div className="hero-oval-wrapper">{renderVideoOval(false)}</div>
+          <div className="hero-oval-wrapper">
+            {renderOvalTextLayer('video', heroOvalCaptions.video)}
+            {renderVideoOval(false)}
+          </div>
 
           <div className="hero-oval-wrapper">
+            {renderOvalTextLayer('logo', heroOvalCaptions.logo)}
             <div className={`${heroOvalBaseClass} hero-oval--logo`}>
               <div className="hero-oval__gradient hero-oval__gradient--logo" />
               <img
@@ -97,6 +130,7 @@ export function HeroSection() {
           </div>
 
           <div className="hero-oval-wrapper">
+            {renderOvalTextLayer('photos', heroOvalCaptions.photos)}
             <div className={`${heroOvalBaseClass} hero-oval--photos`}>
               {heroPhotos.length ? (
                 heroPhotos.map((photo, index) => (
@@ -123,7 +157,10 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="hero-section__mobile-oval"
         >
-          <div>{renderVideoOval(true)}</div>
+          <div className="hero-oval-wrapper">
+            {renderOvalTextLayer('video-mobile', heroOvalCaptions.video)}
+            {renderVideoOval(true)}
+          </div>
         </motion.div>
 
         <motion.div
