@@ -19,12 +19,16 @@ const heroVideos = (Object.values(
   })
 ) as string[]).sort();
 
-const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4')) ?? heroVideos[0];
+const defaultVideoIndex = Math.max(
+  0,
+  heroVideos.findIndex((video) => video.toLowerCase().endsWith('.mp4'))
+);
 
 const heroOvalBaseClass = 'hero-oval';
 
 export function HeroSection() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [videoIndex, setVideoIndex] = useState(defaultVideoIndex);
 
   useEffect(() => {
     if (heroPhotos.length <= 1) {
@@ -38,6 +42,22 @@ export function HeroSection() {
     return () => window.clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (heroVideos.length <= 1) {
+      return;
+    }
+
+    const nextIndex = (videoIndex + 1) % heroVideos.length;
+    const preloadVideo = document.createElement('video');
+    preloadVideo.preload = 'auto';
+    preloadVideo.src = heroVideos[nextIndex];
+
+    // Preload the next clip to minimize visible gaps between transitions.
+    return () => {
+      preloadVideo.src = '';
+    };
+  }, [videoIndex]);
+
   const scrollToJoin = () => {
     document.querySelector('#join')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -48,14 +68,19 @@ export function HeroSection() {
 
   const renderVideoOval = (withLogoOverlay = false) => (
     <div className={`${heroOvalBaseClass} hero-oval--video`}>
-      {heroVideo ? (
+      {heroVideos.length ? (
         <video
-          key={heroVideo}
-          src={heroVideo}
+          key={heroVideos[videoIndex]}
+          src={heroVideos[videoIndex]}
           autoPlay
           muted
-          loop
           playsInline
+          preload="auto"
+          onEnded={() =>
+            setVideoIndex((i) =>
+              heroVideos.length ? (i + 1) % heroVideos.length : i
+            )
+          }
           className="hero-oval__media"
         />
       ) : (
