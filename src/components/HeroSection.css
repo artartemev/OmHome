@@ -129,8 +129,10 @@
 
 @media (min-width: 768px) {
   .hero-section__ovals {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
   }
 
   .hero-section__mobile-oval {
@@ -140,10 +142,40 @@
   .hero-oval {
     max-width: 100%;
   }
+
+  .hero-oval-wrapper {
+    flex: 0 0 clamp(220px, 26vw, 360px);
+    width: clamp(220px, 26vw, 360px);
+  }
+
+  .hero-oval-wrapper:not(:first-child) {
+    margin-left: -3.5rem;
+  }
+
+  .hero-oval-wrapper:nth-child(1) {
+    z-index: 1;
+  }
+
+  .hero-oval-wrapper:nth-child(2) {
+    z-index: 3;
+  }
+
+  .hero-oval-wrapper:nth-child(3) {
+    z-index: 2;
+  }
 }
 
 @media (min-width: 1024px) {
   .hero-section__ovals {
-    gap: 2.5rem;
+    gap: 0;
+  }
+
+  .hero-oval-wrapper {
+    flex: 0 0 clamp(240px, 24vw, 360px);
+    width: clamp(240px, 24vw, 360px);
+  }
+
+  .hero-oval-wrapper:not(:first-child) {
+    margin-left: -5rem;
   }
 }
