@@ -11,6 +11,7 @@ import { SupportSection } from './components/SupportSection';
 import { AuthoritySection } from './components/AuthoritySection';
 import { FAQSection } from './components/FAQSection';
 import { ContactsSection } from './components/ContactsSection';
+import logoSvg from './assets/Logo.svg?url';
 
 export default function App() {
   useEffect(() => {
@@ -42,6 +43,11 @@ export default function App() {
       {/* Footer */}
       <footer className="bg-[#73729b] text-white py-8">
         <div className="container mx-auto px-4 text-center">
+          <img
+            src={logoSvg}
+            alt="OmHome"
+            className="mx-auto mb-4 w-28 max-w-full"
+          />
           <p className="text-lg">
             © 2024 OmHome. Пространство единства, вдохновения и служения.
           </p>
