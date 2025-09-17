@@ -11,12 +11,20 @@ import { SupportSection } from './components/SupportSection';
 import { AuthoritySection } from './components/AuthoritySection';
 import { FAQSection } from './components/FAQSection';
 import { ContactsSection } from './components/ContactsSection';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-export default function App() {
+const footerTexts = {
+  ru: '© 2024 OmHome. Пространство единства, вдохновения и служения.',
+  en: '© 2024 OmHome. A space of unity, inspiration, and service.'
+};
+
+function AppContent() {
+  const { language } = useLanguage();
+
   useEffect(() => {
     // Smooth scroll behavior for the entire page
     document.documentElement.style.scrollBehavior = 'smooth';
-    
+
     return () => {
       document.documentElement.style.scrollBehavior = 'auto';
     };
@@ -38,15 +46,21 @@ export default function App() {
         <FAQSection />
         <ContactsSection />
       </main>
-      
+
       {/* Footer */}
       <footer className="bg-[#73729b] text-white py-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-lg">
-            © 2024 OmHome. Пространство единства, вдохновения и служения.
-          </p>
+          <p className="text-lg">{footerTexts[language]}</p>
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }

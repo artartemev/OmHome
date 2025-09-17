@@ -2,10 +2,24 @@ import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
 import { Quote } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+const translations = {
+  ru: {
+    quote:
+      '«Важно, что здесь говорят о вечных ценностях просто и по-доброму. Это даёт ориентиры и спокойствие.»'
+  },
+  en: {
+    quote:
+      '“It matters that eternal values are spoken about here in a simple, kind way. It gives you direction and peace.”'
+  }
+} as const;
 
 export function QuoteSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
+  const { language } = useLanguage();
+  const { quote } = translations[language];
 
   return (
     <section ref={ref} className="py-16 lg:py-20 bg-gradient-to-br from-[#73729b] to-[#5a5982] relative overflow-hidden">
@@ -42,14 +56,14 @@ export function QuoteSection() {
           >
             <Quote className="w-16 h-16 text-white/60 mx-auto" />
           </motion.div>
-          
+
           <motion.blockquote
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-3xl md:text-4xl lg:text-5xl font-menorah text-white leading-relaxed"
           >
-            «Важно, что здесь говорят о вечных ценностях просто и по-доброму. Это даёт ориентиры и спокойствие.»
+            {quote}
           </motion.blockquote>
 
           <motion.div
@@ -68,7 +82,7 @@ export function QuoteSection() {
         <motion.div
           key={i}
           initial={{ opacity: 0 }}
-          animate={{ 
+          animate={{
             opacity: [0, 0.6, 0],
             y: [0, -80],
             x: [0, Math.random() * 60 - 30]

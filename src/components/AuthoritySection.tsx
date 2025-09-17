@@ -1,17 +1,28 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
+
+const translations = {
+  ru: {
+    title: 'Взаимодействие со старшими',
+    description:
+      'Мы действуем в духе уважения к старшим вайшнавам и стремимся к благословениям и наставлениям GBC и местной ятры. В новых регионах мы заранее делимся планами, обсуждаем формат служения и выстраиваем сотрудничество.',
+    leaders: ['Махараджа Прабху', 'Гуру Дев Прабху', 'Бхакти Прия Матаджи', 'Кришна Дас Прабху', 'Радха Прия Матаджи']
+  },
+  en: {
+    title: 'Working with senior devotees',
+    description:
+      'We serve with respect for senior Vaishnavas, seeking blessings and guidance from the GBC and the local yatra. In new regions we share plans in advance, discuss the service format, and build cooperation together.',
+    leaders: ['Maharaja Prabhu', 'Guru Dev Prabhu', 'Bhakti Priya Mataji', 'Krishna Das Prabhu', 'Radha Priya Mataji']
+  }
+} as const;
 
 export function AuthoritySection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const leaders = [
-    "Махараджа Прабху",
-    "Гуру Дев Прабху",
-    "Бхакти Прия Матаджи",
-    "Кришна Дас Прабху",
-    "Радха Прия Матаджи"
-  ];
+  const { language } = useLanguage();
+  const { title, description, leaders } = translations[language];
 
   return (
     <section id="reports" ref={ref} className="py-12 lg:py-20 bg-[#f8f6f3]">
@@ -22,7 +33,7 @@ export function AuthoritySection() {
           transition={{ duration: 0.8 }}
           className="font-menorah text-4xl md:text-6xl lg:text-7xl text-black mb-12 text-center lg:text-left max-w-4xl"
         >
-          Взаимодействие со старшими
+          {title}
         </motion.h2>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
@@ -31,9 +42,7 @@ export function AuthoritySection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <p className="text-lg md:text-xl text-black leading-relaxed">
-              Мы действуем в духе уважения к старшим вайшнавам и стремимся к благословениям и наставлениям GBC и местной ятры. В новых регионах мы заранее делимся планами, обсуждаем формат служения и выстраиваем сотрудничество.
-            </p>
+            <p className="text-lg md:text-xl text-black leading-relaxed">{description}</p>
           </motion.div>
 
           <motion.div
@@ -51,7 +60,7 @@ export function AuthoritySection() {
                 className="bg-white px-4 py-2 rounded-full shadow-md text-[#73729b] font-medium"
               >
                 {leader}
-              </motion.div>  
+              </motion.div>
             ))}
           </motion.div>
         </div>

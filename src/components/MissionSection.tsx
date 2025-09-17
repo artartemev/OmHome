@@ -1,12 +1,36 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
-import imgRectangle16 from "figma:asset/e5af353556f0ccc88d364bf9e9de41dab821cb94.png";
-import imgRectangle17 from "figma:asset/08a25526285379767f1b263f0136d84372b8d790.png";
+import { useLanguage } from '../contexts/LanguageContext';
+import imgRectangle16 from 'figma:asset/e5af353556f0ccc88d364bf9e9de41dab821cb94.png';
+import imgRectangle17 from 'figma:asset/08a25526285379767f1b263f0136d84372b8d790.png';
+
+const translations = {
+  ru: {
+    title: 'Миссия и подход',
+    missionTitle: 'Наша миссия —',
+    missionDescription:
+      'распространять знание о вайшнавской культуре, устанавливая дружеские отношения и заботу. Мы приглашаем «обычных» людей через близкие форматы — игры, кино, йогу — и даём возможность постепенно и добровольно соприкоснуться с духовными практиками: пением мантр, обсуждением философии, служением.',
+    atmosphereTitle: 'Атмосфера:',
+    atmosphereDescription:
+      'семейная, принимающая, без осуждения. Мы ставим отношения выше формальностей — и потому правила поддерживаются мягко и с уважением к человеку.'
+  },
+  en: {
+    title: 'Mission and approach',
+    missionTitle: 'Our mission is',
+    missionDescription:
+      'to share knowledge of Vaishnava culture through friendship and care. We invite “ordinary” people with familiar formats—games, films, yoga—and give them a gradual, voluntary way to experience spiritual practices: chanting mantras, discussing philosophy, and serving.',
+    atmosphereTitle: 'Atmosphere:',
+    atmosphereDescription:
+      'family-like, welcoming, and free from judgement. Relationships come before formalities, so guidelines are kept gently and with respect for each person.'
+  }
+} as const;
 
 export function MissionSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const { language } = useLanguage();
+  const { title, missionTitle, missionDescription, atmosphereTitle, atmosphereDescription } = translations[language];
 
   return (
     <section id="mission" ref={ref} className="py-16 lg:py-24 bg-[#f8f6f3]">
@@ -17,7 +41,7 @@ export function MissionSection() {
           transition={{ duration: 0.8 }}
           className="font-menorah text-4xl md:text-6xl lg:text-7xl text-black mb-16 text-center lg:text-left"
         >
-          Миссия и подход
+          {title}
         </motion.h2>
 
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -42,12 +66,8 @@ export function MissionSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="space-y-6"
           >
-            <h3 className="text-2xl lg:text-3xl font-bold text-black">
-              Наша миссия —
-            </h3>
-            <p className="text-xl text-black leading-relaxed">
-              распространять знание о вайшнавской культуре, устанавливая дружеские отношения и заботу. Мы приглашаем «обычных» людей через близкие форматы — игры, кино, йогу — и даём возможность постепенно и добровольно соприкоснуться с духовными практиками: пением мантр, обсуждением философии, служением.
-            </p>
+            <h3 className="text-2xl lg:text-3xl font-bold text-black">{missionTitle}</h3>
+            <p className="text-xl text-black leading-relaxed">{missionDescription}</p>
           </motion.div>
         </div>
 
@@ -58,12 +78,8 @@ export function MissionSection() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="order-2 lg:order-1 space-y-6"
           >
-            <h3 className="text-2xl lg:text-3xl font-bold text-black">
-              Атмосфера:
-            </h3>
-            <p className="text-xl text-black leading-relaxed">
-              семейная, принимающая, без осуждения. Мы ставим отношения выше формальностей — и потому правила поддерживаются мягко и с уважением к человеку.
-            </p>
+            <h3 className="text-2xl lg:text-3xl font-bold text-black">{atmosphereTitle}</h3>
+            <p className="text-xl text-black leading-relaxed">{atmosphereDescription}</p>
           </motion.div>
 
           <motion.div
