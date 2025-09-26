@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
 import videoPlaceholderImage from '../assets/cover.png?url';
 import './HeroSection.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const heroPhotos = (Object.values(
   import.meta.glob('../assets/hero_photo/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}', {
@@ -24,6 +25,29 @@ const heroVideo = heroVideos.find((video) => video.toLowerCase().endsWith('.mp4'
 
 const heroOvalBaseClass = 'hero-oval';
 
+const translations = {
+  ru: {
+    videoPlaceholder: 'Видео скоро будет',
+    logoAlt: 'Логотип OmHome',
+    photosAlt: 'Участники OmHome',
+    photosPlaceholder: 'Фото скоро будут',
+    sliderAria: 'Перейти к слайду',
+    swipeHint: 'Пролистай',
+    joinCta: 'Принять участие',
+    supportCta: 'Поддержать проект'
+  },
+  en: {
+    videoPlaceholder: 'Video coming soon',
+    logoAlt: 'OmHome logo',
+    photosAlt: 'OmHome participants',
+    photosPlaceholder: 'Photos coming soon',
+    sliderAria: 'Go to slide',
+    swipeHint: 'Swipe',
+    joinCta: 'Join the community',
+    supportCta: 'Support the project'
+  }
+} as const;
+
 const HAVE_CURRENT_DATA =
   typeof HTMLMediaElement !== 'undefined'
     ? HTMLMediaElement.HAVE_CURRENT_DATA
@@ -35,6 +59,8 @@ export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { language } = useLanguage();
+  const t = translations[language];
 
   const updateVideoReadyState = () => {
     const video = videoRef.current;
@@ -118,7 +144,7 @@ export function HeroSection() {
           style={{ backgroundImage: `url(${videoPlaceholderImage})` }}
         >
           {!heroVideo ? (
-            <span className="hero-oval__placeholder-message">Видео скоро будет</span>
+            <span className="hero-oval__placeholder-message">{t.videoPlaceholder}</span>
           ) : null}
         </div>
       ) : null}
@@ -144,7 +170,7 @@ export function HeroSection() {
       {withLogoOverlay ? (
         <img
           src={logoSvg}
-          alt="Логотип OmHome"
+          alt={t.logoAlt}
           className="hero-oval__logo-overlay"
         />
       ) : null}
@@ -156,7 +182,7 @@ export function HeroSection() {
       <div className="hero-oval__gradient hero-oval__gradient--logo" />
       <img
         src={logoSvg}
-        alt="Логотип OmHome"
+        alt={t.logoAlt}
         className="hero-oval__logo-overlay hero-oval__logo-overlay--large"
       />
     </div>
@@ -169,14 +195,12 @@ export function HeroSection() {
           <img
             key={photo}
             src={photo}
-            alt="Участники OmHome"
+            alt={t.photosAlt}
             className={`hero-oval__photo ${index === currentPhotoIndex ? 'is-active' : ''}`}
           />
         ))
       ) : (
-        <div className="hero-oval__placeholder">
-          Фото скоро будут
-        </div>
+        <div className="hero-oval__placeholder">{t.photosPlaceholder}</div>
       )}
       <div className="hero-oval__gradient hero-oval__gradient--photos" />
     </div>
@@ -227,7 +251,7 @@ export function HeroSection() {
                 key={index}
                 className={`hero-section__dot ${currentSlide === index ? 'active' : ''}`}
                 onClick={() => scrollToSlide(index)}
-                aria-label={`Перейти к слайду ${index + 1}`}
+                aria-label={`${t.sliderAria} ${index + 1}`}
               />
             ))}
           </div>
@@ -249,7 +273,7 @@ export function HeroSection() {
                 strokeLinejoin="round"
               />
             </svg>
-            <span>Пролистай</span>
+            <span>{t.swipeHint}</span>
           </div>
         </motion.div>
 
@@ -265,7 +289,7 @@ export function HeroSection() {
             onClick={scrollToJoin}
             className="bg-[#73729b] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#5a5982]"
           >
-            Принять участие
+            {t.joinCta}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(134, 175, 141, 0.3)' }}
@@ -273,7 +297,7 @@ export function HeroSection() {
             onClick={scrollToSupport}
             className="bg-[#86af8d] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#6d8f74]"
           >
-            Поддержать проект
+            {t.supportCta}
           </motion.button>
         </motion.div>
       </div>
