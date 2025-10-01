@@ -72,7 +72,7 @@ export function ChiangMaiHomePage() {
               <h1 className="font-menorah text-4xl md:text-5xl lg:text-6xl text-[#302a66]">
                 OmHome Chiang Mai — тёплое пространство для встреч и общения
               </h1>
-              <p className="text-lg md:text-xl text-[#4b456e] leading-relaxed">
+              <p className="text-lg md:text-xl text-[#2a2440] leading-relaxed">
                 Дом-друзей в Чиангмае: события, коворкинг и уютная атмосфера для русскоязычного (и не только) коммьюнити.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -94,10 +94,10 @@ export function ChiangMaiHomePage() {
               <div className="absolute -inset-4 bg-gradient-to-br from-[#d7cffc] via-[#f6ede7] to-[#fbe5c8] rounded-3xl blur-xl opacity-60"></div>
               <div className="relative rounded-3xl border border-[#e0d8cf] bg-white p-8 shadow-xl space-y-6">
                 <h2 className="text-2xl font-semibold text-[#302a66]">Добро пожаловать домой</h2>
-                <p className="text-[#4b456e] leading-relaxed">
+                <p className="text-[#2a2440] leading-relaxed">
                   Мы создаём пространство, куда хочется приходить за вдохновением, спокойствием и новыми знакомствами. Здесь вас всегда ждут чай, печеньки и тёплая компания.
                 </p>
-                <div className="flex flex-wrap gap-3 text-sm text-[#4b456e]">
+                <div className="flex flex-wrap gap-3 text-sm text-[#2a2440]">
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#f2edff] px-4 py-2">☕ Чай и беседы</span>
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#fff1e0] px-4 py-2">🧘 Практики</span>
                   <span className="inline-flex items-center gap-2 rounded-full bg-[#ffe7f2] px-4 py-2">🎶 Музыка</span>
@@ -111,16 +111,16 @@ export function ChiangMaiHomePage() {
           <div className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 lg:items-start">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">🌿 Кто мы</h2>
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 OmHome — это не просто место для мероприятий, а настоящий дом, где живут люди, которые создают атмосферу уюта и заботы.
               </p>
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 Мы открыты для тех, кто живёт в Чиангмае и хочет найти новых друзей, пообщаться и стать частью тёплого сообщества.
               </p>
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 Здесь можно:
               </p>
-              <ul className="space-y-3 text-[#4b456e] text-lg">
+              <ul className="space-y-3 text-[#2a2440] text-lg">
                 <li>• встретиться и познакомиться с другими жителями города,</li>
                 <li>• поработать за ноутбуком в спокойной обстановке (коворкинг с хорошим интернетом, чаем и печеньками ☕🍪),</li>
                 <li>• прийти на кино, квартирник, настолки или квиз,</li>
@@ -129,7 +129,7 @@ export function ChiangMaiHomePage() {
             </div>
             <div className="rounded-3xl bg-gradient-to-br from-[#f4ecff] via-[#fff4e3] to-[#ffe8f1] p-8 shadow-lg space-y-4">
               <h3 className="text-2xl font-semibold text-[#302a66]">Дом, который живёт вместе с городом</h3>
-              <p className="text-[#4b456e] leading-relaxed">
+              <p className="text-[#2a2440] leading-relaxed">
                 Мы — про доверие, безопасность и поддержку. Открываем двери тем, кто ищет место, где можно быть собой.
               </p>
               <a
@@ -180,7 +180,7 @@ export function ChiangMaiHomePage() {
                 >
                   <div className="text-3xl mb-4">{event.icon}</div>
                   <h3 className="text-xl font-semibold text-[#302a66] mb-2">{event.title}</h3>
-                  <p className="text-[#4b456e] leading-relaxed">{event.description}</p>
+                  <p className="text-[#2a2440] leading-relaxed">{event.description}</p>
                 </div>
               ))}
             </div>
@@ -192,11 +192,11 @@ export function ChiangMaiHomePage() {
             <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">
               ✨ Мы создаём пространство доверия и чистоты
             </h2>
-            <p className="text-lg text-[#4b456e] leading-relaxed">
+            <p className="text-lg text-[#2a2440] leading-relaxed">
               У нас нет алкоголя, наркотиков и мяса. Всё строится на уважении, дружбе и заботе друг о друге.
             </p>
             <div className="rounded-2xl bg-white p-6 border border-[#e0d8cf]">
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 Формат участия — donation. То есть вы сами решаете, хотите ли что-то пожертвовать. Можно приходить даже без пожертвования — это пространство открыто для всех.
               </p>
             </div>
@@ -207,10 +207,10 @@ export function ChiangMaiHomePage() {
           <div className="container mx-auto px-4 grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">🌟 Твоя инициатива</h2>
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 OmHome — это живая площадка. Здесь не только проходят наши события, но и ты можешь предложить что-то своё:
               </p>
-              <ul className="space-y-3 text-lg text-[#4b456e]">
+              <ul className="space-y-3 text-lg text-[#2a2440]">
                 <li>• провести квартирник или настольный вечер,</li>
                 <li>• устроить мастер-класс или йогу,</li>
                 <li>• организовать встречу по интересам.</li>
@@ -224,7 +224,7 @@ export function ChiangMaiHomePage() {
             </div>
             <div className="rounded-3xl border border-[#e0d8cf] bg-[#faf7f3] p-8 shadow-lg space-y-4">
               <h3 className="text-2xl font-semibold text-[#302a66]">Готовы поддержать идею</h3>
-              <p className="text-[#4b456e] leading-relaxed">
+              <p className="text-[#2a2440] leading-relaxed">
                 Подскажем, как организовать встречу, поможем с техникой и анонсами. Просто напиши нам — и мы сделаем это вместе.
               </p>
               <a
@@ -243,11 +243,11 @@ export function ChiangMaiHomePage() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">📍 Как нас найти</h2>
-              <p className="text-lg text-[#4b456e] leading-relaxed">
+              <p className="text-lg text-[#2a2440] leading-relaxed">
                 Мы находимся недалеко от центра, в тихом и зелёном районе. Удобно добраться на байке или Grab.
               </p>
               <div className="rounded-3xl border border-[#e0d8cf] bg-[#faf7f3] p-6 shadow">
-                <p className="text-sm uppercase tracking-wide text-[#7c75a6] mb-4">Фото пространства</p>
+                <p className="text-sm uppercase tracking-wide text-[#2a2440] mb-4">Фото пространства</p>
                 <div className="aspect-[4/3] w-full rounded-2xl bg-gradient-to-br from-[#f4ecff] via-[#fff4e3] to-[#ffe8f1] flex items-center justify-center text-[#5147b5] text-lg font-semibold">
                   Фото дома скоро появится
                 </div>
@@ -285,7 +285,7 @@ export function ChiangMaiHomePage() {
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl border border-[#c6bbff] bg-white p-6 text-center text-[#211b36] shadow-md shadow-[#2d2652]/10"
+                  className="rounded-2xl border border-[#c6bbff] bg-[#f2ecff] p-6 text-center text-[#2a2440] shadow-lg shadow-[#2d2652]/15"
                 >
                   Скоро анонсируем событие #{item}
                 </div>
@@ -300,9 +300,9 @@ export function ChiangMaiHomePage() {
             {testimonials.map((testimonial) => (
               <blockquote
                 key={testimonial}
-                className="rounded-3xl border border-[#c6bbff] bg-white p-6 shadow-md shadow-[#2d2652]/10"
+                className="rounded-3xl border border-[#c6bbff] bg-[#f2ecff] p-6 shadow-lg shadow-[#2d2652]/15"
               >
-                <p className="text-lg text-[#211b36] leading-relaxed">{testimonial}</p>
+                <p className="text-lg text-[#2a2440] leading-relaxed">{testimonial}</p>
               </blockquote>
             ))}
           </div>
@@ -340,7 +340,7 @@ export function ChiangMaiHomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-[#d8d2cb] bg-white py-6 text-center text-sm text-[#7c75a6]">
+      <footer className="border-t border-[#d8d2cb] bg-white py-6 text-center text-sm text-[#2a2440]">
         © 2024 OmHome Chiang Mai. Пространство тёплых встреч.
       </footer>
     </div>
