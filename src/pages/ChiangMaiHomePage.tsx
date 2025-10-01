@@ -285,7 +285,7 @@ export function ChiangMaiHomePage() {
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl border border-[#d6ccff] bg-[#f2ecff] p-6 text-center text-[#2a2440] shadow-sm shadow-[#302a66]/10"
+                  className="rounded-2xl border border-[#c6bbff] bg-white p-6 text-center text-[#211b36] shadow-md shadow-[#2d2652]/10"
                 >
                   Скоро анонсируем событие #{item}
                 </div>
@@ -300,9 +300,9 @@ export function ChiangMaiHomePage() {
             {testimonials.map((testimonial) => (
               <blockquote
                 key={testimonial}
-                className="rounded-3xl border border-[#d6ccff] bg-[#f2ecff] p-6 shadow-sm shadow-[#302a66]/10"
+                className="rounded-3xl border border-[#c6bbff] bg-white p-6 shadow-md shadow-[#2d2652]/10"
               >
-                <p className="text-lg text-[#2a2440] leading-relaxed">{testimonial}</p>
+                <p className="text-lg text-[#211b36] leading-relaxed">{testimonial}</p>
               </blockquote>
             ))}
           </div>
