@@ -1,3 +1,4 @@
+import logoSvg from '../assets/Logo.svg?url';
 import heroMain from '../assets/hero_photo/405502672_342184758430000_1080280448893141717_n_18027735442755327.webp';
 import loungePhoto from '../assets/hero_photo/429146670_627607329506733_1520456757899104652_n_18110259178328831.jpg';
 import gatheringPhoto from '../assets/hero_photo/420995137_727177859386693_3789888103366809406_n_18018963803073814.webp';
@@ -81,13 +82,14 @@ export function ChiangMaiHomePage() {
       </header>
 
       <main id="hero" className="pt-8 md:pt-16">
-        <section className="bg-slate-50">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="space-y-6">
-              <p className="inline-flex items-center rounded-full bg-white px-4 py-1 text-sm font-medium text-slate-600 shadow">
-                Дом-друзей в Чиангмае
-              </p>
-              <h1 className="font-menorah text-4xl text-slate-900 md:text-5xl lg:text-6xl">
+        <section className="bg-[#f7f1e8]">
+          <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 md:py-24 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+            <div className="space-y-7">
+              <div className="flex items-center gap-3 rounded-full bg-white/80 px-4 py-2 shadow-sm backdrop-blur">
+                <img src={logoSvg} alt="Логотип OmHome" className="h-10 w-10" />
+                <span className="text-sm font-semibold uppercase tracking-wide text-slate-600">Дом-друзей в Чиангмае</span>
+              </div>
+              <h1 className="font-menorah text-4xl leading-tight text-slate-900 md:text-5xl lg:text-6xl">
                 Тёплое пространство OmHome Chiang Mai для встреч, работы и отдыха
               </h1>
               <p className="max-w-xl text-lg leading-relaxed text-slate-600 md:text-xl">
@@ -102,12 +104,23 @@ export function ChiangMaiHomePage() {
                 </a>
                 <a
                   href="#map"
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-6 py-3 text-base font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900"
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-6 py-3 text-base font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   🗺 Как нас найти
                 </a>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
+            </div>
+            <div className="space-y-6 lg:pl-4">
+              <div className="mx-auto max-w-md rounded-3xl border border-slate-200 bg-white p-4 shadow-lg lg:ml-auto">
+                <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-slate-100">
+                  <img src={heroMain} alt="Гости OmHome общаются за большим столом" className="h-full w-full object-cover" />
+                </div>
+                <div className="mt-4 space-y-1">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">Живая атмосфера</p>
+                  <p className="text-base font-semibold text-slate-800">Тёплые вечера с чаем, музыкой и новыми друзьями</p>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
                 <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
                   <p className="text-3xl font-semibold text-slate-900">250+</p>
                   <p className="text-sm text-slate-600">гостей уже побывали у нас</p>
@@ -122,22 +135,11 @@ export function ChiangMaiHomePage() {
                 </div>
               </div>
             </div>
-            <div className="relative">
-              <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-lg">
-                <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-slate-100">
-                  <img src={heroMain} alt="Гости OmHome общаются за большим столом" className="h-full w-full object-cover" />
-                </div>
-                <div className="mt-4 space-y-1">
-                  <p className="text-xs uppercase tracking-wide text-slate-500">Живая атмосфера</p>
-                  <p className="text-base font-semibold text-slate-800">Тёплые вечера с чаем, музыкой и новыми друзьями</p>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
-        <section id="about" className="py-16 md:py-24">
-          <div className="mx-auto grid max-w-6xl gap-12 px-4 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+        <section id="about" className="bg-[#f1ece3] py-16 md:py-24">
+          <div className="mx-auto grid max-w-6xl gap-12 rounded-3xl bg-white/90 px-4 py-12 shadow-sm backdrop-blur lg:grid-cols-[1fr_0.9fr] lg:items-start">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl text-slate-900 md:text-4xl">🌿 Кто мы</h2>
               <p className="text-lg leading-relaxed text-slate-600">
@@ -192,7 +194,7 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="events" className="py-16 md:py-24">
+        <section id="events" className="bg-[#f4efe6] py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4">
             <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="font-menorah text-3xl text-slate-900 md:text-4xl">🎉 Что у нас происходит</h2>
@@ -245,7 +247,7 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="principles" className="py-16 md:py-24">
+        <section id="principles" className="bg-[#fdf5e6] py-16 md:py-24">
           <div className="mx-auto max-w-4xl space-y-6 rounded-3xl border border-slate-200 bg-white px-6 py-10 shadow-sm md:px-10">
             <h2 className="font-menorah text-3xl text-slate-900 md:text-4xl">✨ Мы создаём пространство доверия и чистоты</h2>
             <p className="text-lg leading-relaxed text-slate-600">
