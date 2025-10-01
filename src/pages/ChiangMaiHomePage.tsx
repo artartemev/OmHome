@@ -278,14 +278,14 @@ export function ChiangMaiHomePage() {
         <section id="schedule" className="bg-white py-16 md:py-20">
           <div className="container mx-auto px-4">
             <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66] mb-6">📅 Афиша</h2>
-            <p className="text-lg text-[#4b456e] mb-8 max-w-2xl">
+            <p className="text-lg text-[#2a2440] mb-8 max-w-2xl">
               Ближайшие события — в разработке. Мы уже готовим расписание, чтобы ты мог выбрать то, что откликается.
             </p>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="rounded-2xl border border-dashed border-[#d8d2cb] bg-[#faf7f3] p-6 text-center text-[#7c75a6]"
+                  className="rounded-2xl border border-[#d6ccff] bg-[#f2ecff] p-6 text-center text-[#2a2440] shadow-sm shadow-[#302a66]/10"
                 >
                   Скоро анонсируем событие #{item}
                 </div>
@@ -300,9 +300,9 @@ export function ChiangMaiHomePage() {
             {testimonials.map((testimonial) => (
               <blockquote
                 key={testimonial}
-                className="rounded-3xl border border-[#e0d8cf] bg-white p-6 shadow-sm"
+                className="rounded-3xl border border-[#d6ccff] bg-[#f2ecff] p-6 shadow-sm shadow-[#302a66]/10"
               >
-                <p className="text-lg text-[#4b456e] leading-relaxed">{testimonial}</p>
+                <p className="text-lg text-[#2a2440] leading-relaxed">{testimonial}</p>
               </blockquote>
             ))}
           </div>
