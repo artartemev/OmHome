@@ -1,3 +1,8 @@
+import heroMain from '../assets/hero_photo/405502672_342184758430000_1080280448893141717_n_18027735442755327.webp';
+import loungePhoto from '../assets/hero_photo/429146670_627607329506733_1520456757899104652_n_18110259178328831.jpg';
+import gatheringPhoto from '../assets/hero_photo/420995137_727177859386693_3789888103366809406_n_18018963803073814.webp';
+import heroVideo from '../assets/hero_video/new.mp4';
+
 const eventHighlights = [
   {
     icon: '🎬',
@@ -31,6 +36,24 @@ const eventHighlights = [
   }
 ];
 
+const galleryItems = [
+  {
+    src: heroMain,
+    alt: 'Люди общаются в гостиной OmHome',
+    caption: 'Вечер общения и новых знакомств'
+  },
+  {
+    src: loungePhoto,
+    alt: 'Уютная гостиная с мягким светом',
+    caption: 'Тёплая гостиная, где хочется остаться'
+  },
+  {
+    src: gatheringPhoto,
+    alt: 'Музыкальная встреча в OmHome',
+    caption: 'Живая музыка и совместное творчество'
+  }
+];
+
 const testimonials = [
   '«Чувствуется настоящая домашняя атмосфера».',
   '«После работы здесь отдыхает голова — и новые друзья появляются».',
@@ -49,23 +72,18 @@ export function ChiangMaiHomePage() {
             <a href="#events" className="hover:text-[#5147b5] transition-colors">События</a>
             <a href="#principles" className="hover:text-[#5147b5] transition-colors">Принципы</a>
             <a href="#initiative" className="hover:text-[#5147b5] transition-colors">Твоя инициатива</a>
+            <a href="#media" className="hover:text-[#5147b5] transition-colors">Фото и видео</a>
             <a href="#map" className="hover:text-[#5147b5] transition-colors">Как нас найти</a>
             <a href="#schedule" className="hover:text-[#5147b5] transition-colors">Афиша</a>
             <a href="#reviews" className="hover:text-[#5147b5] transition-colors">Отзывы</a>
           </nav>
-          <a
-            href="/pamho"
-            className="hidden md:inline-flex items-center gap-2 rounded-full bg-[#5147b5] px-4 py-2 text-white text-sm font-semibold shadow-sm hover:bg-[#3d3490] transition-colors"
-          >
-            Перейти к Pamho
-          </a>
         </div>
       </header>
 
       <main className="pt-8 md:pt-16" id="hero">
-        <section className="container mx-auto px-4 py-16 md:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="space-y-6">
+        <section className="container mx-auto px-4 py-20 md:py-28">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="space-y-7">
               <p className="inline-flex rounded-full bg-[#e9e4ff] px-4 py-1 text-sm font-medium text-[#5147b5]">
                 Дом-друзей в Чиангмае
               </p>
@@ -89,26 +107,36 @@ export function ChiangMaiHomePage() {
                   🗺 Как нас найти
                 </a>
               </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl bg-white/80 backdrop-blur px-5 py-4 shadow-sm border border-[#e0d8cf]">
+                  <p className="text-3xl font-semibold text-[#302a66]">250+</p>
+                  <p className="text-sm text-[#4b456e]">гостей уже побывали у нас</p>
+                </div>
+                <div className="rounded-2xl bg-white/80 backdrop-blur px-5 py-4 shadow-sm border border-[#e0d8cf]">
+                  <p className="text-3xl font-semibold text-[#302a66]">12</p>
+                  <p className="text-sm text-[#4b456e]">форматов встреч и мероприятий</p>
+                </div>
+                <div className="rounded-2xl bg-white/80 backdrop-blur px-5 py-4 shadow-sm border border-[#e0d8cf]">
+                  <p className="text-3xl font-semibold text-[#302a66]">24/7</p>
+                  <p className="text-sm text-[#4b456e]">уютный дом и пространство для общения</p>
+                </div>
+              </div>
             </div>
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-br from-[#d7cffc] via-[#f6ede7] to-[#fbe5c8] rounded-3xl blur-xl opacity-60"></div>
-              <div className="relative rounded-3xl border border-[#e0d8cf] bg-white p-8 shadow-xl space-y-6">
-                <h2 className="text-2xl font-semibold text-[#302a66]">Добро пожаловать домой</h2>
-                <p className="text-[#4b456e] leading-relaxed">
-                  Мы создаём пространство, куда хочется приходить за вдохновением, спокойствием и новыми знакомствами. Здесь вас всегда ждут чай, печеньки и тёплая компания.
-                </p>
-                <div className="flex flex-wrap gap-3 text-sm text-[#4b456e]">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#f2edff] px-4 py-2">☕ Чай и беседы</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#fff1e0] px-4 py-2">🧘 Практики</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#ffe7f2] px-4 py-2">🎶 Музыка</span>
+              <div className="absolute -inset-6 bg-gradient-to-br from-[#d7cffc] via-[#f6ede7] to-[#fbe5c8] rounded-[40px] blur-2xl opacity-70"></div>
+              <div className="relative overflow-hidden rounded-[36px] border border-[#e0d8cf] bg-white shadow-2xl">
+                <img src={heroMain} alt="Гости OmHome общаются за большим столом" className="h-full w-full object-cover" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#211943]/90 via-[#211943]/40 to-transparent p-6 text-white">
+                  <p className="text-sm uppercase tracking-wide text-white/70">Живая атмосфера</p>
+                  <p className="text-lg font-semibold">Тёплые вечера с чаем, музыкой и новыми друзьями</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="about" className="bg-white py-16 md:py-20">
-          <div className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 lg:items-start">
+        <section id="about" className="bg-white py-20 md:py-24">
+          <div className="container mx-auto px-4 grid gap-12 lg:grid-cols-[1fr_0.9fr] lg:items-start">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">🌿 Кто мы</h2>
               <p className="text-lg text-[#4b456e] leading-relaxed">
@@ -133,17 +161,17 @@ export function ChiangMaiHomePage() {
                 Мы — про доверие, безопасность и поддержку. Открываем двери тем, кто ищет место, где можно быть собой.
               </p>
               <a
-                href="/pamho"
+                href="#media"
                 className="inline-flex items-center gap-2 rounded-full border border-[#5147b5] px-5 py-2.5 text-[#5147b5] font-semibold hover:bg-[#5147b5]/10 transition-colors"
               >
-                Узнать о Pamho больше
+                Посмотреть атмосферу
               </a>
             </div>
           </div>
         </section>
 
-        <section id="experience" className="container mx-auto px-4 py-16 md:py-20">
-          <div className="rounded-3xl bg-[#302a66] text-white px-8 py-12 shadow-xl">
+        <section id="experience" className="container mx-auto px-4 py-20 md:py-24">
+          <div className="rounded-3xl bg-gradient-to-br from-[#2b2461] via-[#3d358c] to-[#5147b5] text-white px-8 py-12 shadow-xl">
             <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
               <div className="space-y-6">
                 <h2 className="font-menorah text-3xl md:text-4xl">🤝 Опыт и доверие</h2>
@@ -169,14 +197,14 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="events" className="bg-white py-16 md:py-20">
-          <div className="container mx-auto px-4">
-            <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66] mb-10">🎉 Что у нас происходит</h2>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <section id="events" className="bg-white py-20 md:py-24">
+          <div className="mx-auto max-w-6xl px-4">
+            <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66] mb-12">🎉 Что у нас происходит</h2>
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
               {eventHighlights.map((event) => (
                 <div
                   key={event.title}
-                  className="rounded-2xl border border-[#e0d8cf] bg-[#faf7f3] p-6 shadow-sm hover:shadow-md transition-shadow"
+                  className="flex h-full flex-col rounded-2xl border border-[#e0d8cf] bg-[#faf7f3] p-6 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all"
                 >
                   <div className="text-3xl mb-4">{event.icon}</div>
                   <h3 className="text-xl font-semibold text-[#302a66] mb-2">{event.title}</h3>
@@ -187,7 +215,45 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="principles" className="container mx-auto px-4 py-16 md:py-20">
+        <section id="media" className="bg-[#f7f3ef] py-20 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div className="space-y-6">
+                <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">🎥 Видео-экскурсия</h2>
+                <p className="text-lg text-[#4b456e] leading-relaxed">
+                  Увидь, как проходят наши вечера: музыка, настолки, совместные фильмы и беседы на кухне. Мы ценим живое общение и поддерживаем инициативы каждого гостя.
+                </p>
+                <p className="text-lg text-[#4b456e] leading-relaxed">
+                  Ниже — короткий ролик, снятый в OmHome. А ещё чуть дальше — фото, которые передают атмосферу лучше любых слов.
+                </p>
+              </div>
+              <div className="relative overflow-hidden rounded-[32px] border border-[#d8d2cb] bg-white shadow-2xl">
+                <video
+                  src={heroVideo}
+                  controls
+                  className="h-full w-full object-cover"
+                  poster={heroMain}
+                />
+              </div>
+            </div>
+
+            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {galleryItems.map((item) => (
+                <figure
+                  key={item.alt}
+                  className="group relative overflow-hidden rounded-3xl border border-[#e0d8cf] bg-white shadow-md"
+                >
+                  <img src={item.src} alt={item.alt} className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#211943]/85 via-[#211943]/40 to-transparent p-4 text-white">
+                    <p className="text-sm font-medium leading-snug">{item.caption}</p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="principles" className="container mx-auto px-4 py-20 md:py-24">
           <div className="rounded-3xl bg-[#f0ecff] p-8 shadow-xl space-y-6">
             <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">
               ✨ Мы создаём пространство доверия и чистоты
@@ -203,8 +269,8 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="initiative" className="bg-white py-16 md:py-20">
-          <div className="container mx-auto px-4 grid gap-10 lg:grid-cols-2 lg:items-center">
+        <section id="initiative" className="bg-white py-20 md:py-24">
+          <div className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">🌟 Твоя инициатива</h2>
               <p className="text-lg text-[#4b456e] leading-relaxed">
@@ -239,8 +305,8 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="map" className="container mx-auto px-4 py-16 md:py-20">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <section id="map" className="container mx-auto px-4 py-20 md:py-24">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66]">📍 Как нас найти</h2>
               <p className="text-lg text-[#4b456e] leading-relaxed">
@@ -275,7 +341,7 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="schedule" className="bg-white py-16 md:py-20">
+        <section id="schedule" className="bg-white py-20 md:py-24">
           <div className="container mx-auto px-4">
             <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66] mb-6">📅 Афиша</h2>
             <p className="text-lg text-[#4b456e] mb-8 max-w-2xl">
@@ -294,7 +360,7 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="reviews" className="container mx-auto px-4 py-16 md:py-20">
+        <section id="reviews" className="container mx-auto px-4 py-20 md:py-24">
           <h2 className="font-menorah text-3xl md:text-4xl text-[#302a66] mb-8">💬 Отзывы</h2>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {testimonials.map((testimonial) => (
@@ -308,7 +374,7 @@ export function ChiangMaiHomePage() {
           </div>
         </section>
 
-        <section id="join" className="bg-[#302a66] py-16 md:py-20 text-white">
+        <section id="join" className="bg-[#302a66] py-20 md:py-24 text-white">
           <div className="container mx-auto px-4 text-center space-y-6">
             <h2 className="font-menorah text-3xl md:text-4xl">🙌 Присоединяйся</h2>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
