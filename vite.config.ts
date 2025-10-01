@@ -84,6 +84,12 @@ export default defineConfig({
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          pamho: path.resolve(__dirname, 'pamho/index.html'),
+        },
+      },
     },
     server: {
       port: 3000,
