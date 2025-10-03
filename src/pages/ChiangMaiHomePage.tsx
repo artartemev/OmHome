@@ -1,3 +1,5 @@
+import heroPhoto from '../assets/hero_photo/photo_2023-02-10_15-17-42.jpg';
+
 const eventHighlights = [
   {
     icon: '🎬',
@@ -64,8 +66,8 @@ export function ChiangMaiHomePage() {
 
       <main className="pt-8 md:pt-16" id="hero">
         <section className="container mx-auto px-4 py-16 md:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="space-y-6">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-stretch">
+            <div className="flex flex-col space-y-6 lg:h-full lg:justify-center">
               <p className="inline-flex rounded-full bg-[#e9e4ff] px-4 py-1 text-sm font-medium text-[#5147b5]">
                 Дом-друзей в Чиангмае
               </p>
@@ -90,17 +92,30 @@ export function ChiangMaiHomePage() {
                 </a>
               </div>
             </div>
-            <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-br from-[#d7cffc] via-[#f6ede7] to-[#fbe5c8] rounded-3xl blur-xl opacity-60"></div>
-              <div className="relative rounded-3xl border border-[#e0d8cf] bg-white p-8 shadow-xl space-y-6">
-                <h2 className="text-2xl font-semibold text-[#302a66]">Добро пожаловать домой</h2>
-                <p className="text-[#4b456e] leading-relaxed">
-                  Мы создаём пространство, куда хочется приходить за вдохновением, спокойствием и новыми знакомствами. Здесь вас всегда ждут чай, печеньки и тёплая компания.
-                </p>
-                <div className="flex flex-wrap gap-3 text-sm text-[#4b456e]">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#f2edff] px-4 py-2">☕ Чай и беседы</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#fff1e0] px-4 py-2">🧘 Практики</span>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[#ffe7f2] px-4 py-2">🎶 Музыка</span>
+            <div className="relative flex lg:h-full lg:items-center lg:justify-center">
+              <div className="absolute inset-0 mx-auto h-[88%] w-[88%] max-w-sm rounded-[32px] bg-gradient-to-br from-[#efe9ff] via-[#fff4e6] to-[#ffeaf5] opacity-70 blur-2xl"></div>
+              <div className="relative w-full max-w-sm overflow-hidden rounded-[32px] border border-[#e7dfd6] bg-white/70 shadow-md shadow-[#d8d0c7]/50 backdrop-blur">
+                <div className="relative aspect-[4/5] w-full overflow-hidden">
+                  <img src={heroPhoto} alt="Гости OmHome в Чиангмае" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1f1a35]/45 via-transparent to-transparent"></div>
+                  <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-3 text-white">
+                    <div className="space-y-1">
+                      <p className="text-[11px] uppercase tracking-[0.28em] text-white/75">Живой дом</p>
+                      <p className="text-sm font-semibold leading-snug text-white/95">Вечерний чай в кругу друзей OmHome</p>
+                    </div>
+                    <span className="rounded-full bg-white/25 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">Chiang Mai</span>
+                  </div>
+                </div>
+                <div className="space-y-3 px-6 py-5 text-[#2a2440]">
+                  <h2 className="text-lg font-semibold text-[#302a66]">Добро пожаловать домой</h2>
+                  <p className="text-sm text-[#4b456e] leading-relaxed">
+                    Уютное пространство, где легко почувствовать себя среди своих и найти вдохновение для новых идей.
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-[11px] text-[#4b456e]">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#f3eeff] px-3 py-1 shadow-sm">☕ Чай</span>
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#fff4e6] px-3 py-1 shadow-sm">🧘 Практики</span>
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#ffeaf5] px-3 py-1 shadow-sm">🎶 Музыка</span>
+                  </div>
                 </div>
               </div>
             </div>
