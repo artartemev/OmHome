@@ -1,3 +1,5 @@
+import logo from '../assets/Logo.svg';
+
 const eventHighlights = [
   {
     icon: '🎬',
@@ -42,7 +44,13 @@ export function ChiangMaiHomePage() {
     <div className="min-h-screen bg-[#f7f3ef] text-[#2a2440]">
       <header className="bg-[#f7f3ef]/90 backdrop-blur border-b border-[#d8d2cb] sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="#hero" className="font-menorah text-2xl text-[#5147b5]">OmHome</a>
+          <a href="#hero" className="inline-flex items-center">
+            <img
+              src={logo}
+              alt="OmHome"
+              className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(48,42,102,0.35)]"
+            />
+          </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="#about" className="hover:text-[#5147b5] transition-colors">Кто мы</a>
             <a href="#experience" className="hover:text-[#5147b5] transition-colors">Опыт</a>
