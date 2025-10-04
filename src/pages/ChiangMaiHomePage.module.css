@@ -343,6 +343,8 @@
   display: flex;
   justify-content: center;
   overflow: hidden;
+  padding: 96px var(--section-padding-inline) 120px;
+  box-sizing: border-box;
 }
 
 .happeningsSection::before {
@@ -365,8 +367,6 @@
   display: flex;
   flex-direction: column;
   gap: 64px;
-  padding: 96px var(--section-padding-inline) 120px;
-  box-sizing: border-box;
 }
 
 .happeningsHeading {
@@ -467,8 +467,11 @@
     gap: 64px;
   }
 
-  .happeningsInner {
+  .happeningsSection {
     padding: 80px var(--section-padding-inline) 96px;
+  }
+
+  .happeningsInner {
     gap: 56px;
   }
 
@@ -554,7 +557,7 @@
     align-items: center;
   }
 
-  .happeningsInner {
+  .happeningsSection {
     padding: 72px var(--section-padding-inline) 88px;
   }
 
@@ -687,8 +690,11 @@
     max-width: 200px;
   }
 
-  .happeningsInner {
+  .happeningsSection {
     padding: 64px var(--section-padding-inline) 72px;
+  }
+
+  .happeningsInner {
     gap: 48px;
   }
 
