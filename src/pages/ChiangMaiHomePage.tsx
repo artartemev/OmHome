@@ -1,6 +1,8 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import heroAnimation from '../assets/main/hero.gif';
+import initiationIllustration from '../assets/main/intiation.png';
+import communityGatheringImage from '../assets/main/com.png';
 import logo from '../assets/main/logo.png';
 import sparkleIcon from '../assets/main/sparkle.svg';
 import styles from './ChiangMaiHomePage.module.css';
@@ -54,6 +56,12 @@ const happeningsColumns = [
       description: 'общение, дружба, забота.'
     }
   ]
+];
+
+const initiativeActivities = [
+  'устроить мастер-класс или йогу,',
+  'провести квартирник или настольный вечер,',
+  'организовать встречу по интересам.'
 ];
 
 export function ChiangMaiHomePage() {
@@ -240,6 +248,56 @@ export function ChiangMaiHomePage() {
           </div>
           <a className={styles.happeningsButton} href="#schedule">
             Смотреть афишу
+          </a>
+        </div>
+      </section>
+
+      <section id="propose-event" className={styles.communitySection}>
+        <div className={styles.communityInner}>
+          <div className={styles.communityTop}>
+            <div className={styles.communityIntro}>
+              <h2 className={styles.communityHeading}>Мы создаём пространство доверия и чистоты</h2>
+              <p className={styles.communityParagraph}>
+                У нас нет алкоголя, наркотиков и мяса. Всё строится на уважении, дружбе и заботе друг о друге.
+              </p>
+              <p className={`${styles.communityParagraph} ${styles.communityParagraphAccent}`}>
+                Формат участия — donation.
+              </p>
+              <p className={styles.communityParagraph}>
+                То есть вы сами решаете, хотите ли что-то пожертвовать. Можно приходить даже без пожертвования — это
+                пространство открыто для всех.
+              </p>
+            </div>
+
+            <div className={styles.communityIllustration}>
+              <img src={initiationIllustration} alt="Иллюстрация доверия OmHome" />
+            </div>
+          </div>
+
+          <p className={styles.communityStatement}>OmHome — это живая площадка.</p>
+
+          <div className={styles.communityBottom}>
+            <div className={styles.communityGroupImage}>
+              <img src={communityGatheringImage} alt="Встреча друзей OmHome" />
+            </div>
+
+            <div className={styles.communityOffer}>
+              <h3 className={styles.communityOfferHeading}>Твоя инициатива</h3>
+              <p className={styles.communityOfferIntro}>
+                Здесь не только проходят наши события, но и ты можешь предложить что-то своё:
+              </p>
+              <ul className={styles.communityOfferList}>
+                {initiativeActivities.map((activity) => (
+                  <li key={activity} className={styles.communityOfferListItem}>
+                    {activity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <a className={styles.communityButton} href="#schedule">
+            Предложить мероприятие
           </a>
         </div>
       </section>
