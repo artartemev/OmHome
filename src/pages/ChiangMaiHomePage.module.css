@@ -140,7 +140,7 @@
   max-width: 1280px;
   display: flex;
   flex-direction: column;
-  gap: 72px;
+  gap: 48px;
 }
 
 .introHeading {
