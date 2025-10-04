@@ -1,5 +1,6 @@
 import heroAnimation from '../assets/main/hero.gif';
 import logo from '../assets/main/logo.png';
+import sparkleIcon from '../assets/main/sparkle.svg';
 import styles from './ChiangMaiHomePage.module.css';
 
 export function ChiangMaiHomePage() {
@@ -42,12 +43,30 @@ export function ChiangMaiHomePage() {
           <div className={styles.introHighlights}>
             <p className={styles.introListHeading}>Здесь можно:</p>
             <ul className={styles.introItems}>
-              <li className={styles.introItem}>встретиться и познакомиться с другими жителями города</li>
               <li className={styles.introItem}>
+                <span className={styles.introItemIcon} aria-hidden="true">
+                  <img src={sparkleIcon} alt="" />
+                </span>
+                встретиться и познакомиться с другими жителями города
+              </li>
+              <li className={styles.introItem}>
+                <span className={styles.introItemIcon} aria-hidden="true">
+                  <img src={sparkleIcon} alt="" />
+                </span>
                 поработать за ноутбуком в спокойной обстановке (коворкинг с хорошим интернетом, чаем и печеньками ☕🍪)
               </li>
-              <li className={styles.introItem}>прийти на кино, квартирник, настолки или квиз</li>
-              <li className={styles.introItem}>попробовать йогу, медитацию или познакомиться с киртанами.</li>
+              <li className={styles.introItem}>
+                <span className={styles.introItemIcon} aria-hidden="true">
+                  <img src={sparkleIcon} alt="" />
+                </span>
+                прийти на кино, квартирник, настолки или квиз
+              </li>
+              <li className={styles.introItem}>
+                <span className={styles.introItemIcon} aria-hidden="true">
+                  <img src={sparkleIcon} alt="" />
+                </span>
+                попробовать йогу, медитацию или познакомиться с киртанами.
+              </li>
             </ul>
           </div>
         </div>
