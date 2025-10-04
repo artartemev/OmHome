@@ -1,8 +1,9 @@
 .page {
   min-height: 100vh;
-  background-color: #0d393c;
+  background-color: #ffffff;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .heroSection {
@@ -123,6 +124,101 @@
   box-shadow: 0 12px 24px rgba(207, 186, 139, 0.2);
 }
 
+.introSection {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 704px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+  box-sizing: border-box;
+}
+
+.introInner {
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+
+.introHeading {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-weight: 500;
+  font-size: 108px;
+  line-height: 130px;
+  color: #0d393c;
+  margin: 0;
+}
+
+.introDescription {
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+  margin: 0;
+  max-width: 840px;
+}
+
+.introHighlights {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.introListHeading {
+  font-family: 'Ysabeau', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+  margin: 0;
+}
+
+.introItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 48px 96px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.introItem {
+  position: relative;
+  padding-left: 72px;
+  min-height: 40px;
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+  display: flex;
+  align-items: center;
+}
+
+.introItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #0d393c;
+}
+
+.introItem::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(#cfba8b, #cfba8b) center / 4px 24px no-repeat,
+    linear-gradient(#cfba8b, #cfba8b) center / 24px 4px no-repeat;
+}
+
 @media (max-width: 1200px) {
   .heroSection {
     padding: 64px 48px;
@@ -131,6 +227,14 @@
   .heroInner {
     gap: 48px;
     width: auto;
+  }
+
+  .introSection {
+    padding: 64px 48px;
+  }
+
+  .introItems {
+    gap: 40px 64px;
   }
 }
 
@@ -155,6 +259,16 @@
 
   .heroButton {
     margin-top: 40px;
+  }
+
+  .introHeading {
+    font-size: 80px;
+    line-height: 100px;
+  }
+
+  .introItems {
+    grid-template-columns: 1fr;
+    gap: 40px;
   }
 }
 
@@ -193,5 +307,43 @@
     width: 240px;
     height: 64px;
     font-size: 26px;
+  }
+
+  .introSection {
+    padding: 48px 24px 64px;
+  }
+
+  .introInner {
+    gap: 48px;
+  }
+
+  .introHeading {
+    font-size: 56px;
+    line-height: 70px;
+  }
+
+  .introDescription,
+  .introListHeading,
+  .introItem {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .introItem {
+    padding-left: 64px;
+  }
+
+  .introItem::before {
+    width: 32px;
+    height: 32px;
+  }
+
+  .introItem::after {
+    left: 6px;
+    top: 6px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(#cfba8b, #cfba8b) center / 4px 20px no-repeat,
+      linear-gradient(#cfba8b, #cfba8b) center / 20px 4px no-repeat;
   }
 }

@@ -30,6 +30,28 @@ export function ChiangMaiHomePage() {
           Смотреть афишу
         </a>
       </section>
+
+      <section className={styles.introSection}>
+        <div className={styles.introInner}>
+          <h2 className={styles.introHeading}>OmHome</h2>
+          <p className={styles.introDescription}>
+            — это не просто место для мероприятий, а настоящий дом, где живут люди, которые создают атмосферу уюта и
+            заботы.
+          </p>
+
+          <div className={styles.introHighlights}>
+            <p className={styles.introListHeading}>Здесь можно:</p>
+            <ul className={styles.introItems}>
+              <li className={styles.introItem}>встретиться и познакомиться с другими жителями города</li>
+              <li className={styles.introItem}>
+                поработать за ноутбуком в спокойной обстановке (коворкинг с хорошим интернетом, чаем и печеньками ☕🍪)
+              </li>
+              <li className={styles.introItem}>прийти на кино, квартирник, настолки или квиз</li>
+              <li className={styles.introItem}>попробовать йогу, медитацию или познакомиться с киртанами.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
