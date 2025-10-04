@@ -4,6 +4,9 @@ import sparkleIcon from '../assets/main/sparkle.svg';
 import styles from './ChiangMaiHomePage.module.css';
 
 export function ChiangMaiHomePage() {
+  const experienceSectionRef = useRef<HTMLElement | null>(null);
+  const experienceInView = useInView(experienceSectionRef, { once: true, amount: 0.2 });
+
   return (
     <div className={styles.page}>
       <section className={styles.heroSection}>
