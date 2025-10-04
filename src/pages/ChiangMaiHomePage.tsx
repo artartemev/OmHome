@@ -42,7 +42,8 @@ const happeningsColumns = [
   [
     {
       title: 'Настольные игры и квартирники',
-      description: 'весёлые форматы для новых знакомств.'
+      description: 'весёлые форматы для новых знакомств.',
+      singleLine: true
     },
     {
       title: 'Коворкинг',
@@ -224,7 +225,13 @@ export function ChiangMaiHomePage() {
               <div key={`happenings-column-${columnIndex}`} className={styles.happeningsColumn}>
                 {column.map((item) => (
                   <div key={item.title} className={styles.happening}>
-                    <h3 className={styles.happeningTitle}>{item.title}</h3>
+                    <h3
+                      className={`${styles.happeningTitle} ${
+                        item.singleLine ? styles.happeningTitleSingleLine : ''
+                      }`}
+                    >
+                      {item.title}
+                    </h3>
                     <p className={styles.happeningDescription}>{item.description}</p>
                   </div>
                 ))}

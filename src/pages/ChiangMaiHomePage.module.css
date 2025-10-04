@@ -406,6 +406,10 @@
   margin: 0;
 }
 
+.happeningTitleSingleLine {
+  white-space: nowrap;
+}
+
 .happeningDescription {
   font-family: 'Ysabeau', sans-serif;
   font-weight: 400;
@@ -721,5 +725,9 @@
     width: 240px;
     height: 64px;
     font-size: 26px;
+  }
+
+  .happeningTitleSingleLine {
+    white-space: normal;
   }
 }
