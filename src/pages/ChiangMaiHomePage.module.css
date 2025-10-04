@@ -333,6 +333,106 @@
   opacity: 0.8;
 }
 
+.happeningsSection {
+  position: relative;
+  width: 100%;
+  background-color: #0d393c;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.happeningsSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/main/whathappens.png');
+  background-position: center;
+  background-size: cover;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.happeningsInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 96px 80px 120px;
+  box-sizing: border-box;
+}
+
+.happeningsHeading {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 77px;
+  color: #cfba8b;
+  margin: 0;
+  max-width: 696px;
+}
+
+.happeningsColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 64px 120px;
+}
+
+.happeningsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.happening {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.happeningTitle {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 48px;
+  color: #cfba8b;
+  margin: 0;
+}
+
+.happeningDescription {
+  font-family: 'Ysabeau', sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 43px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.happeningsButton {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 288px;
+  height: 72px;
+  border-radius: 80px;
+  background-color: #cfba8b;
+  color: #0d393c;
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.happeningsButton:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(207, 186, 139, 0.24);
+}
+
 @media (max-width: 1200px) {
   .heroSection {
     padding: 64px 48px;
@@ -357,6 +457,15 @@
 
   .experienceInner {
     gap: 64px;
+  }
+
+  .happeningsInner {
+    padding: 80px 48px 96px;
+    gap: 56px;
+  }
+
+  .happeningsColumns {
+    gap: 56px 88px;
   }
 }
 
@@ -431,6 +540,28 @@
   .experienceContent {
     text-align: center;
     align-items: center;
+  }
+
+  .happeningsInner {
+    padding: 72px 40px 88px;
+  }
+
+  .happeningsColumns {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .happeningsColumn {
+    gap: 40px;
+  }
+
+  .happeningsHeading {
+    text-align: center;
+    max-width: none;
+  }
+
+  .happeningsButton {
+    margin-top: 12px;
   }
 }
 
@@ -531,12 +662,42 @@
     line-height: 34px;
   }
 
-    .experienceColumns {
-      gap: 24px;
-    }
+  .experienceColumns {
+    gap: 24px;
+  }
 
   .experienceImageWrapper {
     width: 100%;
     max-width: 200px;
+  }
+
+  .happeningsInner {
+    padding: 64px 24px 72px;
+    gap: 48px;
+  }
+
+  .happeningsHeading {
+    font-size: 48px;
+    line-height: 58px;
+  }
+
+  .happeningsColumn {
+    gap: 32px;
+  }
+
+  .happeningTitle {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .happeningDescription {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .happeningsButton {
+    width: 240px;
+    height: 64px;
+    font-size: 26px;
   }
 }

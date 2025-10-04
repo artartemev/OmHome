@@ -24,6 +24,37 @@ const experienceRightLoop =
 const experienceLeftDelayGroupSize = Math.max(experienceLeftColumn.length, 1);
 const experienceRightDelayGroupSize = Math.max(experienceRightColumn.length, 1);
 
+const happeningsColumns = [
+  [
+    {
+      title: 'Кино и квизы',
+      description: 'уютные вечера с обсуждениями.'
+    },
+    {
+      title: 'Йога и мастер-классы',
+      description: 'от расслабления до новых навыков.'
+    },
+    {
+      title: 'Живая музыка и киртаны',
+      description: 'гармония и вдохновение.'
+    }
+  ],
+  [
+    {
+      title: 'Настольные игры и квартирники',
+      description: 'весёлые форматы для новых знакомств.'
+    },
+    {
+      title: 'Коворкинг',
+      description: 'работа в уютной обстановке.'
+    },
+    {
+      title: 'Коммьюнити',
+      description: 'общение, дружба, забота.'
+    }
+  ]
+];
+
 export function ChiangMaiHomePage() {
   const experienceSectionRef = useRef<HTMLElement | null>(null);
   const experienceInView = useInView(experienceSectionRef, { once: true, amount: 0.2 });
@@ -182,6 +213,27 @@ export function ChiangMaiHomePage() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className={styles.happeningsSection}>
+        <div className={styles.happeningsInner}>
+          <h2 className={styles.happeningsHeading}>Что у нас происходит</h2>
+          <div className={styles.happeningsColumns}>
+            {happeningsColumns.map((column, columnIndex) => (
+              <div key={`happenings-column-${columnIndex}`} className={styles.happeningsColumn}>
+                {column.map((item) => (
+                  <div key={item.title} className={styles.happening}>
+                    <h3 className={styles.happeningTitle}>{item.title}</h3>
+                    <p className={styles.happeningDescription}>{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <a className={styles.happeningsButton} href="#schedule">
+            Смотреть афишу
+          </a>
         </div>
       </section>
     </div>
