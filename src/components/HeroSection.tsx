@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import * as React from 'react';
 import { motion } from 'motion/react';
 import logoSvg from '../assets/Logo.svg?url';
 import videoPlaceholderImage from '../assets/cover.png?url';
@@ -54,11 +54,11 @@ const HAVE_CURRENT_DATA =
     : 2;
 
 export function HeroSection() {
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  const [isVideoReady, setIsVideoReady] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0);
+  const [isVideoReady, setIsVideoReady] = React.useState(false);
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const sliderRef = React.useRef<HTMLDivElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -94,7 +94,7 @@ export function HeroSection() {
     setIsVideoReady(false);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (heroPhotos.length <= 1) {
       return;
     }

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const translations = {
@@ -57,7 +57,7 @@ const translations = {
 } as const;
 
 export function AboutSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const { language } = useLanguage();
   const { title, sections, stats } = translations[language];

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import imgRectangle16 from 'figma:asset/e5af353556f0ccc88d364bf9e9de41dab821cb94.png';
 import imgRectangle17 from 'figma:asset/08a25526285379767f1b263f0136d84372b8d790.png';
@@ -27,7 +27,7 @@ const translations = {
 } as const;
 
 export function MissionSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
   const { title, missionTitle, missionDescription, atmosphereTitle, atmosphereDescription } = translations[language];
