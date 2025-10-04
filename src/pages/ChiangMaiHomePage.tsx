@@ -1,3 +1,5 @@
+import { motion, useInView } from 'motion/react';
+import { useRef } from 'react';
 import heroAnimation from '../assets/main/hero.gif';
 import logo from '../assets/main/logo.png';
 import sparkleIcon from '../assets/main/sparkle.svg';
@@ -9,10 +11,23 @@ const eventImagesGlob = import.meta.glob('../assets/events/*.{jpg,jpeg,png}', {
 }) as Record<string, string>;
 
 const experienceImages = Object.values(eventImagesGlob).sort();
-const experienceLeftColumn = experienceImages.filter((_, index) => index % 2 === 0).slice(0, 3);
-const experienceRightColumn = experienceImages.filter((_, index) => index % 2 === 1).slice(0, 3);
+const experienceLeftColumn = experienceImages.filter((_, index) => index % 2 === 0);
+const experienceRightColumn = experienceImages.filter((_, index) => index % 2 === 1);
+const experienceLeftLoop =
+  experienceLeftColumn.length > 0
+    ? [...experienceLeftColumn, ...experienceLeftColumn]
+    : [...experienceImages, ...experienceImages];
+const experienceRightLoop =
+  experienceRightColumn.length > 0
+    ? [...experienceRightColumn, ...experienceRightColumn]
+    : [...experienceImages, ...experienceImages];
+const experienceLeftDelayGroupSize = Math.max(experienceLeftColumn.length, 1);
+const experienceRightDelayGroupSize = Math.max(experienceRightColumn.length, 1);
 
 export function ChiangMaiHomePage() {
+  const experienceSectionRef = useRef<HTMLElement | null>(null);
+  const experienceInView = useInView(experienceSectionRef, { once: true, amount: 0.2 });
+
   return (
     <div className={styles.page}>
       <section className={styles.heroSection}>
@@ -81,24 +96,58 @@ export function ChiangMaiHomePage() {
         </div>
       </section>
 
-      <section className={styles.experienceSection}>
+      <section ref={experienceSectionRef} className={styles.experienceSection}>
         <div className={styles.experienceInner}>
           <div className={styles.experienceGallery}>
             <div className={styles.experienceGradient} aria-hidden="true" />
             <div className={styles.experienceColumns}>
               <div className={styles.experienceColumn}>
-                {experienceLeftColumn.map((imageSrc, index) => (
-                  <div key={`experience-left-${index}`} className={styles.experienceImageWrapper}>
-                    <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
-                  </div>
-                ))}
+                <motion.div
+                  className={styles.experienceColumnTrack}
+                  animate={{ y: ['0%', '-50%'] }}
+                  transition={{ duration: 62, repeat: Infinity, ease: 'linear' }}
+                >
+                  {experienceLeftLoop.map((imageSrc, index) => (
+                    <motion.div
+                      key={`experience-left-${index}`}
+                      className={styles.experienceImageWrapper}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={experienceInView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{
+                        duration: 0.6,
+                        delay: 0.4 + (index % experienceLeftDelayGroupSize) * 0.1
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
+                      <span className={styles.experienceImageOverlay} aria-hidden="true" />
+                    </motion.div>
+                  ))}
+                </motion.div>
               </div>
               <div className={`${styles.experienceColumn} ${styles.experienceColumnShift}`}>
-                {experienceRightColumn.map((imageSrc, index) => (
-                  <div key={`experience-right-${index}`} className={styles.experienceImageWrapper}>
-                    <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
-                  </div>
-                ))}
+                <motion.div
+                  className={styles.experienceColumnTrack}
+                  animate={{ y: ['-50%', '0%'] }}
+                  transition={{ duration: 74, repeat: Infinity, ease: 'linear' }}
+                >
+                  {experienceRightLoop.map((imageSrc, index) => (
+                    <motion.div
+                      key={`experience-right-${index}`}
+                      className={styles.experienceImageWrapper}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={experienceInView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{
+                        duration: 0.6,
+                        delay: 0.6 + (index % experienceRightDelayGroupSize) * 0.1
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
+                      <span className={styles.experienceImageOverlay} aria-hidden="true" />
+                    </motion.div>
+                  ))}
+                </motion.div>
               </div>
             </div>
           </div>
