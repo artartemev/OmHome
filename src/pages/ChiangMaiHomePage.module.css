@@ -1,0 +1,525 @@
+.page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.heroSection {
+  position: relative;
+  width: 100%;
+  min-height: 840px;
+  background-color: #0d393c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 72px 96px;
+  box-sizing: border-box;
+  gap: 64px;
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  gap: 72px;
+  width: 100%;
+  max-width: 1296px;
+  margin: 0 auto;
+}
+
+.heroIllustration {
+  width: 314px;
+  height: 468px;
+  border: 6px solid #cfba8b;
+  border-radius: 181px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  justify-self: center;
+}
+
+.heroIllustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroLogo {
+  width: 425px;
+  height: 584px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+}
+
+.heroLogo img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  color: #cfba8b;
+  font-family: 'MenorahGrotesk', sans-serif;
+  justify-self: start;
+  max-width: 384px;
+}
+
+.heroTagline {
+  font-size: 32px;
+  line-height: 38px;
+  margin: 0;
+}
+
+.heroDescription {
+  font-size: 24px;
+  line-height: 29px;
+  margin: 0;
+  max-width: 380px;
+}
+
+.heroLink {
+  font-size: 32px;
+  line-height: 38px;
+  color: #cfba8b;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 6px;
+  width: fit-content;
+}
+
+.heroLink:hover {
+  opacity: 0.85;
+}
+
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 288px;
+  height: 72px;
+  border-radius: 80px;
+  background-color: #cfba8b;
+  color: #0d393c;
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  align-self: center;
+}
+
+.heroButton:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(207, 186, 139, 0.2);
+}
+
+.introSection {
+  width: 100%;
+  max-width: 1440px;
+  min-height: 704px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+  box-sizing: border-box;
+}
+
+.introInner {
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.introHeading {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-weight: 500;
+  font-size: 108px;
+  line-height: 130px;
+  color: #0d393c;
+  margin: 0;
+}
+
+.introDescription {
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+  margin: 0;
+  max-width: 840px;
+}
+
+.introHighlights {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.introListHeading {
+  font-family: 'Ysabeau', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+  margin: 0;
+}
+
+.introItems {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 48px 96px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.introItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  color: #000000;
+}
+
+.introItemIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: #0d393c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+}
+
+.introItemIcon img {
+  width: 28px;
+  height: 32px;
+}
+
+.experienceSection {
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 96px 80px;
+  box-sizing: border-box;
+}
+
+.experienceInner {
+  width: 100%;
+  max-width: 1280px;
+  display: grid;
+  grid-template-columns: minmax(0, 640px) minmax(0, 1fr);
+  gap: 80px;
+  align-items: center;
+}
+
+.experienceGallery {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  height: 714px;
+  overflow: hidden;
+  padding: 24px 0;
+  box-sizing: border-box;
+}
+
+.experienceColumns {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.experienceGradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 18%, rgba(255, 255, 255, 0) 82%, #ffffff 100%);
+}
+
+.experienceColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.experienceColumnShift {
+  margin-top: -160px;
+}
+
+.experienceImageWrapper {
+  width: 290px;
+  height: 290px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 18px 36px rgba(13, 57, 60, 0.12);
+}
+
+.experienceImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.experienceContent {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  color: #000000;
+}
+
+.experienceHeading {
+  font-family: 'MenorahGrotesk', sans-serif;
+  font-weight: 500;
+  font-size: 64px;
+  line-height: 77px;
+  color: #0d393c;
+  margin: 0;
+}
+
+.experienceText {
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  margin: 0;
+}
+
+.experienceLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.experienceLink {
+  font-family: 'Ysabeau', sans-serif;
+  font-size: 32px;
+  line-height: 43px;
+  color: #0d393c;
+  text-decoration: underline;
+  width: fit-content;
+}
+
+.experienceLink:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 1200px) {
+  .heroSection {
+    padding: 64px 48px;
+  }
+
+  .heroInner {
+    gap: 48px;
+    width: auto;
+  }
+
+  .introSection {
+    padding: 64px 48px;
+  }
+
+  .introItems {
+    gap: 40px 64px;
+  }
+
+  .experienceSection {
+    padding: 80px 48px;
+  }
+
+  .experienceInner {
+    gap: 64px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .heroSection {
+    min-height: auto;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .heroCopy {
+    text-align: center;
+    align-items: center;
+  }
+
+  .heroDescription {
+    max-width: 100%;
+  }
+
+  .heroButton {
+    margin-top: 40px;
+  }
+
+  .introHeading {
+    font-size: 80px;
+    line-height: 100px;
+  }
+
+  .introItems {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .experienceInner {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+
+  .experienceGallery {
+    margin: 0 auto;
+    height: auto;
+    padding: 0;
+  }
+
+  .experienceGradient {
+    display: none;
+  }
+
+  .experienceColumns {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .experienceColumn {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .experienceColumnShift {
+    margin-top: 0;
+  }
+
+  .experienceImageWrapper {
+    width: calc(50% - 12px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-width: 220px;
+  }
+
+  .experienceContent {
+    text-align: center;
+    align-items: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .heroSection {
+    padding: 48px 24px 64px;
+  }
+
+  .heroIllustration {
+    width: 260px;
+    height: 388px;
+    border-width: 4px;
+  }
+
+  .heroLogo {
+    width: 300px;
+    height: 420px;
+  }
+
+  .heroTagline {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .heroDescription {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .heroLink {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .heroButton {
+    width: 240px;
+    height: 64px;
+    font-size: 26px;
+  }
+
+  .introSection {
+    padding: 48px 24px 64px;
+  }
+
+  .introInner {
+    gap: 48px;
+  }
+
+  .introHeading {
+    font-size: 56px;
+    line-height: 70px;
+  }
+
+  .introDescription,
+  .introListHeading,
+  .introItem {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .introItem {
+    gap: 20px;
+  }
+
+  .introItemIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+  }
+
+  .introItemIcon img {
+    width: 22px;
+    height: 26px;
+  }
+
+  .experienceSection {
+    padding: 64px 24px;
+  }
+
+  .experienceHeading {
+    font-size: 48px;
+    line-height: 58px;
+  }
+
+  .experienceText,
+  .experienceLink {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .experienceColumns {
+    gap: 24px;
+  }
+
+  .experienceColumn {
+    gap: 16px;
+  }
+
+  .experienceImageWrapper {
+    width: 100%;
+    max-width: 200px;
+  }
+}
