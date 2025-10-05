@@ -1,6 +1,8 @@
 import nityanandaImage from '../assets/nityananda.png';
 import prabhupadaImage from '../assets/prabhupada.png';
 
+const headingText = 'Почему именно такой формат';
+
 const firstParagraph =
   'Мы с большим уважением относимся к традиционным формам проповеди — распространению книг, харинамам, публичным лекциям. Именно благодаря этим усилиям миссия Шрилы Прабхупады распространилась по всему миру. В то же время, в некоторых странах и городах (в том числе в Таиланде) открытое распространение книг может быть юридически ограничено, а проведение харинам требует музыкантов и поддержки сообщества, которой не всегда достаточно на начальном этапе. Поэтому мы начали использовать альтернативные формы проповеди, которые мягко вовлекают людей в общение с преданными: совместные просмотры фильмов с обсуждениями духовных тем, настольные игры, развивающие дружбу и мышление, уютные лекции и беседы за прасадом, йогу и культурные вечера.';
 
@@ -9,28 +11,101 @@ const secondParagraph =
 
 export function FormatSection() {
   return (
-    <section className="w-full bg-[#e9e5e2]">
-      <div className="relative mx-auto h-[1524px] w-full max-w-[1440px]">
-        <h2 className="absolute left-[100px] top-[80px] font-menorah text-[42px] leading-[50px] text-black sm:text-[64px] sm:leading-[76px] lg:text-[84px] lg:leading-[101px]">
-          Почему именно такой формат
+    <section
+      style={{
+        backgroundColor: '#E9E5E2',
+        display: 'flex',
+        justifyContent: 'center'
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          width: '1440px',
+          height: '1524px'
+        }}
+      >
+        <h2
+          style={{
+            position: 'absolute',
+            left: '100px',
+            top: '80px',
+            width: '1222px',
+            height: '101px',
+            fontFamily: 'Menorah Grotesk',
+            fontStyle: 'normal',
+            fontWeight: 500,
+            fontSize: '84px',
+            lineHeight: '101px',
+            color: '#000000'
+          }}
+        >
+          {headingText}
         </h2>
 
-        <p className="absolute left-[580px] top-[221px] w-[min(90%,743px)] font-menorah-normal text-xl leading-[30px] text-black sm:text-2xl sm:leading-[34px] lg:text-[24px] lg:leading-[36px]">
+        <p
+          style={{
+            position: 'absolute',
+            left: '580px',
+            top: '221px',
+            width: '743px',
+            height: '660px',
+            fontFamily: 'Menorah Grotesk',
+            fontStyle: 'normal',
+            fontWeight: 500,
+            fontSize: '24px',
+            lineHeight: '36px',
+            color: '#000000'
+          }}
+        >
           {firstParagraph}
         </p>
 
-        <p className="absolute left-[149px] top-[963px] w-[min(90%,713px)] text-right font-menorah-normal text-xl leading-[30px] text-black sm:text-2xl sm:leading-[34px] lg:text-[24px] lg:leading-[36px]">
+        <p
+          style={{
+            position: 'absolute',
+            left: '149px',
+            top: '963px',
+            width: '713px',
+            height: '428px',
+            fontFamily: 'Menorah Grotesk',
+            fontStyle: 'normal',
+            fontWeight: 500,
+            fontSize: '24px',
+            lineHeight: '36px',
+            textAlign: 'right',
+            color: '#000000'
+          }}
+        >
           {secondParagraph}
         </p>
 
         <div
-          className="absolute left-[120px] top-[225px] h-[420px] w-[260px] overflow-hidden rounded-[140px] bg-cover bg-center shadow-xl sm:h-[520px] sm:w-[320px] sm:rounded-[160px] lg:h-[652px] lg:w-[396px] lg:rounded-[180px]"
-          style={{ backgroundImage: `url(${nityanandaImage})` }}
+          style={{
+            position: 'absolute',
+            left: '120px',
+            top: '225px',
+            width: '396px',
+            height: '652px',
+            backgroundImage: `url(${nityanandaImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: '180px'
+          }}
         />
 
         <div
-          className="absolute left-[926px] top-[932px] h-[360px] w-[240px] overflow-hidden rounded-[140px] bg-cover bg-center shadow-xl sm:h-[420px] sm:w-[280px] sm:rounded-[160px] lg:h-[489px] lg:w-[350px] lg:rounded-[180px]"
-          style={{ backgroundImage: `url(${prabhupadaImage})` }}
+          style={{
+            position: 'absolute',
+            left: '926px',
+            top: '932px',
+            width: '350px',
+            height: '489px',
+            backgroundImage: `url(${prabhupadaImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            borderRadius: '180px'
+          }}
         />
       </div>
     </section>
