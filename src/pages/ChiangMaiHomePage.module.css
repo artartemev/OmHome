@@ -24,32 +24,13 @@
 
 .heroInner {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
   gap: 72px;
   width: 100%;
   max-width: var(--section-max-width);
   margin: 0 auto;
-}
-
-.heroIllustration {
-  width: 314px;
-  height: 468px;
-  border: 6px solid #cfba8b;
-  border-radius: 181px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  justify-self: center;
-}
-
-.heroIllustration img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .heroLogo {
@@ -117,7 +98,7 @@
   line-height: 43px;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  align-self: center;
+  align-self: flex-start;
 }
 
 .heroButton:hover {
@@ -226,12 +207,16 @@
   max-width: var(--section-max-width);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 640px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 620px) minmax(0, 1fr);
+  grid-template-areas:
+    'gallery heading'
+    'gallery copy';
   gap: 80px;
-  align-items: center;
+  align-items: start;
 }
 
 .experienceGallery {
+  grid-area: gallery;
   position: relative;
   width: 100%;
   max-width: 620px;
@@ -243,8 +228,10 @@
 
 .experienceColumns {
   position: relative;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-items: center;
+  align-items: start;
   gap: 40px;
 }
 
@@ -294,11 +281,10 @@
   background: linear-gradient(180deg, rgba(13, 57, 60, 0.16) 0%, rgba(13, 57, 60, 0) 60%);
 }
 
-.experienceContent {
+.experienceHeadingWrapper {
+  grid-area: heading;
   display: flex;
-  flex-direction: column;
-  gap: 32px;
-  color: #000000;
+  align-items: flex-start;
 }
 
 .experienceHeading {
@@ -308,6 +294,14 @@
   line-height: 77px;
   color: #0d393c;
   margin: 0;
+}
+
+.experienceCopy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  color: #000000;
 }
 
 .experienceText {
@@ -601,8 +595,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 418px;
-  height: 75px;
+  min-height: 75px;
   border-radius: 80px;
   background-color: #0d393c;
   color: #ffffff;
@@ -610,13 +603,22 @@
   font-size: 32px;
   line-height: 43px;
   text-decoration: none;
-  padding: 0 30px;
+  padding: 16px 30px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .communityButton:hover {
   transform: translateY(-4px);
   box-shadow: 0 14px 28px rgba(13, 57, 60, 0.2);
+}
+
+@media (min-width: 1025px) {
+  .communityButton {
+    min-width: 418px;
+  }
 }
 
 .sectionDivider {
@@ -832,7 +834,7 @@
   }
 
   .heroButton {
-    margin-top: 40px;
+    align-self: center;
   }
 
   .introHeading {
@@ -847,13 +849,18 @@
 
   .experienceInner {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'heading'
+      'gallery'
+      'copy';
     gap: 56px;
+    align-items: center;
   }
 
   .experienceGallery {
     margin: 0 auto;
-    height: auto;
-    padding: 0;
+    height: clamp(360px, 120vw, 520px);
+    padding: 12px 0;
   }
 
   .experienceGradient {
@@ -861,27 +868,44 @@
   }
 
   .experienceColumns {
-    flex-direction: column;
-    align-items: center;
-    gap: 32px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: center;
+    gap: 28px;
   }
 
   .experienceColumnShift {
     margin-top: 0;
   }
 
-  .experienceColumn,
+  .experienceColumn {
+    width: min(240px, 100%);
+  }
+
   .experienceImageWrapper {
-    width: 240px;
-    height: 240px;
+    width: min(240px, 100%);
+    height: min(240px, 100%);
   }
 
   .experienceColumnTrack {
     gap: 28px;
   }
 
-  .experienceContent {
+  .experienceHeadingWrapper {
+    justify-content: center;
     text-align: center;
+  }
+
+  .experienceHeading {
+    margin: 0 auto;
+  }
+
+  .experienceCopy {
+    align-items: center;
+    text-align: center;
+  }
+
+  .experienceLinks {
     align-items: center;
   }
 
@@ -952,10 +976,6 @@
     display: none;
   }
 
-  .communityButton {
-    width: 320px;
-  }
-
   .locationSection {
     padding: 88px var(--section-padding-inline) 120px;
   }
@@ -993,12 +1013,6 @@
 
   .heroSection {
     padding: 48px var(--section-padding-inline) 64px;
-  }
-
-  .heroIllustration {
-    width: 260px;
-    height: 388px;
-    border-width: 4px;
   }
 
   .heroLogo {
@@ -1071,10 +1085,17 @@
     line-height: 58px;
   }
 
-  .experienceColumn,
+  .experienceGallery {
+    height: clamp(320px, 130vw, 460px);
+  }
+
+  .experienceColumn {
+    width: min(200px, 100%);
+  }
+
   .experienceImageWrapper {
-    width: 200px;
-    height: 200px;
+    width: min(200px, 100%);
+    height: min(200px, 100%);
   }
 
   .experienceColumnTrack {
@@ -1088,12 +1109,11 @@
   }
 
   .experienceColumns {
-    gap: 24px;
+    gap: 20px;
   }
 
-  .experienceImageWrapper {
-    width: 100%;
-    max-width: 200px;
+  .experienceLinks {
+    align-items: center;
   }
 
   .happeningsSection {
@@ -1168,9 +1188,10 @@
   }
 
   .communityButton {
-    width: 260px;
-    height: 68px;
-    font-size: 26px;
+    font-size: 22px;
+    line-height: 30px;
+    min-height: 60px;
+    padding: 12px 24px;
   }
 
   .sectionDivider::before {

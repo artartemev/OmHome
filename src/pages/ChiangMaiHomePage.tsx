@@ -1,6 +1,5 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
-import heroAnimation from '../assets/main/hero.gif';
 import communityGatheringImage from '../assets/main/com.png';
 import initiationIllustration from '../assets/main/intiation.png';
 import logo from '../assets/main/logo.png';
@@ -73,10 +72,6 @@ export function ChiangMaiHomePage() {
     <div className={styles.page}>
       <section className={styles.heroSection}>
         <div className={styles.heroInner}>
-          <div className={styles.heroIllustration}>
-            <img src={heroAnimation} alt="Практика медитации в OmHome" />
-          </div>
-
           <div className={styles.heroLogo}>
             <img src={logo} alt="Логотип OmHome" />
           </div>
@@ -89,17 +84,16 @@ export function ChiangMaiHomePage() {
             <a className={styles.heroLink} href="#map">
               Как нас найти
             </a>
+            <a
+              className={styles.heroButton}
+              href="https://instagram.com/omhome_cnx"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Смотреть афишу
+            </a>
           </div>
         </div>
-
-        <a
-          className={styles.heroButton}
-          href="https://instagram.com/omhome_cnx"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Смотреть афишу
-        </a>
       </section>
 
       <section className={styles.introSection}>
@@ -198,8 +192,11 @@ export function ChiangMaiHomePage() {
             </div>
           </div>
 
-          <div className={styles.experienceContent}>
+          <div className={styles.experienceHeadingWrapper}>
             <h2 className={styles.experienceHeading}>Опыт и доверие</h2>
+          </div>
+
+          <div className={styles.experienceCopy}>
             <p className={styles.experienceText}>
               Мы уже открывали такие пространства в Грузии и Сербии. За несколько лет там прошло сотни встреч: лекции,
               йога, квартирники, настолки, кино, киртаны.
