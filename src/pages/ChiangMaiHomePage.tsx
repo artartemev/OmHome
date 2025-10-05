@@ -1,10 +1,11 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import heroAnimation from '../assets/main/hero.gif';
-import communityGatheringImage from '../assets/main/intiation.png';
-import initiationIllustration from '../assets/main/com.png';
+import communityGatheringImage from '../assets/main/com.png';
+import initiationIllustration from '../assets/main/intiation.png';
 import logo from '../assets/main/logo.png';
 import sparkleIcon from '../assets/main/sparkle.svg';
+import locationArtwork from '../assets/main/footrer.png';
 import styles from './ChiangMaiHomePage.module.css';
 
 const eventImagesGlob = import.meta.glob('../assets/events/*.{jpg,jpeg,png}', {
@@ -91,7 +92,12 @@ export function ChiangMaiHomePage() {
           </div>
         </div>
 
-        <a className={styles.heroButton} href="#schedule">
+        <a
+          className={styles.heroButton}
+          href="https://instagram.com/omhome_cnx"
+          target="_blank"
+          rel="noreferrer"
+        >
           Смотреть афишу
         </a>
       </section>
@@ -206,7 +212,7 @@ export function ChiangMaiHomePage() {
             <div className={styles.experienceLinks}>
               <a
                 className={styles.experienceLink}
-                href="https://www.instagram.com/omhome_belgrade/"
+                href="https://www.instagram.com/omhome.belgrade/"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -214,7 +220,7 @@ export function ChiangMaiHomePage() {
               </a>
               <a
                 className={styles.experienceLink}
-                href="https://www.instagram.com/omhome_batumi/"
+                href="https://www.instagram.com/omhome.batumi/"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -246,7 +252,12 @@ export function ChiangMaiHomePage() {
               </div>
             ))}
           </div>
-          <a className={styles.happeningsButton} href="#schedule">
+          <a
+            className={styles.happeningsButton}
+            href="https://instagram.com/omhome_cnx"
+            target="_blank"
+            rel="noreferrer"
+          >
             Смотреть афишу
           </a>
         </div>
@@ -296,9 +307,48 @@ export function ChiangMaiHomePage() {
             </div>
           </div>
 
-          <a className={styles.communityButton} href="#schedule">
+          <a
+            className={styles.communityButton}
+            href="https://t.me/omhome_cnx"
+            target="_blank"
+            rel="noreferrer"
+          >
             Предложить мероприятие
           </a>
+        </div>
+      </section>
+
+      <div className={styles.sectionDivider} aria-hidden="true" />
+
+      <section id="map" className={styles.locationSection}>
+        <div className={styles.locationInner}>
+          <div className={styles.locationImage}>
+            <img src={locationArtwork} alt="Иллюстрация ночного города Чиангмая" />
+          </div>
+
+          <h2 className={styles.locationHeading}>Как нас найти</h2>
+          <p className={styles.locationDescription}>
+            «Мы находимся недалеко от центра, в тихом мобане. Удобно добраться на байке или Grab».
+          </p>
+
+          <div className={styles.locationActions}>
+            <a
+              className={styles.locationButton}
+              href="https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Google Maps
+            </a>
+            <a
+              className={styles.locationButton}
+              href="https://t.me/omhome_thai"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Telegram
+            </a>
+          </div>
         </div>
       </section>
     </div>
