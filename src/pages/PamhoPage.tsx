@@ -3,6 +3,7 @@ import { Header } from '../components/Header';
 import { HeroSection } from '../components/HeroSection';
 import { AboutSection } from '../components/AboutSection';
 import { MissionSection } from '../components/MissionSection';
+import { FormatSection } from '../components/FormatSection';
 import { QuoteSection } from '../components/QuoteSection';
 import { ProgramsSection } from '../components/ProgramsSection';
 import { TestimonialsSection } from '../components/TestimonialsSection';
@@ -36,6 +37,7 @@ function PamhoContent() {
         <HeroSection />
         <AboutSection />
         <MissionSection />
+        <FormatSection />
         <QuoteSection />
         <ProgramsSection />
         <TestimonialsSection />
