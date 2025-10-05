@@ -92,7 +92,12 @@ export function ChiangMaiHomePage() {
           </div>
         </div>
 
-        <a className={styles.heroButton} href="#schedule">
+        <a
+          className={styles.heroButton}
+          href="https://instagram.com/omhome_cnx"
+          target="_blank"
+          rel="noreferrer"
+        >
           Смотреть афишу
         </a>
       </section>
@@ -207,7 +212,7 @@ export function ChiangMaiHomePage() {
             <div className={styles.experienceLinks}>
               <a
                 className={styles.experienceLink}
-                href="https://www.instagram.com/omhome_belgrade/"
+                href="https://www.instagram.com/omhome.belgrade/"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -215,7 +220,7 @@ export function ChiangMaiHomePage() {
               </a>
               <a
                 className={styles.experienceLink}
-                href="https://www.instagram.com/omhome_batumi/"
+                href="https://www.instagram.com/omhome.batumi/"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -247,7 +252,12 @@ export function ChiangMaiHomePage() {
               </div>
             ))}
           </div>
-          <a className={styles.happeningsButton} href="#schedule">
+          <a
+            className={styles.happeningsButton}
+            href="https://instagram.com/omhome_cnx"
+            target="_blank"
+            rel="noreferrer"
+          >
             Смотреть афишу
           </a>
         </div>
@@ -297,11 +307,18 @@ export function ChiangMaiHomePage() {
             </div>
           </div>
 
-          <a className={styles.communityButton} href="#schedule">
+          <a
+            className={styles.communityButton}
+            href="https://t.me/omhome_cnx"
+            target="_blank"
+            rel="noreferrer"
+          >
             Предложить мероприятие
           </a>
         </div>
       </section>
+
+      <div className={styles.sectionDivider} aria-hidden="true" />
 
       <section id="map" className={styles.locationSection}>
         <div className={styles.locationInner}>
@@ -315,10 +332,20 @@ export function ChiangMaiHomePage() {
           </p>
 
           <div className={styles.locationActions}>
-            <a className={styles.locationButton} href="https://maps.app.goo.gl/" target="_blank" rel="noreferrer">
+            <a
+              className={styles.locationButton}
+              href="https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9"
+              target="_blank"
+              rel="noreferrer"
+            >
               Google Maps
             </a>
-            <a className={styles.locationButton} href="https://t.me/" target="_blank" rel="noreferrer">
+            <a
+              className={styles.locationButton}
+              href="https://t.me/omhome_thai"
+              target="_blank"
+              rel="noreferrer"
+            >
               Telegram
             </a>
           </div>

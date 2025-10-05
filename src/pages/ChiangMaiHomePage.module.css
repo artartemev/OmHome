@@ -619,6 +619,32 @@
   box-shadow: 0 14px 28px rgba(13, 57, 60, 0.2);
 }
 
+.sectionDivider {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--section-padding-inline);
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.sectionDivider::before {
+  content: '';
+  width: 100%;
+  max-width: var(--section-max-width);
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(13, 57, 60, 0) 0%,
+    rgba(13, 57, 60, 0.55) 18%,
+    #cfba8b 50%,
+    rgba(13, 57, 60, 0.55) 82%,
+    rgba(13, 57, 60, 0) 100%
+  );
+  box-shadow: 0 18px 32px rgba(13, 57, 60, 0.1);
+}
+
 .locationSection {
   position: relative;
   width: 100%;
@@ -1145,6 +1171,10 @@
     width: 260px;
     height: 68px;
     font-size: 26px;
+  }
+
+  .sectionDivider::before {
+    height: 3px;
   }
 
   .locationSection {
