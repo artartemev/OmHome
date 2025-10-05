@@ -67,7 +67,7 @@ export function AuthoritySection() {
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="grid gap-6 sm:grid-cols-2"
+            className="grid gap-10 sm:grid-cols-2 xl:grid-cols-3 justify-items-center"
           >
             {seniors.map(({ image, name, role }, index) => (
               <motion.div
@@ -75,12 +75,18 @@ export function AuthoritySection() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                className="bg-white rounded-3xl shadow-md overflow-hidden flex flex-col"
+                className="relative w-full max-w-[396px] aspect-[396/652]"
               >
-                <img src={image} alt={name} className="h-48 w-full object-cover" />
-                <div className="p-5">
-                  <p className="text-lg font-semibold text-black mb-1">{name}</p>
-                  <p className="text-sm text-[#73729b]">{role}</p>
+                <div className="absolute inset-0 rounded-[180px] overflow-hidden shadow-[0_12px_30px_rgba(115,114,155,0.15)]">
+                  <img
+                    src={image}
+                    alt={name}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-[151px] bg-white flex flex-col items-center justify-center px-6">
+                    <p className="font-menorah text-2xl leading-9 text-black text-center">{name}</p>
+                    <p className="font-menorah text-lg leading-5 text-black text-center mt-3">{role}</p>
+                  </div>
                 </div>
               </motion.div>
             ))}
