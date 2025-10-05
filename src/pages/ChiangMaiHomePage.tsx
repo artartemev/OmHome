@@ -84,17 +84,16 @@ export function ChiangMaiHomePage() {
             <a className={styles.heroLink} href="#map">
               Как нас найти
             </a>
+            <a
+              className={styles.heroButton}
+              href="https://instagram.com/omhome_cnx"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Смотреть афишу
+            </a>
           </div>
         </div>
-
-        <a
-          className={styles.heroButton}
-          href="https://instagram.com/omhome_cnx"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Смотреть афишу
-        </a>
       </section>
 
       <section className={styles.introSection}>

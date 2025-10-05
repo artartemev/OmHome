@@ -98,7 +98,7 @@
   line-height: 43px;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  align-self: center;
+  align-self: flex-start;
 }
 
 .heroButton:hover {
@@ -834,7 +834,7 @@
   }
 
   .heroButton {
-    margin-top: 40px;
+    align-self: center;
   }
 
   .introHeading {
