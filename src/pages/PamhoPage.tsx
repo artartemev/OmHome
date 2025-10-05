@@ -12,6 +12,7 @@ import { AuthoritySection } from '../components/AuthoritySection';
 import { FAQSection } from '../components/FAQSection';
 import { ContactsSection } from '../components/ContactsSection';
 import { LanguageProvider, useLanguage } from '../contexts/LanguageContext';
+import { FormatExplanationSection } from '../components/FormatExplanationSection';
 
 const footerTexts = {
   ru: '© 2024 OmHome. Пространство единства, вдохновения и служения.',
@@ -36,6 +37,7 @@ function PamhoContent() {
         <HeroSection />
         <AboutSection />
         <MissionSection />
+        <FormatExplanationSection />
         <QuoteSection />
         <ProgramsSection />
         <TestimonialsSection />
