@@ -1,8 +1,8 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import heroAnimation from '../assets/main/hero.gif';
-import communityGatheringImage from '../assets/main/intiation.png';
-import initiationIllustration from '../assets/main/com.png';
+import communityGatheringImage from '../assets/main/com.png';
+import initiationIllustration from '../assets/main/intiation.png';
 import logo from '../assets/main/logo.png';
 import sparkleIcon from '../assets/main/sparkle.svg';
 import locationArtwork from '../assets/main/footrer.png';
