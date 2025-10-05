@@ -32,7 +32,7 @@ export function FormatSection() {
             top: '80px',
             width: '1222px',
             height: '101px',
-            fontFamily: 'Menorah Grotesk',
+            fontFamily: 'MenorahGrotesk',
             fontStyle: 'normal',
             fontWeight: 500,
             fontSize: '84px',
@@ -50,7 +50,7 @@ export function FormatSection() {
             top: '221px',
             width: '743px',
             height: '660px',
-            fontFamily: 'Menorah Grotesk',
+            fontFamily: 'MenorahGrotesk',
             fontStyle: 'normal',
             fontWeight: 500,
             fontSize: '24px',
@@ -68,7 +68,7 @@ export function FormatSection() {
             top: '963px',
             width: '713px',
             height: '428px',
-            fontFamily: 'Menorah Grotesk',
+            fontFamily: 'MenorahGrotesk',
             fontStyle: 'normal',
             fontWeight: 500,
             fontSize: '24px',
@@ -87,12 +87,21 @@ export function FormatSection() {
             top: '225px',
             width: '396px',
             height: '652px',
-            backgroundImage: `url(${nityanandaImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            borderRadius: '180px'
+            borderRadius: '180px',
+            overflow: 'hidden'
           }}
-        />
+        >
+          <img
+            src={nityanandaImage}
+            alt="Шри Нитьянанда"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+          />
+        </div>
 
         <div
           style={{
@@ -101,12 +110,21 @@ export function FormatSection() {
             top: '932px',
             width: '350px',
             height: '489px',
-            backgroundImage: `url(${prabhupadaImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            borderRadius: '180px'
+            borderRadius: '180px',
+            overflow: 'hidden'
           }}
-        />
+        >
+          <img
+            src={prabhupadaImage}
+            alt="Шрила Прабхупада"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'center'
+            }}
+          />
+        </div>
       </div>
     </section>
   );
