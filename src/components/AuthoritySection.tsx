@@ -103,11 +103,11 @@ export function AuthoritySection() {
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
                   className="flex flex-col items-center"
                 >
-                  <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-lg bg-white">
+                  <div className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-lg bg-white">
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
-                      className="h-full w-full object-cover object-center"
+                      className="absolute inset-0 h-full w-full object-cover"
                     />
                   </div>
                   <figcaption className="-mt-8 w-40 sm:w-44 bg-white px-4 py-3 rounded-full shadow-md text-center">
