@@ -75,7 +75,8 @@ export function AuthoritySection() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                className="relative w-full max-w-[396px] aspect-[396/652]"
+                className="relative w-full max-w-[396px]"
+                style={{ aspectRatio: '396 / 652' }}
               >
                 <div className="absolute inset-0 rounded-[180px] overflow-hidden shadow-[0_12px_30px_rgba(115,114,155,0.15)]">
                   <img
