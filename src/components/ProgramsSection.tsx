@@ -212,13 +212,17 @@ export function ProgramsSection() {
               className="flex flex-wrap gap-4"
             >
               <a
-                href="#"
+                href="https://www.instagram.com/omhome.belgrade/"
+                target="_blank"
+                rel="noreferrer"
                 className="text-[#241f74] underline hover:text-[#73729b] transition-colors"
               >
                 Instagram / Belgrade
               </a>
               <a
-                href="#"
+                href="https://t.me/omhomespace"
+                target="_blank"
+                rel="noreferrer"
                 className="text-[#241f74] underline hover:text-[#73729b] transition-colors"
               >
                 Telegram / Batumi
