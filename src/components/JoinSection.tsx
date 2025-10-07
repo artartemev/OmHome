@@ -16,6 +16,9 @@ const icons = {
   care: <Heart className="text-[#73729b]" size={32} />
 } as const;
 
+const DEFAULT_TELEGRAM_BOT_TOKEN = '7582764711:AAFytg69W5CSIZ-LDgQEL-vXTFkkqrMO0Bo';
+const DEFAULT_TELEGRAM_CHAT_ID = '8219095593';
+
 const translations = {
   ru: {
     principlesTitle: 'Принципы пространства',
@@ -111,7 +114,8 @@ const translations = {
     ],
     form: {
       title: 'Tell us about yourself',
-      description: 'Leave your contacts and a few words about your motivation — we will reach out to you to discuss the details.',
+      description:
+        'Leave your contacts and a few words about your motivation — we will reach out to you to discuss the details.',
       nameLabel: 'Name',
       namePlaceholder: 'For example, Radha',
       phoneLabel: 'Phone',
@@ -128,6 +132,8 @@ const translations = {
     }
   }
 } as const;
+
+const sanitizeEnvValue = (value?: string) => value?.trim() || undefined;
 
 export function JoinSection() {
   const ref = useRef(null);
@@ -163,8 +169,8 @@ export function JoinSection() {
   }, [isFormOpen]);
 
   const telegramConfig = useMemo(() => {
-    const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
-    const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+    const botToken = sanitizeEnvValue(import.meta.env.VITE_TELEGRAM_BOT_TOKEN) ?? DEFAULT_TELEGRAM_BOT_TOKEN;
+    const chatId = sanitizeEnvValue(import.meta.env.VITE_TELEGRAM_CHAT_ID) ?? DEFAULT_TELEGRAM_CHAT_ID;
     return { botToken, chatId };
   }, []);
 
