@@ -35,7 +35,11 @@ const translations = {
     ],
     goalLabel: 'Цель:',
     goalText:
-      'привлечь, расположить, познакомить, вдохновить; дать людям опыт прасада, доброжелательности и смысла.'
+      'привлечь, расположить, познакомить, вдохновить; дать людям опыт прасада, доброжелательности и смысла.',
+    socialLinks: [
+      { label: 'Instagram / Belgrade', href: 'https://www.instagram.com/omhome.belgrade/' },
+      { label: 'Telegram / Batumi', href: 'https://t.me/omhomespace' }
+    ]
   },
   en: {
     title: 'What happens at OmHome',
@@ -56,7 +60,11 @@ const translations = {
     ],
     goalLabel: 'Goal:',
     goalText:
-      'to attract, welcome, introduce, and inspire; to let people experience prasadam, kindness, and deeper meaning.'
+      'to attract, welcome, introduce, and inspire; to let people experience prasadam, kindness, and deeper meaning.',
+    socialLinks: [
+      { label: 'Instagram / Belgrade', href: 'https://www.instagram.com/omhome.belgrade/' },
+      { label: 'Telegram / Batumi', href: 'https://t.me/omhomespace' }
+    ]
   }
 } as const;
 
@@ -71,7 +79,8 @@ export function ProgramsSection() {
     socialTitle,
     socialEvents,
     goalLabel,
-    goalText
+    goalText,
+    socialLinks
   } = translations[language];
 
   return (
@@ -211,18 +220,17 @@ export function ProgramsSection() {
               transition={{ duration: 0.6, delay: 1.7 }}
               className="flex flex-wrap gap-4"
             >
-              <a
-                href="#"
-                className="text-[#241f74] underline hover:text-[#73729b] transition-colors"
-              >
-                Instagram / Belgrade
-              </a>
-              <a
-                href="#"
-                className="text-[#241f74] underline hover:text-[#73729b] transition-colors"
-              >
-                Telegram / Batumi
-              </a>
+              {socialLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#241f74] underline hover:text-[#73729b] transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
             </motion.div>
           </motion.div>
         </div>
