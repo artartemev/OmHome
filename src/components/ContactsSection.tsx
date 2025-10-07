@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { MessageCircle, Phone, Instagram, MapPin, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -58,7 +58,7 @@ const translations = {
 } as const;
 
 export function ContactsSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
   const { title, contacts, description } = translations[language];

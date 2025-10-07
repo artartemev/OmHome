@@ -1,10 +1,10 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { Quote } from 'lucide-react';
 
 export function QuoteSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   return (

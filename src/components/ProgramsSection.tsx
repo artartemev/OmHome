@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const eventImagesGlob = import.meta.glob('../assets/events/*.{jpg,jpeg,png}', {
@@ -61,7 +61,7 @@ const translations = {
 } as const;
 
 export function ProgramsSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
   const {

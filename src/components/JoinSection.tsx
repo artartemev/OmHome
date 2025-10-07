@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { Sparkles, Coffee, Heart, HandHeart, Music, MessageCircle, Package, Leaf } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import imgRectangle33 from 'figma:asset/7079ed6ac33259adcd696c14440f8602d1e716fc.png';
@@ -96,7 +96,7 @@ const translations = {
 } as const;
 
 export function JoinSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
   const { principlesTitle, principlesLink, joinTitle, heroText, participationTitle, cta, principles, participationOptions } =

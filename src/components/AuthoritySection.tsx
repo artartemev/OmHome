@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import * as React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import acyutatmaImage from '../assets/seniors_support/acyutatma.jpg';
 import kesavaImage from '../assets/seniors_support/kesava.png';
@@ -60,7 +60,7 @@ const mentors = [
 ] as const;
 
 export function AuthoritySection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
   const { title, description } = translations[language];

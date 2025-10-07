@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import * as React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -121,9 +120,9 @@ const translations = {
 } as const;
 
 export function FAQSection() {
-  const ref = useRef(null);
+  const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null);
   const { language } = useLanguage();
   const { title, subtitle, faqData } = translations[language];
 
