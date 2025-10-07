@@ -23,6 +23,7 @@ const translations = {
   ru: {
     principlesTitle: 'Принципы пространства',
     principlesLink: 'Подробнее о правилах и быте',
+    principlesHref: 'https://omhome-text.vercel.app/omhome',
     joinTitle: 'Как присоединиться',
     heroText: 'Приехать в Чиангмай и послужить в OmHome',
     participationTitle: 'Варианты участия:',
@@ -78,6 +79,7 @@ const translations = {
   en: {
     principlesTitle: 'House principles',
     principlesLink: 'Learn more about the guidelines',
+    principlesHref: 'https://omhome-text.vercel.app/omhome',
     joinTitle: 'How to join',
     heroText: 'Come to Chiang Mai and serve at OmHome',
     participationTitle: 'Ways to get involved:',
@@ -142,6 +144,7 @@ export function JoinSection() {
   const {
     principlesTitle,
     principlesLink,
+    principlesHref,
     joinTitle,
     heroText,
     participationTitle,
@@ -269,7 +272,12 @@ export function JoinSection() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="text-center mb-16"
         >
-          <a href="#" className="text-xl text-[#241f74] underline hover:text-[#73729b] transition-colors">
+          <a
+            href={principlesHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xl text-[#241f74] underline hover:text-[#73729b] transition-colors"
+          >
             {principlesLink}
           </a>
         </motion.div>

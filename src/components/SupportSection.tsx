@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
-import { ExternalLink, Table } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ExternalLink, Table, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const translations = {
@@ -12,10 +12,52 @@ const translations = {
       'арендовать дом, проводить программы, готовить прасад, украшать алтарь, поддерживать чистоту и оборудование.',
     paymentMethodsTitle: 'Способы превода',
     paymentMethods: [
-      { title: 'Криптовалюта', description: 'USDT/USDC/BTC и др.' },
-      { title: 'СБП', description: 'быстрые переводы внутри РФ' },
-      { title: 'SWIFT', description: 'международный банковский перевод' }
+      { id: 'crypto' as const, title: 'Криптовалюта', description: 'USDT/USDC/BTC и др.' },
+      { id: 'sbp' as const, title: 'СБП', description: 'быстрые переводы внутри РФ' },
+      { id: 'swift' as const, title: 'SWIFT', description: 'международный банковский перевод' }
     ],
+    paymentMethodDetails: {
+      crypto: {
+        title: 'Криптовалюта',
+        description: 'Реквизиты для перевода в USDT (TRC-20) через биржу ByBit.',
+        details: [
+          { label: 'ByBit UID', value: '115189352' },
+          { label: 'USDT TRC-20', value: 'TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5' }
+        ],
+        note: {
+          textBefore: 'После перевода сообщите ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      },
+      sbp: {
+        title: 'СБП',
+        description: 'Быстрый перевод по номеру телефона через Систему быстрых платежей.',
+        details: [
+          { label: 'Телефон', value: '+7 995 597-01-08' },
+          { label: 'Банк', value: 'Яндекс Банк / Сбербанк' }
+        ],
+        note: {
+          textBefore: 'После перевода сообщите ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      },
+      swift: {
+        title: 'SWIFT',
+        description: 'Международный банковский перевод в долларах США.',
+        details: [
+          { label: 'IBAN', value: 'GE73TB7418145068100009USD' },
+          { label: 'SWIFT', value: 'TBCBGE22' },
+          { label: 'Получатель', value: 'Liubov Verba' }
+        ],
+        note: {
+          textBefore: 'После перевода сообщите ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      }
+    },
     supportLevelsTitle: 'Уровни ежемесячной поддержки',
     supportLevels: [
       { title: 'Друг OmHome', amount: '300 ฿ / 500 ₽ / $10' },
@@ -27,6 +69,8 @@ const translations = {
     transparencyIntro: 'Ежемесячный отчёт',
     transparencyDetails: 'поступления/расходы по статьям (аренда, прасад, алтарь, быт, оборудование)',
     transparencyButton: 'Публичная сводная таблица',
+    transparencyLink: 'https://docs.google.com/spreadsheets/d/1gKSs7HlLdmP8QztPw4dCWq3Z_ci_Eh_1m7GP18JMTjM',
+    closePaymentDetailsAria: 'Закрыть реквизиты',
     targetedTitle: 'Целевые пожертвования',
     donationCategories: [
       {
@@ -66,10 +110,52 @@ const translations = {
       'rent the house, host programs, cook prasadam, decorate the altar, and keep everything clean and equipped.',
     paymentMethodsTitle: 'Payment methods',
     paymentMethods: [
-      { title: 'Cryptocurrency', description: 'USDT/USDC/BTC and more' },
-      { title: 'FPS', description: 'instant transfers within Russia' },
-      { title: 'SWIFT', description: 'international bank transfer' }
+      { id: 'crypto' as const, title: 'Cryptocurrency', description: 'USDT/USDC/BTC and more' },
+      { id: 'sbp' as const, title: 'FPS', description: 'instant transfers within Russia' },
+      { id: 'swift' as const, title: 'SWIFT', description: 'international bank transfer' }
     ],
+    paymentMethodDetails: {
+      crypto: {
+        title: 'Cryptocurrency',
+        description: 'Transfer USDT (TRC-20) via ByBit using the details below.',
+        details: [
+          { label: 'ByBit UID', value: '115189352' },
+          { label: 'USDT TRC-20', value: 'TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5' }
+        ],
+        note: {
+          textBefore: 'After transferring, please message ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      },
+      sbp: {
+        title: 'FPS transfer',
+        description: 'Instant transfer via the Faster Payments System (Russia).',
+        details: [
+          { label: 'Phone number', value: '+7 995 597-01-08' },
+          { label: 'Bank', value: 'Yandex Bank / Sberbank' }
+        ],
+        note: {
+          textBefore: 'After transferring, please message ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      },
+      swift: {
+        title: 'SWIFT transfer',
+        description: 'International bank transfer in USD.',
+        details: [
+          { label: 'IBAN', value: 'GE73TB7418145068100009USD' },
+          { label: 'SWIFT', value: 'TBCBGE22' },
+          { label: 'Beneficiary', value: 'Liubov Verba' }
+        ],
+        note: {
+          textBefore: 'After transferring, please message ',
+          linkLabel: 't.me/artarteemev',
+          linkUrl: 'https://t.me/artarteemev'
+        }
+      }
+    },
     supportLevelsTitle: 'Monthly support tiers',
     supportLevels: [
       { title: 'Friend of OmHome', amount: '300 ฿ / 500 ₽ / $10' },
@@ -81,6 +167,8 @@ const translations = {
     transparencyIntro: 'Monthly report',
     transparencyDetails: 'income and expenses by category (rent, prasadam, altar, household, equipment)',
     transparencyButton: 'Public summary spreadsheet',
+    transparencyLink: 'https://docs.google.com/spreadsheets/d/1gKSs7HlLdmP8QztPw4dCWq3Z_ci_Eh_1m7GP18JMTjM',
+    closePaymentDetailsAria: 'Close payment details',
     targetedTitle: 'Targeted donations',
     donationCategories: [
       {
@@ -125,15 +213,53 @@ export function SupportSection() {
     donationsHelpText,
     paymentMethodsTitle,
     paymentMethods,
+    paymentMethodDetails,
     supportLevelsTitle,
     supportLevels,
     transparencyTitle,
     transparencyIntro,
     transparencyDetails,
     transparencyButton,
+    transparencyLink,
     targetedTitle,
-    donationCategories
+    donationCategories,
+    closePaymentDetailsAria
   } = translations[language];
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    (typeof paymentMethods)[number]['id'] | null
+  >(null);
+  const activeMethod =
+    selectedPaymentMethod !== null ? paymentMethodDetails[selectedPaymentMethod] : null;
+
+  useEffect(() => {
+    if (selectedPaymentMethod) {
+      document.documentElement.classList.add('overflow-hidden');
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setSelectedPaymentMethod(null);
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.documentElement.classList.remove('overflow-hidden');
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+
+    document.documentElement.classList.remove('overflow-hidden');
+    return undefined;
+  }, [selectedPaymentMethod]);
+
+  const handleOpenPaymentDetails = (methodId: typeof paymentMethods[number]['id']) => {
+    setSelectedPaymentMethod(methodId);
+  };
+
+  const handleClosePaymentDetails = () => {
+    setSelectedPaymentMethod(null);
+  };
 
   return (
     <section id="support" ref={ref} className="py-16 lg:py-24 bg-[#f8f6f3]">
@@ -159,16 +285,19 @@ export function SupportSection() {
             <h3 className="text-2xl font-bold text-[#73729b] mb-6">{paymentMethodsTitle}</h3>
             <div className="space-y-4">
               {paymentMethods.map((method, index) => (
-                <motion.div
+                <motion.button
+                  type="button"
                   key={method.title}
                   initial={{ opacity: 0, x: 20 }}
                   animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  className="hover:bg-white p-4 rounded-lg transition-colors cursor-pointer"
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleOpenPaymentDetails(method.id)}
+                  className="hover:bg-white p-4 rounded-lg transition-colors cursor-pointer text-left w-full border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#73729b] focus-visible:border-[#73729b]"
                 >
                   <h4 className="text-xl font-bold text-[#241f74] underline mb-1">{method.title}</h4>
                   <p className="text-lg text-black">{method.description}</p>
-                </motion.div>
+                </motion.button>
               ))}
             </div>
           </motion.div>
@@ -181,17 +310,21 @@ export function SupportSection() {
             <h3 className="text-2xl font-bold text-[#73729b] mb-6">{supportLevelsTitle}</h3>
             <div className="grid grid-cols-2 gap-4 mb-8">
               {supportLevels.map((level, index) => (
-                <motion.div
+                <motion.a
+                  href="http://boosty.to/omhome"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   key={level.title}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white p-4 rounded-lg shadow-md cursor-pointer"
+                  className="bg-white p-4 rounded-lg shadow-md cursor-pointer block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#73729b]"
+                  aria-label={`${level.title} — ${level.amount}`}
                 >
                   <h4 className="text-lg font-bold text-[#241f74] underline mb-2">{level.title}</h4>
                   <p className="text-sm text-black">{level.amount}</p>
-                </motion.div>
+                </motion.a>
               ))}
             </div>
 
@@ -205,11 +338,16 @@ export function SupportSection() {
               <p className="text-lg text-black leading-relaxed mb-4">
                 <span className="font-bold">{transparencyIntro}:</span> {transparencyDetails}
               </p>
-              <button className="flex items-center gap-2 text-[#4b4a73] underline hover:text-[#73729b] transition-colors">
+              <a
+                href={transparencyLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[#4b4a73] underline hover:text-[#73729b] transition-colors"
+              >
                 <Table size={20} />
                 {transparencyButton}
                 <ExternalLink size={16} />
-              </button>
+              </a>
             </motion.div>
           </motion.div>
         </div>
@@ -242,6 +380,56 @@ export function SupportSection() {
           ))}
         </div>
       </div>
+
+      {activeMethod ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            aria-hidden="true"
+            onClick={handleClosePaymentDetails}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="relative max-w-lg w-full bg-white rounded-2xl p-6 shadow-2xl"
+          >
+            <button
+              type="button"
+              onClick={handleClosePaymentDetails}
+              className="absolute top-4 right-4 p-2 rounded-full text-[#73729b] hover:bg-[#f8f6f3] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#73729b]"
+              aria-label={closePaymentDetailsAria}
+            >
+              <X size={20} />
+            </button>
+            <h4 className="text-2xl font-bold text-[#241f74] mb-3">{activeMethod.title}</h4>
+            <p className="text-base text-black leading-relaxed mb-4">{activeMethod.description}</p>
+            <div className="space-y-4 mb-4">
+              {activeMethod.details.map((detail) => (
+                <div key={detail.label} className="bg-[#f8f6f3] rounded-xl p-4">
+                  <p className="text-sm uppercase tracking-wide text-[#73729b] mb-1">{detail.label}</p>
+                  <p className="text-lg font-semibold text-black break-words">{detail.value}</p>
+                </div>
+              ))}
+            </div>
+            {activeMethod.note ? (
+              <p className="text-sm text-[#4b4a73] leading-relaxed">
+                {activeMethod.note.textBefore}
+                <a
+                  href={activeMethod.note.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-[#241f74]"
+                >
+                  {activeMethod.note.linkLabel}
+                </a>
+                .
+              </p>
+            ) : null}
+          </motion.div>
+        </div>
+      ) : null}
     </section>
   );
 }
