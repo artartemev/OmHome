@@ -104,7 +104,7 @@ const translations = {
         note: 'After the transfer, message: t.me/artarteemev'
       },
       {
-        title: 'FPS',
+        title: 'SBP',
         description: 'instant transfers within Russia',
         details: [
           'Phone: +7 995 597 0108',
