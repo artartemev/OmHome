@@ -86,7 +86,7 @@ export function ChiangMaiHomePage() {
             </a>
             <a
               className={styles.heroButton}
-              href="https://instagram.com/omhome_cnx"
+              href="https://www.instagram.com/omhome.cnx"
               target="_blank"
               rel="noreferrer"
             >
@@ -251,7 +251,7 @@ export function ChiangMaiHomePage() {
           </div>
           <a
             className={styles.happeningsButton}
-            href="https://instagram.com/omhome_cnx"
+            href="https://www.instagram.com/omhome.cnx"
             target="_blank"
             rel="noreferrer"
           >

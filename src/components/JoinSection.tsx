@@ -269,7 +269,12 @@ export function JoinSection() {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="text-center mb-16"
         >
-          <a href="#" className="text-xl text-[#241f74] underline hover:text-[#73729b] transition-colors">
+          <a
+            href="https://omhome-text.vercel.app/omhome"
+            target="_blank"
+            rel="noreferrer"
+            className="text-xl text-[#241f74] underline hover:text-[#73729b] transition-colors"
+          >
             {principlesLink}
           </a>
         </motion.div>
