@@ -11,20 +11,26 @@ const translations = {
       {
         category: 'Артём',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Telegram', link: '#' },
-          { icon: <Phone size={24} />, label: 'WhatsApp', link: '#' }
+          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/omhome_cnx' },
+          { icon: <Phone size={24} />, label: 'WhatsApp', link: 'https://wa.me/79955970108' }
         ]
       },
       {
         category: 'Социальные сети',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Канал Telegram', link: '#' },
-          { icon: <Instagram size={24} />, label: 'Instagram', link: '#' }
+          { icon: <MessageCircle size={24} />, label: 'Telegram канал', link: 'https://t.me/omhome_thai' },
+          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' }
         ]
       },
       {
         category: 'Адрес:',
-        items: [{ icon: <MapPin size={24} />, label: 'Google Maps', link: '#' }]
+        items: [
+          {
+            icon: <MapPin size={24} />,
+            label: 'Google Maps',
+            link: 'https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9'
+          }
+        ]
       }
     ],
     description:
@@ -36,20 +42,26 @@ const translations = {
       {
         category: 'Artyom',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Telegram', link: '#' },
-          { icon: <Phone size={24} />, label: 'WhatsApp', link: '#' }
+          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/omhome_cnx' },
+          { icon: <Phone size={24} />, label: 'WhatsApp', link: 'https://wa.me/79955970108' }
         ]
       },
       {
         category: 'Social media',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Telegram channel', link: '#' },
-          { icon: <Instagram size={24} />, label: 'Instagram', link: '#' }
+          { icon: <MessageCircle size={24} />, label: 'Telegram channel', link: 'https://t.me/omhome_thai' },
+          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' }
         ]
       },
       {
         category: 'Address:',
-        items: [{ icon: <MapPin size={24} />, label: 'Google Maps', link: '#' }]
+        items: [
+          {
+            icon: <MapPin size={24} />,
+            label: 'Google Maps',
+            link: 'https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9'
+          }
+        ]
       }
     ],
     description:
@@ -95,6 +107,8 @@ export function ContactsSection() {
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
                     transition={{ duration: 0.5, delay: 0.4 + groupIndex * 0.2 + itemIndex * 0.1 }}
                     whileHover={{ x: 5, scale: 1.02 }}
+                    target="_blank"
+                    rel="noreferrer"
                     className="flex items-center gap-3 text-xl text-black hover:text-[#73729b] transition-colors p-3 rounded-lg hover:bg-[#f8f6f3] group"
                   >
                     <div className="text-[#73729b] group-hover:scale-110 transition-transform">{item.icon}</div>
