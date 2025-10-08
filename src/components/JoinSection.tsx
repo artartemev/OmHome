@@ -361,7 +361,7 @@ export function JoinSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative z-10 w-full max-w-xl rounded-3xl bg-white p-8 shadow-2xl"
+            className="relative z-10 w-full max-w-lg sm:max-w-xl lg:max-w-2xl rounded-3xl bg-white p-6 sm:p-8 shadow-2xl"
           >
             <button
               type="button"
@@ -374,7 +374,7 @@ export function JoinSection() {
             <h3 className="mb-3 text-3xl font-menorah text-[#241f74]">{form.title}</h3>
             <p className="mb-6 text-base text-black/70">{form.description}</p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex flex-col gap-2">
                 <label htmlFor="join-name" className="text-sm font-semibold uppercase tracking-wide text-[#73729b]">
                   {form.nameLabel}
@@ -439,7 +439,7 @@ export function JoinSection() {
                 />
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
