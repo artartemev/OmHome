@@ -103,14 +103,14 @@ export function AuthoritySection() {
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
                   className="flex flex-col items-center"
                 >
-                  <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-lg bg-white">
+                  <div className="mentor-avatar w-40 h-40 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-lg bg-white">
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <figcaption className="-mt-8 w-40 sm:w-44 bg-white px-4 py-3 rounded-full shadow-md text-center">
+                  <figcaption className="mentor-caption -mt-8 w-40 sm:w-44 bg-white px-4 py-3 rounded-full shadow-md text-center">
                     <p className="font-menorah text-sm text-black leading-tight">{name}</p>
                     <p className="text-xs text-[#73729b] mt-1 leading-snug">{role}</p>
                   </figcaption>
