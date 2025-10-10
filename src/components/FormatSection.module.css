@@ -1,0 +1,184 @@
+.section {
+  background-color: #e9e5e2;
+  display: flex;
+  justify-content: center;
+  padding: 80px 16px;
+}
+
+.container {
+  width: min(100%, 1200px);
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.heading {
+  font-family: 'MenorahGrotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 84px;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.topRow,
+.bottomRow {
+  display: flex;
+  gap: 64px;
+  align-items: stretch;
+}
+
+.topRow {
+  flex-direction: row;
+}
+
+.bottomRow {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.firstParagraph,
+.secondParagraph {
+  font-family: 'MenorahGrotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 36px;
+  color: #000000;
+}
+
+.firstParagraph {
+  flex: 1 1 0;
+}
+
+.secondParagraph {
+  flex: 1 1 0;
+  text-align: right;
+}
+
+.imageTall,
+.imageWide {
+  border-radius: 180px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.imageTall {
+  width: 396px;
+  max-width: 40vw;
+}
+
+.imageWide {
+  width: 350px;
+  max-width: 35vw;
+}
+
+.imageTall img,
+.imageWide img {
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  display: block;
+}
+
+.imageTall img {
+  object-fit: cover;
+}
+
+.imageWide img {
+  object-fit: contain;
+  background-color: #f5f2ee;
+}
+
+@media (max-width: 1280px) {
+  .heading {
+    font-size: 64px;
+  }
+
+  .firstParagraph,
+  .secondParagraph {
+    font-size: 22px;
+    line-height: 32px;
+  }
+
+  .imageTall,
+  .imageWide {
+    border-radius: 140px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .topRow,
+  .bottomRow {
+    flex-direction: column;
+  }
+
+  .topRow {
+    align-items: center;
+  }
+
+  .bottomRow {
+    align-items: center;
+  }
+
+  .firstParagraph,
+  .secondParagraph {
+    text-align: left;
+  }
+
+  .secondParagraph {
+    order: 1;
+  }
+
+  .imageWide {
+    order: 2;
+  }
+
+  .imageTall,
+  .imageWide {
+    width: min(100%, 320px);
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 16px;
+  }
+
+  .container {
+    gap: 48px;
+  }
+
+  .heading {
+    font-size: 48px;
+    line-height: 1.1;
+  }
+
+  .firstParagraph,
+  .secondParagraph {
+    font-size: 20px;
+    line-height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 48px 16px;
+  }
+
+  .heading {
+    font-size: 36px;
+  }
+
+  .firstParagraph,
+  .secondParagraph {
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .imageTall,
+  .imageWide {
+    border-radius: 120px;
+  }
+}
