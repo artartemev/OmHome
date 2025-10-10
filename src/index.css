@@ -198,6 +198,28 @@
     line-height: inherit;
   }
 
+  .mentor-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .mentor-caption {
+    width: 160px;
+  }
+
+  @media (min-width: 640px) {
+    .mentor-avatar,
+    .mentor-caption {
+      width: 176px;
+    }
+
+    .mentor-avatar {
+      height: 176px;
+    }
+  }
+
   hr {
     height: 0;
     color: inherit;
