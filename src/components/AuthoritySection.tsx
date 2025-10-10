@@ -101,18 +101,18 @@ export function AuthoritySection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                  className="flex flex-col items-center"
+                  className="flex flex-col items-center w-full max-w-[10rem] sm:max-w-none"
                 >
-                  <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-full overflow-hidden shadow-lg bg-white">
+                  <div className="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full overflow-hidden shadow-lg bg-white">
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover object-top"
                     />
                   </div>
-                  <figcaption className="-mt-8 w-40 sm:w-44 bg-white px-4 py-3 rounded-full shadow-md text-center">
-                    <p className="font-menorah text-sm text-black leading-tight">{name}</p>
-                    <p className="text-xs text-[#73729b] mt-1 leading-snug">{role}</p>
+                  <figcaption className="-mt-6 w-28 sm:w-36 lg:w-40 bg-white px-4 py-3 rounded-full shadow-md text-center">
+                    <p className="font-menorah text-xs sm:text-sm text-black leading-tight">{name}</p>
+                    <p className="text-[11px] sm:text-xs text-[#73729b] mt-1 leading-snug">{role}</p>
                   </figcaption>
                 </motion.figure>
               );

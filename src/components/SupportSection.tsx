@@ -254,7 +254,7 @@ export function SupportSection() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <h3 className="text-2xl font-bold text-[#73729b] mb-6">{supportLevelsTitle}</h3>
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {supportLevels.map((level, index) => (
                   <motion.a
                     key={level.title}
@@ -328,7 +328,7 @@ export function SupportSection() {
       </section>
 
       {selectedMethod ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 py-6 sm:items-center">
           <button
             type="button"
             onClick={handleCloseModal}
@@ -344,22 +344,24 @@ export function SupportSection() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            className="relative w-full max-w-md sm:max-w-lg rounded-2xl bg-white shadow-2xl flex flex-col max-h-[min(90vh,38rem)]"
           >
-            <h4 id={modalTitleId} className="text-2xl font-bold text-[#241f74] mb-4">
-              {paymentModalTitle} — {selectedMethod.title}
-            </h4>
-            <ul className="space-y-2 mb-4">
-              {selectedMethod.details.map((detail) => (
-                <li key={detail} className="text-lg text-black leading-relaxed">
-                  {detail}
-                </li>
-              ))}
-            </ul>
-            {selectedMethod.note ? (
-              <p className="text-base text-[#4b4a73] leading-relaxed mb-6">{selectedMethod.note}</p>
-            ) : null}
-            <div className="flex justify-end">
+            <div className="overflow-y-auto px-6 py-6 sm:py-8">
+              <h4 id={modalTitleId} className="text-2xl font-bold text-[#241f74] mb-4">
+                {paymentModalTitle} — {selectedMethod.title}
+              </h4>
+              <ul className="space-y-2 mb-6">
+                {selectedMethod.details.map((detail) => (
+                  <li key={detail} className="text-lg text-black leading-relaxed">
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+              {selectedMethod.note ? (
+                <p className="text-base text-[#4b4a73] leading-relaxed">{selectedMethod.note}</p>
+              ) : null}
+            </div>
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#73729b]/10">
               <button
                 type="button"
                 onClick={handleCloseModal}
