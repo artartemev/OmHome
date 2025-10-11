@@ -101,7 +101,7 @@ export function AuthoritySection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                  className="flex flex-col items-center w-[300px]"
+                  className="flex flex-col items-center w-[300px] pb-6"
                 >
                   <div className="w-full overflow-hidden rounded-3xl shadow-lg bg-white">
                     <img

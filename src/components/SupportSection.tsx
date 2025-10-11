@@ -208,16 +208,20 @@ export function SupportSection() {
   const modalTitleId = 'support-payment-modal-title';
 
   useEffect(() => {
-    if (selectedMethod) {
-      const previousOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-
-      return () => {
-        document.body.style.overflow = previousOverflow;
-      };
+    if (!selectedMethod) {
+      return undefined;
     }
 
-    return undefined;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
   }, [selectedMethod]);
 
   return (
@@ -341,13 +345,11 @@ export function SupportSection() {
       </section>
 
       {selectedMethod ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 py-6 sm:items-center">
-          <div
-            role="presentation"
-            onClick={handleCloseModal}
-            className="absolute inset-0"
-            aria-hidden="true"
-          />
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 py-10 sm:items-center overflow-y-auto overscroll-contain"
+          role="presentation"
+          onClick={handleCloseModal}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -359,7 +361,7 @@ export function SupportSection() {
             aria-labelledby={modalTitleId}
             className="relative w-full max-w-md sm:max-w-lg rounded-2xl bg-white shadow-2xl flex flex-col max-h-[min(90vh,38rem)]"
           >
-            <div className="overflow-y-auto px-6 py-6 sm:py-8">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:py-8">
               <h4 id={modalTitleId} className="text-2xl font-bold text-[#241f74] mb-4">
                 {paymentModalTitle} — {selectedMethod.title}
               </h4>
