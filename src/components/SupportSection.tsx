@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Table } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -207,6 +207,19 @@ export function SupportSection() {
 
   const modalTitleId = 'support-payment-modal-title';
 
+  useEffect(() => {
+    if (selectedMethod) {
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }
+
+    return undefined;
+  }, [selectedMethod]);
+
   return (
     <>
       <section id="support" ref={ref} className="py-16 lg:py-24 bg-[#f8f6f3]">
@@ -329,11 +342,11 @@ export function SupportSection() {
 
       {selectedMethod ? (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 py-6 sm:items-center">
-          <button
-            type="button"
+          <div
+            role="presentation"
             onClick={handleCloseModal}
-            className="absolute inset-0 w-full h-full cursor-pointer"
-            aria-label={paymentModalClose}
+            className="absolute inset-0"
+            aria-hidden="true"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
