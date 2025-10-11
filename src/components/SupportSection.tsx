@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Table } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -196,6 +196,7 @@ export function SupportSection() {
     donationCategories
   } = translations[language];
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+  const scrollPositionRef = useRef(0);
 
   const handleSelectMethod = (method: PaymentMethod) => {
     setSelectedMethod(method);
@@ -206,6 +207,35 @@ export function SupportSection() {
   };
 
   const modalTitleId = 'support-payment-modal-title';
+
+  useEffect(() => {
+    if (!selectedMethod) {
+      return undefined;
+    }
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyWidth = document.body.style.width;
+
+    scrollPositionRef.current = window.scrollY;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollPositionRef.current}px`;
+    document.body.style.width = '100%';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.width = previousBodyWidth;
+      window.scrollTo({ top: scrollPositionRef.current });
+    };
+  }, [selectedMethod]);
 
   return (
     <>
@@ -254,7 +284,7 @@ export function SupportSection() {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <h3 className="text-2xl font-bold text-[#73729b] mb-6">{supportLevelsTitle}</h3>
-              <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {supportLevels.map((level, index) => (
                   <motion.a
                     key={level.title}
@@ -328,13 +358,11 @@ export function SupportSection() {
       </section>
 
       {selectedMethod ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <button
-            type="button"
-            onClick={handleCloseModal}
-            className="absolute inset-0 w-full h-full cursor-pointer"
-            aria-label={paymentModalClose}
-          />
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 py-10 sm:items-center overflow-y-auto overscroll-contain"
+          role="presentation"
+          onClick={handleCloseModal}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -344,22 +372,24 @@ export function SupportSection() {
             role="dialog"
             aria-modal="true"
             aria-labelledby={modalTitleId}
-            className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            className="relative w-full max-w-md sm:max-w-lg rounded-2xl bg-white shadow-2xl flex flex-col max-h-[min(90vh,38rem)]"
           >
-            <h4 id={modalTitleId} className="text-2xl font-bold text-[#241f74] mb-4">
-              {paymentModalTitle} — {selectedMethod.title}
-            </h4>
-            <ul className="space-y-2 mb-4">
-              {selectedMethod.details.map((detail) => (
-                <li key={detail} className="text-lg text-black leading-relaxed">
-                  {detail}
-                </li>
-              ))}
-            </ul>
-            {selectedMethod.note ? (
-              <p className="text-base text-[#4b4a73] leading-relaxed mb-6">{selectedMethod.note}</p>
-            ) : null}
-            <div className="flex justify-end">
+            <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 sm:py-8">
+              <h4 id={modalTitleId} className="text-2xl font-bold text-[#241f74] mb-4">
+                {paymentModalTitle} — {selectedMethod.title}
+              </h4>
+              <ul className="space-y-2 mb-6">
+                {selectedMethod.details.map((detail) => (
+                  <li key={detail} className="text-lg text-black leading-relaxed">
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+              {selectedMethod.note ? (
+                <p className="text-base text-[#4b4a73] leading-relaxed">{selectedMethod.note}</p>
+              ) : null}
+            </div>
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#73729b]/10">
               <button
                 type="button"
                 onClick={handleCloseModal}
