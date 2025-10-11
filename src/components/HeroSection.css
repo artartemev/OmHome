@@ -1,9 +1,15 @@
 .hero-section {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: #e6e2df;
-  padding: 7rem 0 4rem;
+  padding: clamp(5.5rem, 18vw, 7rem) 0 clamp(3rem, 12vw, 4rem);
   overflow: hidden;
+}
+
+@supports not (min-height: 100dvh) {
+  .hero-section {
+    min-height: 100vh;
+  }
 }
 
 .hero-section__container {
@@ -254,6 +260,28 @@
 @media (min-width: 640px) {
   .hero-section__cta {
     flex-direction: row;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section__container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .hero-section__slide {
+    padding: 0 0.5rem;
+  }
+
+  .hero-section__cta {
+    width: 100%;
+    padding: 0 0.5rem;
+    align-items: stretch;
+  }
+
+  .hero-section__swipe-hint {
+    right: 0.5rem;
+    font-size: 0.65rem;
   }
 }
 

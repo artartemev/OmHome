@@ -287,7 +287,7 @@ export function HeroSection() {
             whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(115, 114, 155, 0.3)' }}
             whileTap={{ scale: 0.95 }}
             onClick={scrollToJoin}
-            className="bg-[#73729b] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#5a5982]"
+            className="bg-[#73729b] text-white w-full sm:w-auto px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg rounded-full font-bold transition-all duration-300 hover:bg-[#5a5982]"
           >
             {t.joinCta}
           </motion.button>
@@ -295,7 +295,7 @@ export function HeroSection() {
             whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(134, 175, 141, 0.3)' }}
             whileTap={{ scale: 0.95 }}
             onClick={scrollToSupport}
-            className="bg-[#86af8d] text-white px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:bg-[#6d8f74]"
+            className="bg-[#86af8d] text-white w-full sm:w-auto px-6 py-3 text-base sm:px-8 sm:py-4 sm:text-lg rounded-full font-bold transition-all duration-300 hover:bg-[#6d8f74]"
           >
             {t.supportCta}
           </motion.button>
