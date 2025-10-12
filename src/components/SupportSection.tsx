@@ -10,6 +10,8 @@ const translations = {
     donationsHelpTitle: 'Пожертвования помогают:',
     donationsHelpText:
       'арендовать дом, проводить программы, готовить прасад, украшать алтарь, поддерживать чистоту и оборудование.',
+    launchSupportText:
+      'Сейчас мы запускаем пространство, и старт — самый затратный этап: покупка мебели, украшение и обустройство алтаря, кухонная утварь, оборудование для готовки, реклама. Поддержка в начале помогает нам уверенно встать на ноги и приглашает разделить мощную духовную ответственность, стать частью этого проекта.',
     paymentMethodsTitle: 'Способы превода',
     paymentMethods: [
       {
@@ -92,6 +94,8 @@ const translations = {
     donationsHelpTitle: 'Donations help us to:',
     donationsHelpText:
       'rent the house, host programs, cook prasadam, decorate the altar, and keep everything clean and equipped.',
+    launchSupportText:
+      'We are launching the space now, and the starting phase is the most expensive one: furnishing the house, creating and decorating the altar, equipping the kitchen, cooking gear, and outreach. Early support helps us gain momentum with confidence — an invitation to share a profound spiritual responsibility and become part of the project.',
     paymentMethodsTitle: 'Payment methods',
     paymentMethods: [
       {
@@ -181,6 +185,7 @@ export function SupportSection() {
     title,
     donationsHelpTitle,
     donationsHelpText,
+    launchSupportText,
     paymentMethodsTitle,
     paymentMethods,
     supportLevelsTitle,
@@ -244,7 +249,8 @@ export function SupportSection() {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <h3 className="text-2xl font-bold text-[#73729b] mb-6">{donationsHelpTitle}</h3>
-              <p className="text-xl text-black leading-relaxed mb-8">{donationsHelpText}</p>
+              <p className="text-xl text-black leading-relaxed mb-4">{donationsHelpText}</p>
+              <p className="text-xl text-black leading-relaxed mb-8">{launchSupportText}</p>
 
               <h3 className="text-2xl font-bold text-[#73729b] mb-6">{paymentMethodsTitle}</h3>
               <div className="space-y-4">
