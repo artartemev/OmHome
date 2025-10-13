@@ -91,7 +91,7 @@ export function AuthoritySection() {
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-8 justify-items-center"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 justify-items-center"
           >
             {mentors.map((mentor, index) => {
               const { name, role } = mentor.translations[language];
@@ -102,11 +102,11 @@ export function AuthoritySection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                  className="flex flex-col items-center w-full max-w-[220px] pb-6"
+                  className="w-full max-w-[180px] bg-white rounded-3xl shadow-md overflow-hidden"
                 >
                   <AspectRatio
                     ratio={57 / 40}
-                    className="w-full overflow-hidden rounded-3xl shadow-lg bg-white"
+                    className="w-full"
                   >
                     <img
                       src={mentor.image}
@@ -114,9 +114,9 @@ export function AuthoritySection() {
                       className="h-full w-full object-cover"
                     />
                   </AspectRatio>
-                  <figcaption className="mt-4 w-full bg-white px-4 py-4 rounded-3xl shadow-md text-center">
-                    <p className="font-menorah text-base text-black leading-tight">{name}</p>
-                    <p className="text-sm text-[#73729b] mt-2 leading-snug">{role}</p>
+                  <figcaption className="px-4 py-5 text-center">
+                    <p className="font-menorah text-sm text-black leading-tight">{name}</p>
+                    <p className="text-xs text-[#73729b] mt-2 leading-snug">{role}</p>
                   </figcaption>
                 </motion.figure>
               );
