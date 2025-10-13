@@ -10,17 +10,17 @@ const translations = {
       who: {
         title: 'Кто мы:',
         description:
-          'OmHome — социальный проповеднический вайшнавский проект. Наша цель — поддерживать и развивать проповедь в местах, где нет активных общин, но есть энтузиазм семей преданных.'
+          'У нас настоящий дом преданных: здесь постоянно живут вайшнавы, и вы тоже можете приехать пожить, послужить и вдохновиться вместе с нами.'
       },
       what: {
         title: 'Что делаем:',
         description:
-          'соединяем духовные программы (киртаны, лекции, санги, нама‑хатты) с социальными событиями (кинопоказы, настольные игры, йога, мастер‑классы), чтобы мягко знакомить людей с вайшнавской культурой.'
+          'проводим регулярные проповеднические программы: киртаны, лекции, санги, нама‑хатты, беседы по шастрам, встречи для гостей, семейные вечера, творческие мастер‑классы и служение в городе.'
       },
       how: {
         title: 'Как устроено:',
         description:
-          'это не просто центр — это дом, где живут преданные и где естественно рождаются отношения, забота и служение.'
+          'дом открыт для приезжающих преданных и интересующихся: мы встречаем лично, помогаем встроиться в ритм, вовлекаем в служение и поддерживаем заботой.'
       }
     },
     stats: [
@@ -35,17 +35,17 @@ const translations = {
       who: {
         title: 'Who we are:',
         description:
-          'OmHome is a social Vaishnava outreach project. Our goal is to support and develop preaching where there are no active communities yet, but devotee families are eager to serve.'
+          'We have a real devotee home: Vaishnavas live here full-time, and you are welcome to visit, stay with us, serve, and find inspiration.'
       },
       what: {
         title: 'What we do:',
         description:
-          'We combine spiritual programs (kirtans, lectures, sangas, nama-hattas) with social events (movie nights, board games, yoga, workshops) to gently introduce people to Vaishnava culture.'
+          'We host regular preaching programs: kirtans, lectures, sangas, nama-hattas, scripture discussions, gatherings for guests, family evenings, creative workshops, and city outreach service.'
       },
       how: {
         title: 'How it works:',
         description:
-          "It's not just a center—it's a home where devotees live, and relationships, care, and service grow naturally."
+          "The home is open to visiting devotees and seekers: we greet everyone personally, help them settle into the rhythm, engage them in service, and surround them with care."
       }
     },
     stats: [

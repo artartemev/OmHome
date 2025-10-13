@@ -90,7 +90,7 @@ export function AuthoritySection() {
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-10"
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-8 justify-items-center"
           >
             {mentors.map((mentor, index) => {
               const { name, role } = mentor.translations[language];
@@ -101,16 +101,16 @@ export function AuthoritySection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                  className="flex flex-col items-center w-[300px] pb-6"
+                  className="flex flex-col items-center w-full max-w-[220px] pb-6"
                 >
-                  <div className="w-full overflow-hidden rounded-3xl shadow-lg bg-white">
+                  <div className="w-full h-64 overflow-hidden rounded-3xl shadow-lg bg-white">
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
-                      className="w-full h-auto object-cover"
+                      className="w-full h-full object-cover"
                     />
                   </div>
-                  <figcaption className="mt-4 w-full bg-white px-6 py-4 rounded-3xl shadow-md text-center">
+                  <figcaption className="mt-4 w-full bg-white px-4 py-4 rounded-3xl shadow-md text-center">
                     <p className="font-menorah text-base text-black leading-tight">{name}</p>
                     <p className="text-sm text-[#73729b] mt-2 leading-snug">{role}</p>
                   </figcaption>
