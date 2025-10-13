@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { AspectRatio } from './ui/aspect-ratio';
 import acyutatmaImage from '../assets/seniors_support/acyutatma.jpg';
 import kesavaImage from '../assets/seniors_support/kesava.png';
 import mukundaImage from '../assets/seniors_support/mukunda.png';
@@ -103,13 +104,16 @@ export function AuthoritySection() {
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
                   className="flex flex-col items-center w-full max-w-[220px] pb-6"
                 >
-                  <div className="relative w-full aspect-[57/40] overflow-hidden rounded-3xl shadow-lg bg-white bg-cover">
+                  <AspectRatio
+                    ratio={57 / 40}
+                    className="w-full overflow-hidden rounded-3xl shadow-lg bg-white"
+                  >
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
-                      className="absolute inset-0 h-full w-full object-cover"
+                      className="h-full w-full object-cover"
                     />
-                  </div>
+                  </AspectRatio>
                   <figcaption className="mt-4 w-full bg-white px-4 py-4 rounded-3xl shadow-md text-center">
                     <p className="font-menorah text-base text-black leading-tight">{name}</p>
                     <p className="text-sm text-[#73729b] mt-2 leading-snug">{role}</p>

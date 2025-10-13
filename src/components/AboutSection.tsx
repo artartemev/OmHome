@@ -10,7 +10,7 @@ const translations = {
       who: {
         title: 'Кто мы:',
         description:
-          'У нас настоящий дом преданных: здесь постоянно живут вайшнавы, и вы тоже можете приехать пожить, послужить и вдохновиться вместе с нами.'
+          'Мы находимся в Чианг Мае, Таиланд — у нас настоящий дом преданных: здесь постоянно живут вайшнавы, и вы тоже можете приехать пожить, послужить и вдохновиться вместе с нами.'
       },
       what: {
         title: 'Что делаем:',
@@ -35,7 +35,7 @@ const translations = {
       who: {
         title: 'Who we are:',
         description:
-          'We have a real devotee home: Vaishnavas live here full-time, and you are welcome to visit, stay with us, serve, and find inspiration.'
+          'We are based in Chiang Mai, Thailand — we have a real devotee home: Vaishnavas live here full-time, and you are welcome to visit, stay with us, serve, and find inspiration.'
       },
       what: {
         title: 'What we do:',
