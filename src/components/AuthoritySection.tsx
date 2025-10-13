@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
 import { useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { AspectRatio } from './ui/aspect-ratio';
 import acyutatmaImage from '../assets/seniors_support/acyutatma.jpg';
 import kesavaImage from '../assets/seniors_support/kesava.png';
 import mukundaImage from '../assets/seniors_support/mukunda.png';
@@ -90,7 +91,7 @@ export function AuthoritySection() {
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-10"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 justify-items-center"
           >
             {mentors.map((mentor, index) => {
               const { name, role } = mentor.translations[language];
@@ -101,18 +102,21 @@ export function AuthoritySection() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
-                  className="flex flex-col items-center w-[300px] pb-6"
+                  className="w-full max-w-[180px] bg-white rounded-3xl shadow-md overflow-hidden"
                 >
-                  <div className="w-full overflow-hidden rounded-3xl shadow-lg bg-white">
+                  <AspectRatio
+                    ratio={57 / 40}
+                    className="w-full"
+                  >
                     <img
                       src={mentor.image}
                       alt={language === 'ru' ? `Фото ${name}` : `Photo of ${name}`}
-                      className="w-full h-auto object-cover"
+                      className="h-full w-full object-cover"
                     />
-                  </div>
-                  <figcaption className="mt-4 w-full bg-white px-6 py-4 rounded-3xl shadow-md text-center">
-                    <p className="font-menorah text-base text-black leading-tight">{name}</p>
-                    <p className="text-sm text-[#73729b] mt-2 leading-snug">{role}</p>
+                  </AspectRatio>
+                  <figcaption className="px-4 py-5 text-center">
+                    <p className="font-menorah text-sm text-black leading-tight">{name}</p>
+                    <p className="text-xs text-[#73729b] mt-2 leading-snug">{role}</p>
                   </figcaption>
                 </motion.figure>
               );
