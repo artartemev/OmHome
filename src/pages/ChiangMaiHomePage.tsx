@@ -331,7 +331,7 @@ export function ChiangMaiHomePage() {
           <div className={styles.locationActions}>
             <a
               className={styles.locationButton}
-              href="https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9"
+              href="https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59"
               target="_blank"
               rel="noreferrer"
             >

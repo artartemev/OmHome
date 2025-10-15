@@ -28,7 +28,7 @@ const translations = {
           {
             icon: <MapPin size={24} />,
             label: 'Google Maps',
-            link: 'https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9'
+            link: 'https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59'
           }
         ]
       }
@@ -59,7 +59,7 @@ const translations = {
           {
             icon: <MapPin size={24} />,
             label: 'Google Maps',
-            link: 'https://maps.app.goo.gl/XRhHXGwcpKY2mDjW9'
+            link: 'https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59'
           }
         ]
       }
