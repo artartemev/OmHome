@@ -97,7 +97,7 @@ const translations = {
     ],
     participationOptions: [
       {
-        title: 'Volunteer:',
+        title: 'To be a part of the team:',
         description: 'event organisation, kitchen/prasadam, music, design/media, translation, tech support, outreach',
         icon: icons.volunteer
       },
