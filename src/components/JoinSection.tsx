@@ -42,7 +42,7 @@ const translations = {
     ],
     participationOptions: [
       {
-        title: 'Волонтёрить:',
+        title: 'Cтать частью команды:',
         description: 'организация событий, кухня/прасад, музыка, дизайн/медиа, перевод, техподдержка, маркетинг',
         icon: icons.volunteer
       },
