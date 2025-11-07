@@ -27,7 +27,7 @@ const translations = {
       },
       {
         text: '«Дом, порядок и забота о деталях — от алтаря до уборки. Хочется тоже взять ответственность и служить.»',
-        author: 'Волонтёр проекта'
+        author: 'Участник проекта'
       },
       {
         text: '«Удивительно: где бы ни оказался, можно встретить это настроение и людей, с которыми хочешь идти дальше.»',
@@ -58,7 +58,7 @@ const translations = {
       },
       {
         text: '“Home, order, and care for every detail—from the altar to cleaning. It makes you want to take responsibility and serve too.”',
-        author: 'Project volunteer'
+        author: 'Project member'
       },
       {
         text: '“It’s amazing: wherever you are, you can meet this mood and people you want to walk alongside.”',
