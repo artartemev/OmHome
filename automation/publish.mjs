@@ -240,8 +240,15 @@ if (!events.length) {
     await notify(`⚠️ Не смог разобрать свободный текст — ${error.message}. Пришлите анонс в формате «дата время / название / описание».`);
     process.exit(1);
   }
-  await notify(`🧠 Разобрал анонс так:\n\n${structured}`);
+  console.log(`\n🧠 Gemini разобрал анонс так:\n${structured}\n`);
   events = parseSchedule(structured);
+  // A short summary, not the intermediate text: the post itself comes in the house format with the preview.
+  if (events.length) {
+    const list = events.map((event) => `• ${event.weekday} ${event.date.slice(8)}/${event.date.slice(5, 7)}, ${event.time} — ${event.title}`);
+    await notify(`🧠 Понял анонс: ${events.length === 1 ? 'одно событие' : `событий: ${events.length}`}\n${list.join('\n')}\n\nПревью постов придут следом.`);
+  } else {
+    await notify('⚠️ Не нашёл в тексте ни одного события с датой. Напишите, когда и что будет.');
+  }
 }
 const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
 
