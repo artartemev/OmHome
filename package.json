@@ -55,6 +55,8 @@
       },
       "scripts": {
           "dev": "vite",
-          "build": "vite build"
+          "build": "vite build",
+          "test": "node --test automation/test/*.test.mjs",
+          "publish:events": "node automation/publish.mjs"
       }
   }

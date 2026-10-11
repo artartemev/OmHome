@@ -1,353 +1,623 @@
-import { motion, useInView } from 'motion/react';
-import { useRef } from 'react';
-import communityGatheringImage from '../assets/main/com.png';
-import initiationIllustration from '../assets/main/intiation.png';
-import logo from '../assets/main/logo.png';
-import sparkleIcon from '../assets/main/sparkle.svg';
-import locationArtwork from '../assets/main/footrer.png';
+import { motion } from 'motion/react';
+import { useState, type ReactNode } from 'react';
+import { ArrowUpRight, CalendarPlus, Check, Copy, MapPin, Send, Instagram, Sparkles } from 'lucide-react';
+import logo from '../assets/home/art-logo.png';
+import artYoga from '../assets/home/art-yoga.png';
+import artHat from '../assets/home/art-hat.png';
+import artConversation from '../assets/home/art-coversation.png';
+import artSilent from '../assets/home/art-silent.png';
+import artCow from '../assets/home/art-com.png';
+import artCity from '../assets/home/art-footrer.png';
+import photoHall from '../assets/home/hall.jpg';
+import photoLamp from '../assets/home/lamp.jpg';
+import photoKirtan from '../assets/home/kirtan-1.jpg';
+import photoKirtan2 from '../assets/home/kirtan-2.jpg';
+import photoSmile from '../assets/home/smile.jpg';
+import photoLaugh from '../assets/home/laugh.jpg';
+import photoFriends from '../assets/home/friends.jpg';
+import photoStreet from '../assets/home/street.jpg';
+import photoAltar from '../assets/home/altar.jpg';
+import photoTrip from '../assets/home/trip.jpg';
+import photoYoga from '../assets/home/yoga.jpg';
+import photoHarmonium from '../assets/home/harmonium.jpg';
+import photoKids from '../assets/home/kids.jpg';
+import photoPrasad from '../assets/home/prasad.jpg';
+import promptPayQr from '../assets/support/promptpay.jpg';
+import {
+  downloadIcs,
+  formatEventDate,
+  relativeDayLabel,
+  useEvents,
+  type OmEvent,
+  type RecurringEvent
+} from './home/useEvents';
 import styles from './ChiangMaiHomePage.module.css';
 
-const eventImagesGlob = import.meta.glob('../assets/events/*.{jpg,jpeg,png}', {
-  eager: true,
-  import: 'default'
-}) as Record<string, string>;
+const LINKS = {
+  channel: 'https://t.me/omhome_thai',
+  chat: 'https://t.me/+j7rRLqBkCvhiMWQy',
+  contact: 'https://t.me/artartemev',
+  instagram: 'https://www.instagram.com/omhome.cnx',
+  map: 'https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7',
+  belgrade: 'https://www.instagram.com/omhome.belgrade/',
+  batumi: 'https://www.instagram.com/omhome.batumi/'
+};
 
-const experienceImages = Object.values(eventImagesGlob).sort();
-const experienceLeftColumn = experienceImages.filter((_, index) => index % 2 === 0);
-const experienceRightColumn = experienceImages.filter((_, index) => index % 2 === 1);
-const experienceLeftLoop =
-  experienceLeftColumn.length > 0
-    ? [...experienceLeftColumn, ...experienceLeftColumn]
-    : [...experienceImages, ...experienceImages];
-const experienceRightLoop =
-  experienceRightColumn.length > 0
-    ? [...experienceRightColumn, ...experienceRightColumn]
-    : [...experienceImages, ...experienceImages];
-const experienceLeftDelayGroupSize = Math.max(experienceLeftColumn.length, 1);
-const experienceRightDelayGroupSize = Math.max(experienceRightColumn.length, 1);
+const ADDRESS = 'OmHome Space, Pa Daet, Chiang Mai';
 
-const happeningsColumns = [
-  [
-    {
-      title: 'Кино и квизы',
-      description: 'уютные вечера с обсуждениями.'
-    },
-    {
-      title: 'Йога и мастер-классы',
-      description: 'от расслабления до новых навыков.'
-    },
-    {
-      title: 'Живая музыка и киртаны',
-      description: 'гармония и вдохновение.'
-    }
-  ],
-  [
-    {
-      title: 'Настольные игры и квартирники',
-      description: 'весёлые форматы для новых знакомств.',
-      singleLine: true
-    },
-    {
-      title: 'Коворкинг',
-      description: 'работа в уютной обстановке.'
-    },
-    {
-      title: 'Коммьюнити',
-      description: 'общение, дружба, забота.'
-    }
-  ]
+const NAV = [
+  { href: '#afisha', label: 'Афиша' },
+  { href: '#about', label: 'О доме' },
+  { href: '#support', label: 'Поддержать' },
+  { href: '#projects', label: 'Проекты' },
+  { href: '#map', label: 'Как найти' }
 ];
 
-const initiativeActivities = [
-  'устроить мастер-класс или йогу,',
-  'провести квартирник или настольный вечер,',
-  'организовать встречу по интересам.'
+const FORMATS = [
+  { art: artConversation, title: 'Чай и разговоры', text: 'Чайные вечера, знакомства и разговоры о главном — без суеты и оценок.' },
+  { art: artYoga, title: 'Йога и киртаны', text: 'Соматическая и мантра-йога, медитации и совместное пение мантр.' },
+  { art: artHat, title: 'Игры и кино', text: 'Настолки, квизы, детективы, RPG и кинопоказы на большом экране.' },
+  { art: artSilent, title: 'Лекции и философия', text: 'Чтения и беседы о вечных ценностях — просто и по-доброму.' }
 ];
+
+const STATS = [
+  { value: '3', label: 'города: Батуми, Белград, Чиангмай' },
+  { value: 'Сотни', label: 'встреч, лекций и киртанов' },
+  { value: '0', label: 'алкоголя, мяса и осуждения' }
+];
+
+const GALLERY_TOP = [photoHall, photoKirtan, photoFriends, photoAltar, photoLaugh, photoStreet, photoPrasad];
+const GALLERY_BOTTOM = [photoSmile, photoYoga, photoLamp, photoKirtan2, photoTrip, photoHarmonium, photoKids];
+
+const PAYMENT_METHODS: {
+  id: string;
+  title: string;
+  hint: string;
+  rows?: { label: string; value: string; copy?: string }[];
+  qr?: string;
+}[] = [
+  {
+    id: 'thai',
+    title: 'TrueMoney / PromptPay',
+    hint: 'Отсканируйте QR в любом тайском банковском приложении',
+    qr: promptPayQr
+  },
+  {
+    id: 'sbp',
+    title: 'СБП — Сбербанк',
+    hint: 'Перевод из России по номеру телефона',
+    rows: [{ label: 'Телефон', value: '+7 995 597 0108', copy: '+79955970108' }]
+  },
+  {
+    id: 'crypto',
+    title: 'Криптовалюта',
+    hint: 'USDT, USDC, BTC и другие',
+    rows: [
+      { label: 'ByBit UID', value: '115189352' },
+      { label: 'USDT TRC20', value: 'TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5' }
+    ]
+  }
+];
+
+const PROJECTS = [
+  {
+    title: 'Гид по Чиангмаю',
+    tag: 'Guide',
+    text: '400+ мест, маршруты, афиша города и справочник: визы, байки, врачи, деньги. Собрано из живых рекомендаций сообщества.',
+    href: 'https://guide.omhome.space/gauranga/',
+    cta: 'Открыть гид',
+    tone: 'teal'
+  },
+  {
+    title: 'NaviTo',
+    tag: 'Барахолка',
+    text: 'Доска объявлений для тех, кто живёт в Таиланде: байки, мебель, техника и всё, что ищет новых хозяев.',
+    href: 'https://navito.omhome.space',
+    cta: 'Перейти в NaviTo',
+    tone: 'gold'
+  },
+  {
+    title: 'PAMHO',
+    tag: 'Служение',
+    text: 'Дом для преданных: совместная жизнь, служение и духовные программы. Можно приехать и присоединиться.',
+    href: '/pamho',
+    cta: 'Узнать больше',
+    tone: 'night'
+  }
+];
+
+const reveal = {
+  initial: { opacity: 0, y: 32 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }
+};
+
+function Sparkle({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 28" aria-hidden="true">
+      <path d="M12 0c.9 7.6 3.6 12.1 12 14-8.4 1.9-11.1 6.4-12 14-.9-7.6-3.6-12.1-12-14C8.4 12.1 11.1 7.6 12 0Z" />
+    </svg>
+  );
+}
+
+function SectionHeading({ eyebrow, children, light }: { eyebrow: string; children: ReactNode; light?: boolean }) {
+  return (
+    <motion.div className={`${styles.sectionHeading} ${light ? styles.sectionHeadingLight : ''}`} {...reveal}>
+      <span className={styles.eyebrow}>
+        <Sparkle className={styles.eyebrowSparkle} />
+        {eyebrow}
+      </span>
+      <h2>{children}</h2>
+    </motion.div>
+  );
+}
+
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className={styles.copyButton}
+      onClick={() => {
+        navigator.clipboard?.writeText(value).then(() => {
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 1600);
+        });
+      }}
+      aria-label={copied ? 'Скопировано' : 'Скопировать'}
+    >
+      {copied ? <Check size={16} /> : <Copy size={16} />}
+      <span>{copied ? 'Готово' : 'Копировать'}</span>
+    </button>
+  );
+}
+
+function EventCard({ event, today, past }: { event: OmEvent; today: string; past?: boolean }) {
+  const { weekday, short } = formatEventDate(event.date);
+  const badge = past ? 'Было' : relativeDayLabel(event.date, today);
+
+  return (
+    <motion.article className={`${styles.eventCard} ${past ? styles.eventCardPast : ''}`} {...reveal}>
+      <div className={styles.eventPoster}>
+        {event.poster ? (
+          <img src={event.poster} alt={`Афиша: ${event.title}`} loading="lazy" />
+        ) : (
+          <div className={styles.eventPosterFallback}>
+            <Sparkle className={styles.eventPosterSparkle} />
+          </div>
+        )}
+        {badge && <span className={styles.eventBadge}>{badge}</span>}
+      </div>
+      <div className={styles.eventBody}>
+        <p className={styles.eventDate}>
+          <span>{weekday}</span>
+          <Sparkle className={styles.inlineSparkle} />
+          <strong>{short}</strong>
+          <Sparkle className={styles.inlineSparkle} />
+          <span>{event.time}</span>
+        </p>
+        <h3 className={styles.eventTitle}>{event.title}</h3>
+        {event.subtitle && <p className={styles.eventSubtitle}>{event.subtitle}</p>}
+        {event.description && <p className={styles.eventDescription}>{event.description}</p>}
+        {!past && (
+          <div className={styles.eventActions}>
+            <a className={styles.buttonGold} href={event.registration ?? LINKS.contact} target="_blank" rel="noreferrer">
+              Записаться
+            </a>
+            <button type="button" className={styles.buttonGhost} onClick={() => downloadIcs(event, ADDRESS)}>
+              <CalendarPlus size={18} />В календарь
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.article>
+  );
+}
+
+function RecurringCard({ item }: { item: RecurringEvent }) {
+  return (
+    <motion.article className={styles.recurringCard} {...reveal}>
+      {item.poster && <img src={item.poster} alt={`Афиша: ${item.title}`} loading="lazy" />}
+      <div>
+        <p className={styles.recurringWhen}>
+          {item.days} · {item.times.join(' и ')}
+        </p>
+        <h3>{item.title}</h3>
+        {item.subtitle && <p className={styles.recurringSubtitle}>{item.subtitle}</p>}
+        {item.description && <p className={styles.recurringSubtitle}>{item.description}</p>}
+      </div>
+    </motion.article>
+  );
+}
+
+function Afisha() {
+  const { loading, failed, today, upcoming, recent, recurring } = useEvents();
+  const showRecent = !loading && upcoming.length === 0 && recent.length > 0;
+
+  return (
+    <section id="afisha" className={styles.afishaSection}>
+      <div className={styles.container}>
+        <div className={styles.afishaHeader}>
+          <SectionHeading eyebrow="Афиша" light>
+            Ближайшие <em>события</em>
+          </SectionHeading>
+          <motion.a className={styles.linkArrow} href={LINKS.channel} target="_blank" rel="noreferrer" {...reveal}>
+            Все анонсы в Telegram <ArrowUpRight size={20} />
+          </motion.a>
+        </div>
+
+        {loading && <div className={styles.afishaSkeleton} aria-busy="true" />}
+
+        {!loading && upcoming.length > 0 && (
+          <div className={styles.eventsGrid}>
+            {upcoming.map((event) => (
+              <EventCard key={event.id} event={event} today={today} />
+            ))}
+          </div>
+        )}
+
+        {!loading && upcoming.length === 0 && (
+          <motion.div className={styles.afishaEmpty} {...reveal}>
+            <p>
+              {failed
+                ? 'Не получилось загрузить афишу.'
+                : 'Новые события скоро появятся — мы как раз собираем расписание.'}{' '}
+              Свежие анонсы всегда первыми выходят в канале.
+            </p>
+            <a className={styles.buttonGold} href={LINKS.channel} target="_blank" rel="noreferrer">
+              <Send size={18} />
+              Подписаться на @omhome_thai
+            </a>
+          </motion.div>
+        )}
+
+        {showRecent && (
+          <>
+            <h3 className={styles.afishaSubheading}>Недавно было</h3>
+            <div className={styles.eventsGrid}>
+              {recent.map((event) => (
+                <EventCard key={event.id} event={event} today={today} past />
+              ))}
+            </div>
+          </>
+        )}
+
+        {recurring.length > 0 && (
+          <>
+            <h3 className={styles.afishaSubheading}>Регулярно</h3>
+            <div className={styles.recurringGrid}>
+              {recurring.map((item) => (
+                <RecurringCard key={item.id} item={item} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Marquee({ images, reverse }: { images: string[]; reverse?: boolean }) {
+  const loop = [...images, ...images];
+  return (
+    <div className={styles.marquee}>
+      <div className={`${styles.marqueeTrack} ${reverse ? styles.marqueeReverse : ''}`}>
+        {loop.map((src, index) => (
+          <div key={`${src}-${index}`} className={styles.marqueeItem}>
+            <img src={src} alt="" loading="lazy" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ChiangMaiHomePage() {
-  const experienceSectionRef = useRef<HTMLElement | null>(null);
-  const experienceInView = useInView(experienceSectionRef, { once: true, amount: 0.2 });
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className={styles.page}>
-      <section className={styles.heroSection}>
-        <div className={styles.heroInner}>
-          <div className={styles.heroLogo}>
-            <img src={logo} alt="Логотип OmHome" />
-          </div>
-
-          <div className={styles.heroCopy}>
-            <p className={styles.heroTagline}>Тёплое пространство для встреч и общения</p>
-            <p className={styles.heroDescription}>
-              Дом-друзей в Чиангмае: события, коворкинг и уютная атмосфера для русскоязычного (и не только) коммьюнити.
-            </p>
-            <a className={styles.heroLink} href="#map">
-              Как нас найти
-            </a>
-            <a
-              className={styles.heroButton}
-              href="https://www.instagram.com/omhome.cnx"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Смотреть афишу
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.introSection}>
-        <div className={styles.introInner}>
-          <h2 className={styles.introHeading}>OmHome</h2>
-          <p className={styles.introDescription}>
-            — это не просто место для мероприятий, а настоящий дом, где живут люди, которые создают атмосферу уюта и
-            заботы.
-          </p>
-
-          <div className={styles.introHighlights}>
-            <p className={styles.introListHeading}>Здесь можно:</p>
-            <ul className={styles.introItems}>
-              <li className={styles.introItem}>
-                <span className={styles.introItemIcon} aria-hidden="true">
-                  <img src={sparkleIcon} alt="" />
-                </span>
-                встретиться и познакомиться с другими жителями города
-              </li>
-              <li className={styles.introItem}>
-                <span className={styles.introItemIcon} aria-hidden="true">
-                  <img src={sparkleIcon} alt="" />
-                </span>
-                поработать за ноутбуком в спокойной обстановке (коворкинг с хорошим интернетом, чаем и печеньками ☕🍪)
-              </li>
-              <li className={styles.introItem}>
-                <span className={styles.introItemIcon} aria-hidden="true">
-                  <img src={sparkleIcon} alt="" />
-                </span>
-                прийти на кино, квартирник, настолки или квиз
-              </li>
-              <li className={styles.introItem}>
-                <span className={styles.introItemIcon} aria-hidden="true">
-                  <img src={sparkleIcon} alt="" />
-                </span>
-                попробовать йогу, медитацию или познакомиться с киртанами.
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section ref={experienceSectionRef} className={styles.experienceSection}>
-        <div className={styles.experienceInner}>
-          <div className={styles.experienceGallery}>
-            <div className={styles.experienceGradient} aria-hidden="true" />
-            <div className={styles.experienceColumns}>
-              <div className={styles.experienceColumn}>
-                <motion.div
-                  className={styles.experienceColumnTrack}
-                  animate={{ y: ['0%', '-50%'] }}
-                  transition={{ duration: 62, repeat: Infinity, ease: 'linear' }}
-                >
-                  {experienceLeftLoop.map((imageSrc, index) => (
-                    <motion.div
-                      key={`experience-left-${index}`}
-                      className={styles.experienceImageWrapper}
-                      initial={{ opacity: 0, scale: 0.85 }}
-                      animate={experienceInView ? { opacity: 1, scale: 1 } : {}}
-                      transition={{
-                        duration: 0.6,
-                        delay: 0.4 + (index % experienceLeftDelayGroupSize) * 0.1
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
-                      <span className={styles.experienceImageOverlay} aria-hidden="true" />
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-              <div className={`${styles.experienceColumn} ${styles.experienceColumnShift}`}>
-                <motion.div
-                  className={styles.experienceColumnTrack}
-                  animate={{ y: ['-50%', '0%'] }}
-                  transition={{ duration: 74, repeat: Infinity, ease: 'linear' }}
-                >
-                  {experienceRightLoop.map((imageSrc, index) => (
-                    <motion.div
-                      key={`experience-right-${index}`}
-                      className={styles.experienceImageWrapper}
-                      initial={{ opacity: 0, scale: 0.85 }}
-                      animate={experienceInView ? { opacity: 1, scale: 1 } : {}}
-                      transition={{
-                        duration: 0.6,
-                        delay: 0.6 + (index % experienceRightDelayGroupSize) * 0.1
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      <img src={imageSrc} alt="Тёплые встречи OmHome" className={styles.experienceImage} />
-                      <span className={styles.experienceImageOverlay} aria-hidden="true" />
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.experienceHeadingWrapper}>
-            <h2 className={styles.experienceHeading}>Опыт и доверие</h2>
-          </div>
-
-          <div className={styles.experienceCopy}>
-            <p className={styles.experienceText}>
-              Мы уже открывали такие пространства в Грузии и Сербии. За несколько лет там прошло сотни встреч: лекции,
-              йога, квартирники, настолки, кино, киртаны.
-            </p>
-            <p className={styles.experienceText}>
-              Каждый раз это становилось точкой сближения для людей, которые искали дружескую атмосферу и новые
-              знакомства.
-            </p>
-            <p className={styles.experienceText}>Теперь мы создаём такую же атмосферу в Чиангмае 🌿</p>
-            <div className={styles.experienceLinks}>
-              <a
-                className={styles.experienceLink}
-                href="https://www.instagram.com/omhome.belgrade/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Instagram OmHome Belgrade
+      <header className={styles.nav}>
+        <div className={styles.navInner}>
+          <a href="#top" className={styles.navBrand}>
+            <Sparkle className={styles.navSparkle} />
+            OmHome
+          </a>
+          <nav className={`${styles.navLinks} ${menuOpen ? styles.navLinksOpen : ''}`}>
+            {NAV.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                {item.label}
               </a>
-              <a
-                className={styles.experienceLink}
-                href="https://www.instagram.com/omhome.batumi/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Instagram OmHome Batumi
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className={styles.happeningsSection}>
-        <div className={styles.happeningsInner}>
-          <h2 className={styles.happeningsHeading}>Что у нас происходит</h2>
-          <div className={styles.happeningsColumns}>
-            {happeningsColumns.map((column, columnIndex) => (
-              <div key={`happenings-column-${columnIndex}`} className={styles.happeningsColumn}>
-                {column.map((item) => (
-                  <div key={item.title} className={styles.happening}>
-                    <h3
-                      className={`${styles.happeningTitle} ${
-                        item.singleLine ? styles.happeningTitleSingleLine : ''
-                      }`}
-                    >
-                      {item.title}
-                    </h3>
-                    <p className={styles.happeningDescription}>{item.description}</p>
-                  </div>
-                ))}
-              </div>
             ))}
-          </div>
-          <a
-            className={styles.happeningsButton}
-            href="https://www.instagram.com/omhome.cnx"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Смотреть афишу
-          </a>
-        </div>
-      </section>
-
-      <section id="propose-event" className={styles.communitySection}>
-        <div className={styles.communityInner}>
-          <div className={styles.communityTop}>
-            <div className={styles.communityIntro}>
-              <h2 className={styles.communityHeading}>Мы создаём пространство доверия и чистоты</h2>
-              <p className={styles.communityParagraph}>
-                У нас нет алкоголя, наркотиков и мяса. Всё строится на уважении, дружбе и заботе друг о друге.
-              </p>
-              <p className={`${styles.communityParagraph} ${styles.communityParagraphAccent}`}>
-                Формат участия — donation.
-              </p>
-              <p className={styles.communityParagraph}>
-                То есть вы сами решаете, хотите ли что-то пожертвовать. Можно приходить даже без пожертвования — это
-                пространство открыто для всех.
-              </p>
-            </div>
-
-            <div className={styles.communityIllustration}>
-              <img src={communityGatheringImage} alt="Встреча друзей OmHome" />
-            </div>
-          </div>
-
-          <p className={styles.communityStatement}>OmHome — это живая площадка.</p>
-
-          <div className={styles.communityBottom}>
-            <div className={styles.communityGroupImage}>
-              <img src={initiationIllustration} alt="Иллюстрация доверия OmHome" />
-            </div>
-
-            <div className={styles.communityOffer}>
-              <h3 className={styles.communityOfferHeading}>Твоя инициатива</h3>
-              <p className={styles.communityOfferIntro}>
-                Здесь не только проходят наши события, но и ты можешь предложить что-то своё:
-              </p>
-              <ul className={styles.communityOfferList}>
-                {initiativeActivities.map((activity) => (
-                  <li key={activity} className={styles.communityOfferListItem}>
-                    {activity}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <a
-            className={styles.communityButton}
-            href="https://t.me/omhome_cnx"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Предложить мероприятие
-          </a>
-        </div>
-      </section>
-
-      <div className={styles.sectionDivider} aria-hidden="true" />
-
-      <section id="map" className={styles.locationSection}>
-        <div className={styles.locationInner}>
-          <div className={styles.locationImage}>
-            <img src={locationArtwork} alt="Иллюстрация ночного города Чиангмая" />
-          </div>
-
-          <h2 className={styles.locationHeading}>Как нас найти</h2>
-          <p className={styles.locationDescription}>
-            «Мы находимся недалеко от центра, в тихом мобане. Удобно добраться на байке или Grab».
-          </p>
-
-          <div className={styles.locationActions}>
-            <a
-              className={styles.locationButton}
-              href="https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Google Maps
-            </a>
-            <a
-              className={styles.locationButton}
-              href="https://t.me/omhome_thai"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className={styles.navCta} href={LINKS.channel} target="_blank" rel="noreferrer">
+              <Send size={16} />
               Telegram
             </a>
+          </nav>
+          <button
+            type="button"
+            className={styles.navToggle}
+            aria-label="Меню"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+          </button>
+        </div>
+      </header>
+
+      <section id="top" className={styles.hero}>
+        <div className={styles.heroWaves} aria-hidden="true" />
+        <div className={`${styles.container} ${styles.heroGrid}`}>
+          <motion.div
+            className={styles.heroCopy}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className={styles.eyebrow}>
+              <Sparkle className={styles.eyebrowSparkle} />
+              Чиангмай · Chang Khlan
+            </span>
+            <h1 className={styles.heroTitle}>
+              Тёплый <em>дом</em>
+              <br />
+              для встреч
+              <br />и вдохновения
+            </h1>
+            <p className={styles.heroLead}>
+              Комьюнити-пространство OmHome: киртаны, йога, настолки, кино, чайные вечера и коворкинг. Без алкоголя и
+              мяса, по донейшену — приходите как домой.
+            </p>
+            <div className={styles.heroActions}>
+              <a className={styles.buttonGold} href="#afisha">
+                Смотреть афишу
+              </a>
+              <a className={styles.buttonGhost} href={LINKS.chat} target="_blank" rel="noreferrer">
+                Войти в чат сообщества
+              </a>
+            </div>
+          </motion.div>
+
+          <div className={styles.heroArches} aria-hidden="true">
+            <motion.div
+              className={`${styles.arch} ${styles.archMain}`}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <img src={photoHall} alt="" />
+            </motion.div>
+            <motion.div
+              className={`${styles.arch} ${styles.archSmall}`}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <img src={photoKirtan} alt="" />
+            </motion.div>
+            <motion.img
+              className={styles.heroLogo}
+              src={logo}
+              alt=""
+              initial={{ opacity: 0, rotate: -8 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              transition={{ duration: 1.2, delay: 0.4 }}
+            />
+            <Sparkle className={`${styles.floatSparkle} ${styles.floatSparkleOne}`} />
+            <Sparkle className={`${styles.floatSparkle} ${styles.floatSparkleTwo}`} />
+          </div>
+        </div>
+
+        <div className={`${styles.container} ${styles.stats}`}>
+          {STATS.map((stat) => (
+            <motion.div key={stat.label} className={styles.stat} {...reveal}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <Afisha />
+
+      <section id="about" className={styles.aboutSection}>
+        <div className={styles.container}>
+          <SectionHeading eyebrow="О доме">
+            Не просто площадка — <em>настоящий дом</em>
+          </SectionHeading>
+          <motion.p className={styles.aboutLead} {...reveal}>
+            Здесь живут люди, которые создают атмосферу уюта и заботы. Можно прийти на вечер, поработать за ноутбуком
+            с чаем и печеньками, познакомиться с теми, кто тоже ищет живое общение, — или предложить своё событие.
+          </motion.p>
+          <div className={styles.formatsGrid}>
+            {FORMATS.map((format, index) => (
+              <motion.article
+                key={format.title}
+                className={styles.formatCard}
+                {...reveal}
+                transition={{ ...reveal.transition, delay: index * 0.08 }}
+              >
+                <img src={format.art} alt="" />
+                <h3>{format.title}</h3>
+                <p>{format.text}</p>
+              </motion.article>
+            ))}
           </div>
         </div>
       </section>
+
+      <section className={styles.gallerySection} aria-label="Фотографии OmHome">
+        <Marquee images={GALLERY_TOP} />
+        <Marquee images={GALLERY_BOTTOM} reverse />
+        <div className={`${styles.container} ${styles.galleryCopy}`}>
+          <motion.p {...reveal}>
+            Мы уже открывали такие дома в <a href={LINKS.batumi} target="_blank" rel="noreferrer">Батуми</a> и{' '}
+            <a href={LINKS.belgrade} target="_blank" rel="noreferrer">Белграде</a>. Сотни вечеров, лекций, квартирников и
+            киртанов — теперь эта атмосфера живёт в Чиангмае.
+          </motion.p>
+        </div>
+      </section>
+
+      <section className={styles.valuesSection}>
+        <div className={`${styles.container} ${styles.valuesGrid}`}>
+          <motion.img className={styles.valuesArt} src={artCow} alt="" {...reveal} />
+          <div>
+            <SectionHeading eyebrow="Принципы" light>
+              Пространство доверия <em>и чистоты</em>
+            </SectionHeading>
+            <motion.ul className={styles.valuesList} {...reveal}>
+              <li>
+                <Sparkle className={styles.inlineSparkle} />
+                Без алкоголя, наркотиков и мяса — только вегетарианское угощение.
+              </li>
+              <li>
+                <Sparkle className={styles.inlineSparkle} />
+                Формат участия — донейшен: вы сами решаете, сколько вложить. Можно прийти и без пожертвования.
+              </li>
+              <li>
+                <Sparkle className={styles.inlineSparkle} />
+                Уважение, дружба и забота друг о друге важнее любых правил.
+              </li>
+            </motion.ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="support" className={styles.supportSection}>
+        <div className={styles.container}>
+          <SectionHeading eyebrow="Поддержать">
+            Дом живёт <em>благодаря вам</em>
+          </SectionHeading>
+          <motion.p className={styles.supportLead} {...reveal}>
+            Пожертвования идут на аренду дома, прасад, чай, оборудование и уют. Любая сумма — это ещё один тёплый вечер
+            для кого-то, кто только приехал в город.
+          </motion.p>
+
+          <div className={styles.paymentGrid}>
+            {PAYMENT_METHODS.map((method) => (
+              <motion.article
+                key={method.id}
+                className={`${styles.paymentCard} ${method.qr ? styles.paymentCardQr : ''}`}
+                {...reveal}
+              >
+                <h3>{method.title}</h3>
+                <p className={styles.paymentHint}>{method.hint}</p>
+                {method.qr && (
+                  <a href={method.qr} target="_blank" rel="noreferrer" className={styles.qrWrap}>
+                    <img src={method.qr} alt="QR-код PromptPay / TrueMoney — Artem Artemev" loading="lazy" />
+                  </a>
+                )}
+                {method.rows?.map((row) => (
+                  <div key={row.label} className={styles.paymentRow}>
+                    <span className={styles.paymentLabel}>{row.label}</span>
+                    <code>{row.value}</code>
+                    <CopyButton value={row.copy ?? row.value} />
+                  </div>
+                ))}
+              </motion.article>
+            ))}
+          </div>
+
+          <motion.p className={styles.supportNote} {...reveal}>
+            После перевода напишите{' '}
+            <a href={LINKS.contact} target="_blank" rel="noreferrer">
+              @artartemev
+            </a>{' '}
+            — скажем спасибо лично 🙏
+          </motion.p>
+        </div>
+      </section>
+
+      <section id="projects" className={styles.projectsSection}>
+        <div className={styles.container}>
+          <SectionHeading eyebrow="Проекты" light>
+            Что ещё мы <em>делаем</em>
+          </SectionHeading>
+          <div className={styles.projectsGrid}>
+            {PROJECTS.map((project) => (
+              <motion.a
+                key={project.title}
+                href={project.href}
+                target={project.href.startsWith('http') ? '_blank' : undefined}
+                rel="noreferrer"
+                className={`${styles.projectCard} ${styles[`project_${project.tone}`]}`}
+                {...reveal}
+              >
+                <span className={styles.projectTag}>{project.tag}</span>
+                <h3>{project.title}</h3>
+                <p>{project.text}</p>
+                <span className={styles.projectCta}>
+                  {project.cta} <ArrowUpRight size={18} />
+                </span>
+              </motion.a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.initiativeSection}>
+        <div className={`${styles.container} ${styles.initiativeInner}`}>
+          <motion.div {...reveal}>
+            <Sparkles className={styles.initiativeIcon} size={36} />
+            <h2>
+              Есть идея для <em>вечера?</em>
+            </h2>
+            <p>
+              Йога, мастер-класс, квартирник, лекция или настолка — OmHome живая площадка, и ваше событие может стать
+              частью афиши.
+            </p>
+          </motion.div>
+          <motion.a className={styles.buttonGold} href={LINKS.contact} target="_blank" rel="noreferrer" {...reveal}>
+            Предложить событие
+          </motion.a>
+        </div>
+      </section>
+
+      <section id="map" className={styles.locationSection}>
+        <div className={`${styles.container} ${styles.locationGrid}`}>
+          <motion.img className={styles.locationArt} src={artCity} alt="" {...reveal} />
+          <div>
+            <SectionHeading eyebrow="Как найти" light>
+              Тихий мубан <em>недалеко от центра</em>
+            </SectionHeading>
+            <motion.p className={styles.locationText} {...reveal}>
+              Район Chang Khlan, рядом с Night Bazaar. Удобно добраться на байке или Grab.
+            </motion.p>
+            <motion.div className={styles.locationActions} {...reveal}>
+              <a className={styles.buttonGold} href={LINKS.map} target="_blank" rel="noreferrer">
+                <MapPin size={18} />
+                Открыть в Google Maps
+              </a>
+              <a className={styles.buttonGhost} href={LINKS.contact} target="_blank" rel="noreferrer">
+                Записаться: @artartemev
+              </a>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <footer className={styles.footer}>
+        <div className={`${styles.container} ${styles.footerInner}`}>
+          <div className={styles.footerBrand}>
+            <Sparkle className={styles.navSparkle} />
+            OmHome Space · Чиангмай
+          </div>
+          <div className={styles.footerLinks}>
+            <a href={LINKS.channel} target="_blank" rel="noreferrer">
+              <Send size={16} /> Канал
+            </a>
+            <a href={LINKS.chat} target="_blank" rel="noreferrer">
+              <Send size={16} /> Чат
+            </a>
+            <a href={LINKS.instagram} target="_blank" rel="noreferrer">
+              <Instagram size={16} /> Instagram
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

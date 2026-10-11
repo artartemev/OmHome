@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Sparkles, Coffee, Heart, HandHeart, Music, MessageCircle, Package, Leaf } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import imgRectangle33 from 'figma:asset/7079ed6ac33259adcd696c14440f8602d1e716fc.png';
@@ -16,8 +16,6 @@ const icons = {
   care: <Heart className="text-[#73729b]" size={32} />
 } as const;
 
-const DEFAULT_TELEGRAM_BOT_TOKEN = '7582764711:AAFytg69W5CSIZ-LDgQEL-vXTFkkqrMO0Bo';
-const DEFAULT_TELEGRAM_CHAT_ID = '8219095593';
 
 const translations = {
   ru: {
@@ -133,7 +131,6 @@ const translations = {
   }
 } as const;
 
-const sanitizeEnvValue = (value?: string) => value?.trim() || undefined;
 
 export function JoinSection() {
   const ref = useRef(null);
@@ -168,12 +165,6 @@ export function JoinSection() {
     return undefined;
   }, [isFormOpen]);
 
-  const telegramConfig = useMemo(() => {
-    const botToken = sanitizeEnvValue(import.meta.env.VITE_TELEGRAM_BOT_TOKEN) ?? DEFAULT_TELEGRAM_BOT_TOKEN;
-    const chatId = sanitizeEnvValue(import.meta.env.VITE_TELEGRAM_CHAT_ID) ?? DEFAULT_TELEGRAM_CHAT_ID;
-    return { botToken, chatId };
-  }, []);
-
   const handleOpenForm = () => {
     setSubmitStatus(null);
     setFormData({ name: '', phone: '', interest: '', participation: '' });
@@ -187,38 +178,28 @@ export function JoinSection() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!telegramConfig.botToken || !telegramConfig.chatId) {
-      setSubmitStatus('error');
-      console.error('Telegram configuration is missing. Please set VITE_TELEGRAM_BOT_TOKEN and VITE_TELEGRAM_CHAT_ID.');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       setSubmitStatus(null);
 
-      const message = [
-        language === 'ru' ? 'Новая заявка с сайта OmHome' : 'New application from the OmHome website',
-        `${form.nameLabel}: ${formData.name}`,
-        `${form.phoneLabel}: ${formData.phone}`,
-        `${form.interestLabel}: ${formData.interest}`,
-        `${form.participationLabel}: ${formData.participation}`
-      ].join('\n');
-
-      const response = await fetch(`https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`, {
+      const response = await fetch('/api/join', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          chat_id: telegramConfig.chatId,
-          text: message,
-          parse_mode: 'HTML'
+          language,
+          fields: {
+            [form.nameLabel]: formData.name,
+            [form.phoneLabel]: formData.phone,
+            [form.interestLabel]: formData.interest,
+            [form.participationLabel]: formData.participation
+          }
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Telegram API responded with ${response.status}`);
+        throw new Error(`Join endpoint responded with ${response.status}`);
       }
 
       setSubmitStatus('success');

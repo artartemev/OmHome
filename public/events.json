@@ -1,0 +1,63 @@
+{
+  "updatedAt": "2026-10-11",
+  "events": [
+    {
+      "id": "2026-10-09-ghost-letters",
+      "date": "2026-10-09",
+      "time": "18:00",
+      "title": "Письма призрака",
+      "subtitle": "детективная настолка",
+      "poster": "/posters/2026-10-09-ghost-letters.jpg",
+      "category": "games"
+    },
+    {
+      "id": "2026-10-10-kirtan",
+      "date": "2026-10-10",
+      "time": "18:00",
+      "title": "Киртан",
+      "description": "Совместное пение мантр под гармонь и мриданга. Можно просто слушать, можно подпевать.",
+      "poster": "/posters/2026-10-10-kirtan.jpg",
+      "category": "kirtan"
+    },
+    {
+      "id": "2026-10-11-rpg",
+      "date": "2026-10-11",
+      "time": "18:00",
+      "title": "Жертва богам",
+      "subtitle": "кабинетная RPG",
+      "poster": "/posters/2026-10-11-rpg.jpg",
+      "category": "games"
+    },
+    {
+      "id": "2026-10-15-mantra-yoga",
+      "date": "2026-10-15",
+      "time": "18:00",
+      "title": "Мантра-йога",
+      "poster": "/posters/2026-10-15-mantra-yoga.jpg",
+      "category": "yoga"
+    }
+  ],
+  "recurring": [
+    {
+      "id": "tea",
+      "days": "Вт–Чт",
+      "times": [
+        "11:00",
+        "18:00"
+      ],
+      "title": "Чайная",
+      "subtitle": "медитация и дегустация",
+      "poster": "/posters/tea-ceremony.jpg"
+    },
+    {
+      "id": "somatic-yoga",
+      "days": "Вт–Чт",
+      "times": [
+        "12:00",
+        "19:00"
+      ],
+      "title": "Соматическая йога",
+      "poster": "/posters/somatic-yoga.jpg"
+    }
+  ]
+}

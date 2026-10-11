@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <!-- OmHome poster template. Rebuilt from the Figma file "🕉OmHome" (page CNX, Instagram post frames):
+         coloured background, gold wave lines, photo in an arch, "day ✦ date ✦ time" on top, title in a pill. -->
+    <style>
+      @font-face {
+        font-family: 'MenorahGrotesk';
+        src: url('../../src/fonts/MenorahGrotesk-Regular.ttf') format('truetype');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'MenorahGrotesk';
+        src: url('../../src/fonts/MenorahGrotesk-Medium.ttf') format('truetype');
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: 'MenorahGrotesk';
+        src: url('../../src/fonts/MenorahGrotesk-Semi.ttf') format('truetype');
+        font-weight: 600;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: var(--h);
+        overflow: hidden;
+      }
+      body {
+        --bg: #0d393c;
+        --accent: #cfba8b;
+        --h: 1350px;
+        position: relative;
+        background: var(--bg);
+        font-family: 'MenorahGrotesk', sans-serif;
+        color: #fff;
+      }
+      body.story {
+        --h: 1920px;
+      }
+      svg.waves {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .when {
+        position: absolute;
+        top: 110px;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 34px;
+        font-size: 40px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .when .date {
+        font-size: 64px;
+        font-weight: 500;
+      }
+      .when svg {
+        width: 34px;
+        height: 40px;
+        fill: var(--accent);
+      }
+      .arch {
+        position: absolute;
+        left: 199px;
+        top: 259px;
+        width: 682px;
+        height: 992px;
+        border-radius: 341px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .arch.outlined {
+        outline: 14px solid rgba(255, 255, 255, 0.92);
+      }
+      .arch img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .pill {
+        position: absolute;
+        left: 180px;
+        top: 1091px;
+        width: 720px;
+        min-height: 160px;
+        padding: 22px 48px;
+        border-radius: 999px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: color-mix(in srgb, color-mix(in srgb, var(--bg) 75%, #000) 82%, transparent);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.5);
+      }
+      .pill.bordered {
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        background: color-mix(in srgb, var(--bg) 55%, transparent);
+      }
+      .pill .title {
+        font-size: 66px;
+        line-height: 1.05;
+        font-weight: 500;
+      }
+      .pill .title.long {
+        font-size: 52px;
+      }
+      .pill .subtitle {
+        font-size: 36px;
+        line-height: 1.2;
+        margin-bottom: 4px;
+      }
+      .pill .subtitle.below {
+        margin: 6px 0 0;
+      }
+      body.story .when {
+        top: 220px;
+      }
+      body.story .arch {
+        top: 400px;
+        height: 1100px;
+      }
+      body.story .pill {
+        top: 1360px;
+      }
+      body.story .footer {
+        display: block;
+      }
+      .footer {
+        display: none;
+        position: absolute;
+        bottom: 150px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 38px;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+      }
+    </style>
+  </head>
+  <body>
+    <svg class="waves" id="waves" aria-hidden="true"></svg>
+    <div class="when">
+      <span id="weekday"></span>
+      <svg viewBox="0 0 24 28"><path d="M12 0c.9 7.6 3.6 12.1 12 14-8.4 1.9-11.1 6.4-12 14-.9-7.6-3.6-12.1-12-14C8.4 12.1 11.1 7.6 12 0Z" /></svg>
+      <span class="date" id="date"></span>
+      <svg viewBox="0 0 24 28"><path d="M12 0c.9 7.6 3.6 12.1 12 14-8.4 1.9-11.1 6.4-12 14-.9-7.6-3.6-12.1-12-14C8.4 12.1 11.1 7.6 12 0Z" /></svg>
+      <span id="time"></span>
+    </div>
+    <div class="arch" id="arch"><img id="photo" alt="" /></div>
+    <div class="pill" id="pill"></div>
+    <div class="footer">omhome.space · @omhome_thai</div>
+
+    <script>
+      // window.POSTER is injected by render.mjs before this script runs.
+      const p = window.POSTER;
+      document.body.style.setProperty('--bg', p.background);
+      document.body.style.setProperty('--accent', p.accent);
+      if (p.format === 'story') document.body.classList.add('story');
+      document.getElementById('weekday').textContent = p.weekday;
+      document.getElementById('date').textContent = p.date;
+      document.getElementById('time').textContent = p.time;
+      document.getElementById('photo').src = p.photo;
+      if (p.outlined) document.getElementById('arch').classList.add('outlined');
+
+      const pill = document.getElementById('pill');
+      if (p.subtitle) pill.classList.add('bordered');
+      const title = document.createElement('div');
+      title.className = 'title' + (p.title.length > 16 ? ' long' : '');
+      title.textContent = p.subtitle ? p.title.toUpperCase() : p.title;
+      if (p.subtitle) {
+        const subtitle = document.createElement('div');
+        subtitle.className = 'subtitle';
+        subtitle.textContent = p.subtitle;
+        pill.append(subtitle);
+      }
+      pill.append(title);
+
+      // Gold wave lines: two families of offset curves sweeping in from the sides, like in the Figma frames.
+      const height = p.format === 'story' ? 1920 : 1350;
+      const svg = document.getElementById('waves');
+      svg.setAttribute('viewBox', `0 0 1080 ${height}`);
+      const ns = 'http://www.w3.org/2000/svg';
+      const family = (fromRight, y0, count) => {
+        for (let i = 0; i < count; i++) {
+          const path = document.createElementNS(ns, 'path');
+          const k = i / count;
+          const y = y0 + i * 9;
+          const d = fromRight
+            ? `M1180 ${y} C 900 ${y - 260 + k * 120}, 760 ${y + 120}, 520 ${y + 40 + k * 60} S 160 ${y + 260}, -60 ${y + 160 - k * 80}`
+            : `M-100 ${y} C 120 ${y + 220 - k * 100}, 300 ${y - 120}, 560 ${y - 40 + k * 70} S 900 ${y - 300}, 1180 ${y - 140 + k * 90}`;
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', p.accent);
+          path.setAttribute('stroke-opacity', String(0.25 + 0.4 * Math.sin(Math.PI * k)));
+          path.setAttribute('stroke-width', '1.6');
+          svg.append(path);
+        }
+      };
+      family(true, height * 0.18, 34);
+      family(false, height * 0.62, 30);
+    </script>
+  </body>
+</html>
