@@ -8,6 +8,8 @@ you already have for the guide project. The session file never leaves your compu
 
 One greeting, then every poster of the week with its caption.
 
+    python3 automation/telegram_user.py --pick-intro    # prints the next greeting (used for the approval preview)
+
 Env:
     TG_API_ID, TG_API_HASH   — from my.telegram.org (the same as in the guide project)
     TG_SESSION               — path to the .session file (with or without the .session suffix)
@@ -19,7 +21,6 @@ import os
 import random
 import sys
 
-from telethon import TelegramClient
 
 # The first message changes from week to week so it never reads like a bot; the same one never goes twice in a row.
 INTROS = [
@@ -54,6 +55,8 @@ async def main(pairs: list[tuple[str, str]]) -> None:
     intro = pick_intro()
     session = os.path.expanduser(os.environ["TG_SESSION"]).removesuffix(".session")
 
+    from telethon import TelegramClient
+
     async with TelegramClient(session, int(os.environ["TG_API_ID"]), os.environ["TG_API_HASH"]) as client:
         for partner in partners:
             await client.send_message(partner, intro)
@@ -64,6 +67,9 @@ async def main(pairs: list[tuple[str, str]]) -> None:
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args == ["--pick-intro"]:
+        print(pick_intro())
+        sys.exit(0)
     if not args or len(args) % 2:
         sys.exit(__doc__)
     asyncio.run(main(list(zip(args[::2], args[1::2]))))
