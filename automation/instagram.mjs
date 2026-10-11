@@ -1,14 +1,14 @@
-// Instagram publishing through the official Instagram Graph API (professional account linked to a Facebook Page).
+// Instagram publishing through the official Instagram API with Instagram Login (token starts with IG…).
 //
 // Env:
 //   IG_USER_ID        Instagram professional account id (not the @handle)
-//   IG_ACCESS_TOKEN   long-lived token with instagram_content_publish
+//   IG_ACCESS_TOKEN   Instagram User token (IG…) with instagram_business_content_publish
 //   IG_PUBLIC_BASE_URL where posters are publicly reachable, default https://omhome.space
 //
 // Instagram downloads the image itself, so the poster must already be online: commit and deploy public/posters first.
 // Not exercised against a live account yet — the first run should be watched.
 
-const GRAPH = 'https://graph.facebook.com/v21.0';
+const GRAPH = 'https://graph.instagram.com/v21.0';
 
 export const instagramConfigured = () => Boolean(process.env.IG_USER_ID && process.env.IG_ACCESS_TOKEN);
 
