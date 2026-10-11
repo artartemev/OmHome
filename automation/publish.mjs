@@ -45,7 +45,7 @@ import {
   toScheduleBlock,
   toSiteEvent
 } from './announcement.mjs';
-import { runWithApproval } from './approval.mjs';
+import { notify, runWithApproval } from './approval.mjs';
 import { editAnnouncement, generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
@@ -234,7 +234,7 @@ const message = await readFile(positionals[0], 'utf8');
 let events = values['ai-parse'] ? [] : parseSchedule(message);
 if (!events.length) {
   const structured = await structureAnnouncement(message, todayIso());
-  console.log(`\n🧠 Gemini разобрал анонс так:\n${structured}\n`);
+  await notify(`🧠 Разобрал анонс так:\n\n${structured}`);
   events = parseSchedule(structured);
 }
 const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
@@ -303,6 +303,10 @@ async function build(state) {
     console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
   }
   state.caption = formatPost(event);
+  if (!state.posterPath) {
+    site.events = site.events.filter((existing) => existing.id !== event.id);
+    return;
+  }
   state.captionFile = join(workDir, `${event.id}.html`);
   await writeFile(state.captionFile, state.caption);
   const siteEvent = toSiteEvent(event, state.posterPath ? `/${state.posterPath.replace(/^public\//, '')}` : undefined);
@@ -364,11 +368,12 @@ for (const event of events) {
     if (photo) console.log(`🖼  ${event.title}: фото из ротации — ${photo.split('/').pop()}`);
   }
   if (!readyPoster && !photo && values['ai-photo']) {
+    await notify(`🎨 ${event.title}: фото не приложено — рисую (FLUX), это ~полминуты…`);
     try {
       photo = await generatePhoto(event, join(workDir, `${event.id}.png`));
       console.log(`🎨 ${event.title}: фото сгенерировано`);
     } catch (error) {
-      console.warn(`⚠️  ${event.title}: фото не сгенерировано — ${error.message}`);
+      await notify(`⚠️ ${event.title}: фото не получилось нарисовать — ${error.message}`);
     }
   }
 
@@ -376,6 +381,9 @@ for (const event of events) {
   await build(state);
   if (photo && !readyPoster) await markPoolPhotoUsed(resolve(photo), event.date);
   states.push(state);
+  if (!state.posterPath) {
+    await notify(`⚠️ ${event.title}: афиша не собрана — нет фото. Пришлите анонс ещё раз вместе с фото.`);
+  }
 
   console.log(`\n──── ${event.title} ────\n${state.caption}`);
   if (state.posterPath) console.log(`🖼  ${state.posterPath}`);

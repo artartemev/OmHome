@@ -153,7 +153,7 @@ async function askTelegram(action, id) {
   return { decision: 'skip' };
 }
 
-async function notify(text) {
+export async function notify(text) {
   if (process.env.TELEGRAM_APPROVAL_CHAT_ID && process.env.TELEGRAM_BOT_TOKEN) {
     await telegram('sendMessage', { chat_id: process.env.TELEGRAM_APPROVAL_CHAT_ID, text }).catch(() => undefined);
   }

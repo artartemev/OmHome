@@ -5,7 +5,8 @@
 //
 // Only messages from TELEGRAM_APPROVAL_CHAT_ID are read. Photos sent as an album with the text go to the events in
 // order (first photo — first event). While one announcement is being approved the bot does not take new ones.
-// PUBLISH_ARGS (default "--send --site") — flags for publish.mjs.
+// PUBLISH_ARGS (default "--send --site --ai-photo": FLUX draws a photo when none is attached) — flags for publish.mjs.
+// A file path as an argument is published first (e.g. to redo an announcement): node automation/bot.mjs ann.txt
 
 import { spawn } from 'node:child_process';
 import { mkdtemp, writeFile } from 'node:fs/promises';
@@ -15,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CHAT = String(process.env.TELEGRAM_APPROVAL_CHAT_ID ?? '');
-const PUBLISH_ARGS = (process.env.PUBLISH_ARGS ?? '--send --site').split(/\s+/).filter(Boolean);
+const PUBLISH_ARGS = (process.env.PUBLISH_ARGS ?? '--send --site --ai-photo').split(/\s+/).filter(Boolean);
 const HELP = `Пришлите анонс одним сообщением — в строгом формате или свободным текстом, можно с фото (альбомом, подпись — анонс).
 Я соберу афиши и пришлю каждое действие на ✅/❌. На ❌ можно ответить правкой текстом или новым фото.`;
 
@@ -79,6 +80,12 @@ async function handle(messages) {
   await say(`🛠 Принял${photos.length ? ` (+${photos.length} фото)` : ''}. Собираю афиши — превью придут сюда на ✅/❌.`);
   const code = await publish(file, photos);
   await say(code === 0 ? '🏁 Готово. Жду следующий анонс.' : `⚠️ Публикация упала (код ${code}) — подробности в логе. Жду следующий анонс.`);
+}
+
+for (const file of process.argv.slice(2)) {
+  await say('🛠 Собираю афиши — превью придут сюда на ✅/❌.');
+  const code = await publish(resolve(file), []);
+  await say(code === 0 ? '🏁 Готово. Жду следующий анонс.' : `⚠️ Публикация упала (код ${code}). Жду следующий анонс.`);
 }
 
 console.log('📬 Бот слушает анонсы…');

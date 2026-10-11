@@ -130,7 +130,12 @@ export async function generatePhoto(event, out, { style = process.env.IMAGE_STYL
   let cloudflareError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
-      const path = await generateWithCloudflare(prompt, out.replace(/\.png$/, '.jpg'));
+      // Workers AI now and then answers «Unknown internal error»: one more try after a pause usually works.
+      const path = await generateWithCloudflare(prompt, out.replace(/\.png$/, '.jpg')).catch(async (error) => {
+        console.warn(`⚠️  Cloudflare: ${error.message} — пробую ещё раз`);
+        await sleep(5000);
+        return generateWithCloudflare(prompt, out.replace(/\.png$/, '.jpg'));
+      });
       // The check is best effort: without Gemini the picture is kept (the poster is approved by you anyway).
       const lettering = await hasLettering(path).catch(() => false);
       if (!lettering || attempt === attempts) return path;
