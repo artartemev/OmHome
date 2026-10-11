@@ -153,6 +153,38 @@ async function askTelegram(action, id) {
   return { decision: 'skip' };
 }
 
+// Asks for a photo in the approval chat: any photo sent as a reply to this message (or right after it) is taken.
+// → path of the downloaded photo, or null (⏭ button, timeout, no Telegram).
+export async function requestPhoto(text) {
+  const chatId = process.env.TELEGRAM_APPROVAL_CHAT_ID;
+  if (!chatId || !process.env.TELEGRAM_BOT_TOKEN) return null;
+  const id = `p${Date.now().toString(36)}`;
+  const ask = await telegram('sendMessage', {
+    chat_id: chatId,
+    text,
+    reply_markup: { inline_keyboard: [[{ text: '⏭ Без этого события', callback_data: `${id}|s` }]] }
+  });
+  const deadline = Date.now() + APPROVAL_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    for (const update of await nextUpdates()) {
+      const query = update.callback_query;
+      if (query?.data === `${id}|s`) {
+        await telegram('answerCallbackQuery', { callback_query_id: query.id, text: 'Пропускаю' });
+        await setButtons(chatId, ask.message_id, [[{ text: '⏭ Пропущено', callback_data: 'done' }]]);
+        return null;
+      }
+      const message = update.message;
+      if (String(message?.chat?.id) !== String(chatId)) continue;
+      const photo = await downloadPhoto(message);
+      if (photo) {
+        await setButtons(chatId, ask.message_id, [[{ text: '🖼 Фото получено', callback_data: 'done' }]]);
+        return photo;
+      }
+    }
+  }
+  return null;
+}
+
 export async function notify(text) {
   if (process.env.TELEGRAM_APPROVAL_CHAT_ID && process.env.TELEGRAM_BOT_TOKEN) {
     await telegram('sendMessage', { chat_id: process.env.TELEGRAM_APPROVAL_CHAT_ID, text }).catch(() => undefined);

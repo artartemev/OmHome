@@ -45,7 +45,7 @@ import {
   toScheduleBlock,
   toSiteEvent
 } from './announcement.mjs';
-import { notify, runWithApproval } from './approval.mjs';
+import { notify, requestPhoto, runWithApproval } from './approval.mjs';
 import { editAnnouncement, generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
@@ -380,6 +380,12 @@ for (const event of events) {
       console.log(`🎨 ${event.title}: фото сгенерировано`);
     } catch (error) {
       await notify(`⚠️ ${event.title}: фото не получилось нарисовать — ${error.message}`);
+      // Nothing drawn: you get the prompt, draw the picture yourself and send it back.
+      if (error.prompt && values.send) {
+        photo = await requestPhoto(
+          `🎨 ${event.title}: нарисуйте фото сами (Gemini, Midjourney…) по этому промпту и пришлите его сюда — поставлю в афишу.\n\n${error.prompt}`
+        );
+      }
     }
   }
 

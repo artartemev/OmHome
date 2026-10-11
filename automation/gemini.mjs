@@ -157,7 +157,8 @@ export async function generatePhoto(event, out, { style = process.env.IMAGE_STYL
     await writeFile(out, Buffer.from(image.data, 'base64'));
     return out;
   } catch (geminiError) {
-    throw new Error(`${cloudflareError.message}; ${geminiError.message}`);
+    // The prompt travels with the error, so you can draw the picture yourself (e.g. in Gemini or Midjourney).
+    throw Object.assign(new Error(`${cloudflareError.message}; ${geminiError.message}`), { prompt });
   }
 }
 
