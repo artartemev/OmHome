@@ -54,6 +54,8 @@ import { renderPoster, storyFromPoster } from './poster/render.mjs';
 const EVENTS_FILE = resolve('public/events.json');
 const POSTERS_DIR = 'public/posters';
 const PARTNER_SCRIPT = resolve('automation/telegram_user.py');
+// Your Telethon session: a .session file (Mac) or a string (server).
+const userSession = Boolean(process.env.TG_SESSION || process.env.TG_SESSION_STRING);
 
 async function telegram(method, body, isForm = false) {
   const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/${method}`, {
@@ -132,7 +134,7 @@ function eventActions(state) {
       })
     )
   ];
-  if (process.env.TG_SESSION) {
+  if (userSession) {
     for (const chat of userChats()) {
       actions.push(
         editable({
@@ -411,7 +413,7 @@ if (values.send) {
   const ready = states.filter((state) => state.posterPath);
   for (const state of ready) actions.push(...eventActions(state));
 
-  if (ready.length && process.env.TG_SESSION) {
+  if (ready.length && userSession) {
     // The greeting is picked now so the preview shows exactly what will be sent.
     const intro = execFileSync('python3', [PARTNER_SCRIPT, '--pick-intro']).toString().trim();
     const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => `@${p.trim().replace(/^@/, '')}`);

@@ -119,3 +119,17 @@ python3 automation/archive/build_archive.py /tmp/channel.json                  #
 ```bash
 npm test
 ```
+
+## Бот на сервере (Railway)
+
+`automation/server/` — образ с Chromium, git и Telethon. Код в образ не зашит: при старте репозиторий клонируется из GitHub, а перед каждым анонсом подтягивается свежий `main`, поэтому правки кода доходят до бота без передеплоя.
+
+```bash
+cd automation/server && railway up        # сборка и запуск
+```
+
+Переменные сервиса: всё из `.env` (GEMINI_API_KEY, TELEGRAM_*, TG_USER_REPOST_CHATS, IG_*, CLOUDFLARE_*), плюс
+- `GITHUB_TOKEN` — fine-grained токен только на artartemev/OmHome с правом Contents: Read and write (для обновления афиши на сайте);
+- `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` — для Волшебного чата и Вероники; строку даёт `python3 automation/server/make_session.py` (отдельная сессия «OmHome bot server», а не сессия guide).
+
+Бот должен работать в одном месте: два процесса с одним токеном мешают друг другу получать сообщения.

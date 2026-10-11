@@ -15,6 +15,7 @@ One greeting, then every poster of the week with its caption.
 Env:
     TG_API_ID, TG_API_HASH   — from my.telegram.org (the same as in the guide project)
     TG_SESSION               — path to the .session file (with or without the .session suffix)
+    TG_SESSION_STRING        — or the session as a string (server; see automation/server/make_session.py)
     TG_PARTNERS              — comma-separated usernames, default: VeronikaKirpichenko
     TG_PARTNER_INTRO         — fixed first message instead of the rotating ones below
     TG_USER_REPOST_CHATS     — chats for --chats: "invite-link=Name,…" (you must be a member)
@@ -56,7 +57,7 @@ async def main(pairs: list[tuple[str, str]]) -> None:
     posts = [(poster, open(caption_path, encoding="utf-8").read()) for poster, caption_path in pairs]
     partners = [p.strip().lstrip("@") for p in os.environ.get("TG_PARTNERS", "VeronikaKirpichenko").split(",") if p.strip()]
     intro = pick_intro()
-    session = os.path.expanduser(os.environ["TG_SESSION"]).removesuffix(".session")
+    session = user_session()
 
     from telethon import TelegramClient
 
@@ -66,6 +67,15 @@ async def main(pairs: list[tuple[str, str]]) -> None:
             for poster, caption in posts:
                 await client.send_file(partner, poster, caption=caption, parse_mode="html")
             print(f"✅ @{partner}: приветствие и {len(posts)} афиш(и)")
+
+
+def user_session():
+    """TG_SESSION_STRING (server: a StringSession) or TG_SESSION (Mac: path to the .session file)."""
+    if os.environ.get("TG_SESSION_STRING"):
+        from telethon.sessions import StringSession
+
+        return StringSession(os.environ["TG_SESSION_STRING"])
+    return os.path.expanduser(os.environ["TG_SESSION"]).removesuffix(".session")
 
 
 def user_chats():
@@ -79,7 +89,7 @@ def user_chats():
 
 async def post_to_chats(pairs: list[tuple[str, str]]) -> None:
     posts = [(poster, open(caption_path, encoding="utf-8").read()) for poster, caption_path in pairs]
-    session = os.path.expanduser(os.environ["TG_SESSION"]).removesuffix(".session")
+    session = user_session()
 
     from telethon import TelegramClient
 

@@ -8,7 +8,7 @@
 // PUBLISH_ARGS (default "--send --site --ai-photo": FLUX draws a photo when none is attached) — flags for publish.mjs.
 // A file path as an argument is published first (e.g. to redo an announcement): node automation/bot.mjs ann.txt
 
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -57,6 +57,14 @@ async function download(message, dir) {
 }
 
 function publish(file, photos) {
+  // On the server (BOT_SYNC_GIT=1) the clone is brought up to date with main first: fresh code and afisha.
+  if (process.env.BOT_SYNC_GIT) {
+    try {
+      execFileSync('git', ['pull', '--ff-only', 'origin', 'main'], { cwd: ROOT, stdio: 'inherit' });
+    } catch (error) {
+      console.error(`⚠️ git pull: ${error.message}`);
+    }
+  }
   const args = ['automation/publish.mjs', file, ...photos.flatMap((photo) => ['--photo', photo]), ...PUBLISH_ARGS];
   return new Promise((resolve) => {
     const child = spawn(process.execPath, args, { cwd: ROOT, stdio: 'inherit', env: process.env });
