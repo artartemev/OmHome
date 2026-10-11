@@ -17,6 +17,7 @@ export const DEFAULTS = {
   mapUrl: 'https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7',
   contact: '@artartemev',
   donation: 'Донейшен',
+  donateUrl: 'https://omhome.space/donate',
   timeZoneOffsetHours: 7
 };
 
@@ -173,7 +174,7 @@ export function guessCategory(event) {
 
 // Telegram post in the channel's house format (parse_mode: HTML).
 export function formatPost(event, options = {}) {
-  const { mapUrl, contact, donation } = { ...DEFAULTS, ...options };
+  const { mapUrl, contact, donation, donateUrl } = { ...DEFAULTS, ...options };
   const when = `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${(event.times ?? [event.time]).join(' и ')}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
   return [
@@ -184,7 +185,7 @@ export function formatPost(event, options = {}) {
     '',
     `📍 <a href="${mapUrl}">Адрес</a>`,
     `✍️ Запись: ${escapeHtml(contact)}`,
-    `💰 ${escapeHtml(donation)}`
+    `💰 ${escapeHtml(donation)} · <a href="${donateUrl}">поддержать OmHome</a>`
   ].join('\n');
 }
 

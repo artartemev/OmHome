@@ -55,6 +55,8 @@ export const publishStory = (imagePath) => publish({ image_url: publicUrl(imageP
 // Telegram captions are HTML; Instagram wants plain text and does not make links clickable.
 export function toInstagramCaption(htmlCaption, extra = '') {
   const text = htmlCaption
+    // Links are not clickable in Instagram captions: keep the donation URL as plain text, drop the rest.
+    .replace(/<a href="(https:\/\/omhome\.space\/donate)">[^<]+<\/a>/g, 'поддержать: omhome.space/donate')
     .replace(/<a href="([^"]+)">([^<]+)<\/a>/g, '$2')
     .replace(/<[^>]+>/g, '')
     .replace(/&lt;/g, '<')
