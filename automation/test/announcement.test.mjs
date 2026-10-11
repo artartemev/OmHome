@@ -63,7 +63,7 @@ test('formats the channel post', () => {
       '',
       '📍 <a href="https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7">Адрес</a>',
       '✍️ Запись: @artartemev',
-      '💰 Донейшен · <a href="https://omhome.space/donate">поддержать OmHome</a>'
+      '💰 Донейшен'
     ].join('\n')
   );
 });
