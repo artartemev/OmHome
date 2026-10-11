@@ -61,6 +61,8 @@ export function toInstagramCaption(htmlCaption, extra = '') {
     .replace(/<[^>]+>/g, '')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&');
+    .replace(/&amp;/g, '&')
+    // Telegram usernames would tag random Instagram accounts: show them as t.me links instead.
+    .replace(/(^|[\s(])@([A-Za-z0-9_]{4,})/g, '$1t.me/$2');
   return `${text}${extra}`;
 }

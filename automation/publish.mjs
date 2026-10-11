@@ -123,7 +123,11 @@ function eventActions(event, posterPath, caption, captionFile) {
     }
   }
   if (instagramConfigured()) {
-    const igCaption = toInstagramCaption(caption, '\n\nАдрес и запись — в шапке профиля и в Telegram @omhome_thai');
+    const tags = (event.instagram ?? []).map((handle) => `@${handle}`).join(' ');
+    const igCaption = toInstagramCaption(
+      caption,
+      `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`
+    );
     actions.push(
       { label: `📸 Пост в Instagram — ${event.title}`, image: posterPath, text: igCaption, run: () => publishPost(posterPath, igCaption) },
       {

@@ -97,6 +97,25 @@ const slugify = (text) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 40);
 
+// Notes for Instagram only: "инста: @au_darya", "ig: au_darya" as a separate line, or "… в инсте она au_darya"
+// inside a line. The handle is tagged in the Instagram caption and removed from the Telegram post and the site.
+const IG_LINE = /^(?:ig|insta|инста|инстаграм|instagram)\s*[:—-]\s*@?([A-Za-z0-9._]+)\s*$/i;
+const IG_PHRASE = /[\s,;—-]*(?:а\s+)?в\s+(?:инст[а-яё]*|instagram|ig)\s*(?:(?:она|он|они)\s+)?[—:-]?\s*@?([A-Za-z0-9._]+)/i;
+
+function takeInstagram(line, handles) {
+  const own = line.match(IG_LINE);
+  if (own) {
+    handles.push(own[1]);
+    return '';
+  }
+  const phrase = line.match(IG_PHRASE);
+  if (phrase) {
+    handles.push(phrase[1]);
+    return line.replace(IG_PHRASE, '').trim();
+  }
+  return line;
+}
+
 export function parseSchedule(message, { today = todayIso() } = {}) {
   const lines = message.replace(/\r/g, '').split('\n');
   const blocks = [];
@@ -107,7 +126,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
     const looksLikeDate = DATE_LINE_START.test(line) && (!current || current.lastBlank);
     const dateInfo = looksLikeDate ? parseDateLine(line, today) : null;
     if (dateInfo) {
-      current = { dateInfo, lines: [], lastBlank: false };
+      current = { dateInfo, lines: [], instagram: [], lastBlank: false };
       blocks.push(current);
       continue;
     }
@@ -118,13 +137,14 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
     }
     // Lines that repeat the standard footer are dropped; the footer is added back when formatting.
     if (/^(📍|✍️|✍|💰)/u.test(line)) continue;
-    current.lines.push(line);
+    const text = current.lines.length ? takeInstagram(line, current.instagram) : line;
     current.lastBlank = false;
+    if (text) current.lines.push(text);
   }
 
   return blocks
     .filter((block) => block.lines.length > 0)
-    .map(({ dateInfo, lines: [titleLine, ...rest] }) => {
+    .map(({ dateInfo, instagram, lines: [titleLine, ...rest] }) => {
       const [title, subtitle] = titleLine.split('|').map((part) => part.trim());
       return {
         id: `${dateInfo.date}-${slugify(title)}`,
@@ -135,6 +155,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
         title,
         ...(subtitle ? { subtitle } : {}),
         ...(rest.length ? { description: rest.join('\n') } : {}),
+        ...(instagram.length ? { instagram: [...new Set(instagram)] } : {}),
         warnings: dateInfo.warnings
       };
     });
@@ -191,6 +212,6 @@ export function formatPost(event, options = {}) {
 
 // Shape stored in public/events.json for the website.
 export function toSiteEvent(event, posterPath) {
-  const { warnings, times, weekday, ...rest } = event;
+  const { warnings, times, weekday, instagram, ...rest } = event;
   return { ...rest, ...(posterPath ? { poster: posterPath } : {}) };
 }

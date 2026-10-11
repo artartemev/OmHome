@@ -67,3 +67,22 @@ test('formats the channel post', () => {
     ].join('\n')
   );
 });
+
+test('instagram notes are taken out of the post and kept as handles', () => {
+  const [inline, own] = parseSchedule(
+    `чт 15/10 18:00
+Мантра-йога | с Дашей
+Вечер проведёт Даша (@daria_tokarchuk) ✨ в инсте она au_darya
+
+сб 17/10 18:00
+Киртан
+Поём вместе
+инста: @some.guest`,
+    { today }
+  );
+  assert.equal(inline.description, 'Вечер проведёт Даша (@daria_tokarchuk) ✨');
+  assert.deepEqual(inline.instagram, ['au_darya']);
+  assert.equal(own.description, 'Поём вместе');
+  assert.deepEqual(own.instagram, ['some.guest']);
+  assert.ok(!formatPost(inline).includes('au_darya'));
+});
