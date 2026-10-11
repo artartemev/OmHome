@@ -28,9 +28,16 @@ async function graph(path, params) {
   return json;
 }
 
-async function assertOnline(url) {
-  const response = await fetch(url, { method: 'HEAD' });
-  if (!response.ok) throw new Error(`${url} недоступен (${response.status}) — сначала задеплойте афиши на сайт`);
+// Right after the site commit Vercel still builds for a minute or two: wait for the poster to come online.
+async function assertOnline(url, timeoutMs = 6 * 60 * 1000) {
+  const deadline = Date.now() + timeoutMs;
+  let status;
+  while (Date.now() < deadline) {
+    status = (await fetch(url, { method: 'HEAD' }).catch(() => ({ status: 'нет ответа' }))).status;
+    if (status === 200) return;
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
+  }
+  throw new Error(`${url} недоступен (${status}) — афиша ещё не на сайте`);
 }
 
 async function waitUntilReady(containerId) {

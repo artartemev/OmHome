@@ -122,7 +122,14 @@ function eventActions(event, posterPath, caption, captionFile) {
       });
     }
   }
-  if (instagramConfigured()) {
+  return actions;
+}
+
+// Instagram downloads the poster from omhome.space, so these run after the site update.
+function instagramActions(event, posterPath, caption) {
+  if (!instagramConfigured()) return [];
+  const actions = [];
+  {
     const tags = (event.instagram ?? []).map((handle) => `@${handle}`).join(' ');
     const igCaption = toInstagramCaption(
       caption,
@@ -183,6 +190,7 @@ const readyPosters = byTitle(values.poster);
 const workDir = await mkdtemp(join(tmpdir(), 'omhome-'));
 const partnerPosts = []; // poster, caption, poster, caption… — sent to partners in one go after the channel
 const actions = [];
+const igActions = [];
 const titles = [];
 const events = parseSchedule(await readFile(positionals[0], 'utf8'));
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
@@ -240,6 +248,7 @@ for (const event of events) {
     const captionFile = join(workDir, `${event.id}.html`);
     await writeFile(captionFile, caption);
     actions.push(...eventActions(event, posterPath, caption, captionFile));
+    igActions.push(...instagramActions(event, posterPath, caption));
     partnerPosts.push(posterPath, captionFile);
     titles.push(event.title);
   }
@@ -279,6 +288,8 @@ if (values.send && values.site && titles.length) {
     }
   });
 }
+
+actions.push(...igActions);
 
 if (actions.length) {
   const results = await runWithApproval(actions);
