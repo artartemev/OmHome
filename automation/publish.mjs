@@ -17,6 +17,8 @@
 // With --send NOTHING goes out without your approval: every action — channel post, each chat repost, the message to
 // partners, Instagram post, Instagram story — is shown to you first (in Telegram with ✅/❌ buttons when
 // TELEGRAM_APPROVAL_CHAT_ID is set, otherwise in the terminal) and runs only after ✅. See approval.mjs.
+// ❌ on an event's post opens «Что поправить?»: reply with text and/or a photo — Gemini applies the edit, the poster,
+// caption and site entry are rebuilt and the preview comes again; «🗑 Отменить анонс» drops the event everywhere.
 //
 // Env (only needed for --send):
 //   TELEGRAM_BOT_TOKEN        token of the OmHome bot (admin in the channel)
@@ -30,13 +32,21 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { copyFile, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, todayIso, toSiteEvent } from './announcement.mjs';
+import {
+  CATEGORY_PALETTE,
+  formatPost,
+  guessCategory,
+  parseSchedule,
+  todayIso,
+  toScheduleBlock,
+  toSiteEvent
+} from './announcement.mjs';
 import { runWithApproval } from './approval.mjs';
-import { generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
+import { editAnnouncement, generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
@@ -84,75 +94,93 @@ const userChats = () =>
       return { link: link.trim(), name: name.join('=').trim() || link.trim() };
     });
 
-// Outward actions for one event, each approved separately.
-function eventActions(event, posterPath, caption, captionFile) {
+// Outward actions for one event, each approved separately. Fields are read from the state at approval time, so
+// after an edit the preview and the post show the new version. Edits are offered until something of the event is out.
+function eventActions(state) {
   const channel = process.env.TELEGRAM_CHANNEL_ID;
-  let channelMessage;
+  const title = () => state.event.title;
+  const editable = (action) =>
+    Object.defineProperty(action, 'onEdit', { get: () => (state.published ? undefined : (edit) => editState(state, edit)) });
   const actions = [
-    {
+    editable({
       kind: 'telegram',
-      label: `📣 Пост в канал ${channel} — ${event.title}`,
-      image: posterPath,
-      text: caption,
+      group: state,
+      label: () => `📣 Пост в канал ${channel} — ${title()}`,
+      image: () => state.posterPath,
+      text: () => state.caption,
       run: async () => {
-        channelMessage = await sendPhoto(channel, posterPath, caption);
+        state.channelMessage = await sendPhoto(channel, state.posterPath, state.caption);
+        state.published = true;
       }
-    },
-    ...repostChats().map((chat) => ({
-      kind: 'telegram',
-      label: `🔁 Репост в «${chat.name}» — ${event.title}`,
-      image: posterPath,
-      text: caption,
-      run: async () => {
-        // Forward keeps the link to the channel; if the channel post was skipped, send the poster itself.
-        if (channelMessage) {
-          await telegram('forwardMessage', { chat_id: chat.id, from_chat_id: channel, message_id: channelMessage.message_id });
-        } else {
-          await sendPhoto(chat.id, posterPath, caption);
+    }),
+    ...repostChats().map((chat) =>
+      editable({
+        kind: 'telegram',
+        group: state,
+        label: () => `🔁 Репост в «${chat.name}» — ${title()}`,
+        image: () => state.posterPath,
+        text: () => state.caption,
+        run: async () => {
+          // Forward keeps the link to the channel; if the channel post was skipped, send the poster itself.
+          if (state.channelMessage) {
+            await telegram('forwardMessage', { chat_id: chat.id, from_chat_id: channel, message_id: state.channelMessage.message_id });
+          } else {
+            await sendPhoto(chat.id, state.posterPath, state.caption);
+          }
+          state.published = true;
         }
-      }
-    }))
+      })
+    )
   ];
   if (process.env.TG_SESSION) {
     for (const chat of userChats()) {
-      actions.push({
-        kind: 'chats',
-        label: `🔁 Репост в «${chat.name}» с вашего аккаунта — ${event.title}`,
-        image: posterPath,
-        text: caption,
-        run: async () => {
-          execFileSync('python3', [PARTNER_SCRIPT, '--chats', posterPath, captionFile], {
-            stdio: 'inherit',
-            env: { ...process.env, TG_USER_REPOST_CHATS: `${chat.link}=${chat.name}` }
-          });
-        }
-      });
+      actions.push(
+        editable({
+          kind: 'chats',
+          group: state,
+          label: () => `🔁 Репост в «${chat.name}» с вашего аккаунта — ${title()}`,
+          image: () => state.posterPath,
+          text: () => state.caption,
+          run: async () => {
+            execFileSync('python3', [PARTNER_SCRIPT, '--chats', state.posterPath, state.captionFile], {
+              stdio: 'inherit',
+              env: { ...process.env, TG_USER_REPOST_CHATS: `${chat.link}=${chat.name}` }
+            });
+            state.published = true;
+          }
+        })
+      );
     }
   }
   return actions;
 }
 
-// Instagram downloads the poster from omhome.space, so these run after the site update.
-function instagramActions(event, posterPath, caption) {
+// Instagram downloads the poster from omhome.space, so these run after the site update (and are not editable:
+// the site already has this version of the poster).
+function instagramActions(state) {
   if (!instagramConfigured()) return [];
-  const actions = [];
-  {
-    const tags = (event.instagram ?? []).map((handle) => `@${handle}`).join(' ');
-    const igCaption = toInstagramCaption(
-      caption,
-      `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`
-    );
-    actions.push(
-      { kind: 'instagram', label: `📸 Пост в Instagram — ${event.title}`, image: posterPath, text: igCaption, run: () => publishPost(posterPath, igCaption) },
-      {
-        kind: 'instagram',
-        label: `📱 Сториз в Instagram — ${event.title}`,
-        image: posterPath.replace(/\.jpg$/, '-story.jpg'),
-        run: () => publishStory(posterPath.replace(/\.jpg$/, '-story.jpg'))
-      }
-    );
-  }
-  return actions;
+  const caption = () => {
+    const tags = (state.event.instagram ?? []).map((handle) => `@${handle}`).join(' ');
+    return toInstagramCaption(state.caption, `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`);
+  };
+  const story = () => state.posterPath.replace(/\.jpg$/, '-story.jpg');
+  return [
+    {
+      kind: 'instagram',
+      group: state,
+      label: () => `📸 Пост в Instagram — ${state.event.title}`,
+      image: () => state.posterPath,
+      text: caption,
+      run: () => publishPost(state.posterPath, caption())
+    },
+    {
+      kind: 'instagram',
+      group: state,
+      label: () => `📱 Сториз в Instagram — ${state.event.title}`,
+      image: story,
+      run: () => publishStory(story())
+    }
+  ];
 }
 
 const { values, positionals } = parseArgs({
@@ -199,10 +227,7 @@ const byTitle = (entries) =>
 const photos = byTitle(values.photo);
 const readyPosters = byTitle(values.poster);
 const workDir = await mkdtemp(join(tmpdir(), 'omhome-'));
-const partnerPosts = []; // poster, caption, poster, caption… — sent to partners in one go after the channel
-const actions = [];
-const igActions = [];
-const titles = [];
+const states = [];
 // Free text works too: if the message is not in the strict format (or --ai-parse), Gemini turns it into that format
 // first, and the result is printed so you can see exactly how it was understood.
 const message = await readFile(positionals[0], 'utf8');
@@ -237,6 +262,77 @@ if (loosePhotos.length) {
   for (const event of events) console.log(`   ${event.title} ← ${photos[event.title.toLowerCase()]?.split('/').pop() ?? 'без фото'}`);
 }
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
+
+async function saveSite() {
+  site.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  site.updatedAt = new Date().toISOString().slice(0, 10);
+  await writeFile(EVENTS_FILE, `${JSON.stringify(site, null, 2)}\n`);
+}
+
+const tracked = (path) => {
+  try {
+    execFileSync('git', ['ls-files', '--error-unmatch', path], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Removes an event from the afisha; its posters too, unless they are already on the site from an earlier run.
+async function dropEvent(id) {
+  site.events = site.events.filter((existing) => existing.id !== id);
+  for (const path of [`${POSTERS_DIR}/${id}.jpg`, `${POSTERS_DIR}/${id}-story.jpg`]) {
+    if (existsSync(path) && !tracked(path)) await rm(path);
+  }
+}
+
+// Poster (post + story), channel caption and site entry from the current state of the event.
+async function build(state) {
+  const { event } = state;
+  state.posterPath = undefined;
+  if (state.readyPoster) {
+    state.posterPath = `${POSTERS_DIR}/${event.id}.jpg`;
+    if (resolve(state.readyPoster) !== resolve(state.posterPath)) await copyFile(state.readyPoster, state.posterPath);
+    const storyPath = state.posterPath.replace(/\.jpg$/, '-story.jpg');
+    if (!existsSync(storyPath) || state.rebuilt) await storyFromPoster(state.posterPath, storyPath);
+  } else if (state.photo) {
+    const out = `${POSTERS_DIR}/${event.id}`;
+    await renderPoster({ ...event, photo: state.photo, palette: values.palette ?? CATEGORY_PALETTE[event.category], out });
+    state.posterPath = `${out}.jpg`;
+  } else {
+    console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
+  }
+  state.caption = formatPost(event);
+  state.captionFile = join(workDir, `${event.id}.html`);
+  await writeFile(state.captionFile, state.caption);
+  const siteEvent = toSiteEvent(event, state.posterPath ? `/${state.posterPath.replace(/^public\//, '')}` : undefined);
+  site.events = [...site.events.filter((existing) => existing.id !== event.id), siteEvent];
+}
+
+// An edit from the approval dialogue: text goes to Gemini together with the announcement, a photo replaces the one in
+// the arch frame. Everything is rebuilt; the preview is then asked again.
+async function editState(state, { text, photo }) {
+  const oldId = state.event.id;
+  if (text) {
+    const answer = await editAnnouncement(toScheduleBlock(state.event), text, todayIso());
+    const [edited] = parseSchedule(answer);
+    if (!edited) throw new Error(`Gemini вернул анонс, который не читается:\n${answer}`);
+    for (const warning of edited.warnings) console.warn(`⚠️  ${edited.title}: ${warning}`);
+    edited.category = guessCategory(edited);
+    state.event = edited;
+  }
+  if (photo) {
+    state.photo = photo;
+    state.readyPoster = undefined;
+  }
+  if (state.event.id !== oldId) await dropEvent(oldId);
+  state.rebuilt = true;
+  await build(state);
+  await saveSite();
+  console.log(`\n──── ${state.event.title} (после правки) ────\n${state.caption}`);
+}
+
+const live = () => states.filter((state) => !state.cancelled && state.posterPath);
 
 for (const event of events) {
   for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
@@ -276,86 +372,81 @@ for (const event of events) {
     }
   }
 
-  let posterPath;
-  if (readyPoster) {
-    posterPath = `${POSTERS_DIR}/${event.id}.jpg`;
-    if (resolve(readyPoster) !== resolve(posterPath)) await copyFile(readyPoster, posterPath);
-    const storyPath = posterPath.replace(/\.jpg$/, '-story.jpg');
-    if (!existsSync(storyPath)) await storyFromPoster(posterPath, storyPath);
-  } else if (photo) {
-    const out = `${POSTERS_DIR}/${event.id}`;
-    const palette = values.palette ?? CATEGORY_PALETTE[event.category];
-    await renderPoster({ ...event, photo, palette, out });
-    posterPath = `${out}.jpg`;
-    await markPoolPhotoUsed(resolve(photo), event.date);
-  } else {
-    console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
+  const state = { event, photo, readyPoster };
+  await build(state);
+  if (photo && !readyPoster) await markPoolPhotoUsed(resolve(photo), event.date);
+  states.push(state);
+
+  console.log(`\n──── ${event.title} ────\n${state.caption}`);
+  if (state.posterPath) console.log(`🖼  ${state.posterPath}`);
+}
+await saveSite();
+
+const actions = [];
+if (values.send) {
+  const ready = states.filter((state) => state.posterPath);
+  for (const state of ready) actions.push(...eventActions(state));
+
+  if (ready.length && process.env.TG_SESSION) {
+    // The greeting is picked now so the preview shows exactly what will be sent.
+    const intro = execFileSync('python3', [PARTNER_SCRIPT, '--pick-intro']).toString().trim();
+    const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => `@${p.trim().replace(/^@/, '')}`);
+    actions.push({
+      kind: 'partners',
+      label: `💌 Личное сообщение ${partners.join(', ')} с вашего аккаунта`,
+      image: () => live()[0]?.posterPath,
+      text: () => `${intro}\n\n+ ${live().length} афиш(и): ${live().map((state) => state.event.title).join(', ')}`,
+      skip: () => !live().length,
+      run: async () => {
+        execFileSync('python3', [PARTNER_SCRIPT, ...live().flatMap((state) => [state.posterPath, state.captionFile])], {
+          stdio: 'inherit',
+          env: { ...process.env, TG_PARTNER_INTRO: intro }
+        });
+        for (const state of live()) state.published = true;
+      }
+    });
   }
 
-  const siteEvent = toSiteEvent(event, posterPath ? `/${posterPath.replace(/^public\//, '')}` : undefined);
-  site.events = [...site.events.filter((existing) => existing.id !== event.id), siteEvent];
-
-  const caption = formatPost(event);
-  console.log(`\n──── ${event.title} ────\n${caption}`);
-  if (posterPath) console.log(`🖼  ${posterPath}`);
-
-  if (values.send && posterPath) {
-    const captionFile = join(workDir, `${event.id}.html`);
-    await writeFile(captionFile, caption);
-    actions.push(...eventActions(event, posterPath, caption, captionFile));
-    igActions.push(...instagramActions(event, posterPath, caption));
-    partnerPosts.push(posterPath, captionFile);
-    titles.push(event.title);
+  if (values.site && ready.length) {
+    const titles = () => live().map((state) => state.event.title).join(', ');
+    actions.push({
+      kind: 'site',
+      label: () => `🌐 Афиша на omhome.space: ${titles()}`,
+      image: () => live()[0]?.posterPath,
+      text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
+      skip: () => !live().length,
+      run: async () => {
+        const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
+        git('add', 'public/events.json', POSTERS_DIR, 'automation/photos/history.json');
+        git('commit', '-m', `Афиша: ${titles()}`);
+        git('push', 'origin', 'HEAD:main');
+        for (const state of live()) state.published = true;
+      }
+    });
   }
+
+  for (const state of ready) actions.push(...instagramActions(state));
 }
-
-if (partnerPosts.length && process.env.TG_SESSION) {
-  // The greeting is picked now so the preview shows exactly what will be sent.
-  const intro = execFileSync('python3', [PARTNER_SCRIPT, '--pick-intro']).toString().trim();
-  const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => `@${p.trim().replace(/^@/, '')}`);
-  actions.push({
-    kind: 'partners',
-    label: `💌 Личное сообщение ${partners.join(', ')} с вашего аккаунта`,
-    image: partnerPosts[0],
-    text: `${intro}\n\n+ ${titles.length} афиш(и): ${titles.join(', ')}`,
-    run: async () => {
-      execFileSync('python3', [PARTNER_SCRIPT, ...partnerPosts], {
-        stdio: 'inherit',
-        env: { ...process.env, TG_PARTNER_INTRO: intro }
-      });
-    }
-  });
-}
-
-site.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-site.updatedAt = new Date().toISOString().slice(0, 10);
-await writeFile(EVENTS_FILE, `${JSON.stringify(site, null, 2)}\n`);
-
-if (values.send && values.site && titles.length) {
-  actions.push({
-    kind: 'site',
-    label: `🌐 Афиша на omhome.space: ${titles.join(', ')}`,
-    image: partnerPosts[0],
-    text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
-    run: async () => {
-      const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
-      git('add', 'public/events.json', POSTERS_DIR, 'automation/photos/history.json');
-      git('commit', '-m', `Афиша: ${titles.join(', ')}`);
-      git('push', 'origin', 'HEAD:main');
-    }
-  });
-}
-
-actions.push(...igActions);
 
 // --only instagram,site — ask only about these kinds (e.g. Instagram for an event already posted to Telegram).
 const onlyKinds = values.only?.split(',').map((kind) => kind.trim());
 const selected = onlyKinds ? actions.filter((action) => onlyKinds.includes(action.kind)) : actions;
 
 if (selected.length) {
-  const results = await runWithApproval(selected);
+  const results = await runWithApproval(selected, {
+    // «🗑 Отменить анонс»: the event leaves the afisha (unless it is already published somewhere).
+    onCancel: async (state) => {
+      state.cancelled = true;
+      if (!state.published) {
+        await dropEvent(state.event.id);
+        await saveSite();
+      }
+    }
+  });
   const count = (status) => results.filter((result) => result.status === status).length;
-  console.log(`\nИтого: выполнено ${count('done')}, пропущено ${count('skipped')}, с ошибкой ${count('failed')}`);
+  console.log(
+    `\nИтого: выполнено ${count('done')}, пропущено ${count('skipped')}, отменено ${count('cancelled')}, с ошибкой ${count('failed')}`
+  );
 }
 
-console.log(`\n📅 ${EVENTS_FILE} обновлён: ${events.length} событ.`);
+console.log(`\n📅 ${EVENTS_FILE} обновлён: в афише ${live().length} из ${states.length} событ.`);

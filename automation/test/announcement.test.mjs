@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatPost, guessCategory } from '../announcement.mjs';
+import { parseSchedule, formatPost, guessCategory, toScheduleBlock } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -107,4 +107,13 @@ test('own contact line replaces the default, and mantra-yoga is not a kirtan', (
   assert.ok(formatPost(yoga).includes('✍️ Запись: @artartemev'));
   assert.equal(guessCategory(yoga), 'practice');
   assert.equal(guessCategory(kirtan), 'kirtan');
+});
+
+test('an event survives the round trip through its schedule block (used for edits)', () => {
+  const [event] = parseSchedule(
+    'чт 15/10 18:00\nМантра-йога | с Дашей\nПриглашаем окунуться в звуки.\nВечер проведёт Даша ✨ в инсте она au_darya\n✍️ Запись: @daria_tokarchuk',
+    { today: '2026-10-11' }
+  );
+  const [again] = parseSchedule(toScheduleBlock(event), { today: '2026-10-11' });
+  assert.deepEqual(again, event);
 });

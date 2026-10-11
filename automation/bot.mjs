@@ -1,0 +1,96 @@
+// Inbox of @OmHome_Sch_bot: write an announcement to the bot (any text — strict format or free words), attach photos
+// if you like, and it runs publish.mjs with it: posters → previews with ✅/❌ → only approved actions go out.
+//
+//   node --env-file=.env automation/bot.mjs
+//
+// Only messages from TELEGRAM_APPROVAL_CHAT_ID are read. Photos sent as an album with the text go to the events in
+// order (first photo — first event). While one announcement is being approved the bot does not take new ones.
+// PUBLISH_ARGS (default "--send --site") — flags for publish.mjs.
+
+import { spawn } from 'node:child_process';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const CHAT = String(process.env.TELEGRAM_APPROVAL_CHAT_ID ?? '');
+const PUBLISH_ARGS = (process.env.PUBLISH_ARGS ?? '--send --site').split(/\s+/).filter(Boolean);
+const HELP = `Пришлите анонс одним сообщением — в строгом формате или свободным текстом, можно с фото (альбомом, подпись — анонс).
+Я соберу афиши и пришлю каждое действие на ✅/❌. На ❌ можно ответить правкой текстом или новым фото.`;
+
+if (!process.env.TELEGRAM_BOT_TOKEN || !CHAT) {
+  console.error('Нужны TELEGRAM_BOT_TOKEN и TELEGRAM_APPROVAL_CHAT_ID');
+  process.exit(1);
+}
+
+async function telegram(method, body) {
+  const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/${method}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const json = await response.json();
+  if (!json.ok) throw new Error(`${method}: ${json.description}`);
+  return json.result;
+}
+
+const say = (text) => telegram('sendMessage', { chat_id: CHAT, text }).catch((error) => console.error(error.message));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+let offset = 0;
+async function poll(timeout) {
+  const updates = await telegram('getUpdates', { offset, timeout, allowed_updates: ['message', 'callback_query'] });
+  for (const update of updates) offset = update.update_id + 1;
+  return updates.map((update) => update.message).filter((message) => message && String(message.chat.id) === CHAT);
+}
+
+async function download(message, dir) {
+  const fileId = message.photo?.at(-1)?.file_id ?? (/^image\//.test(message.document?.mime_type ?? '') ? message.document.file_id : null);
+  if (!fileId) return null;
+  const file = await telegram('getFile', { file_id: fileId });
+  const response = await fetch(`https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${file.file_path}`);
+  const path = join(dir, `${message.message_id}-${file.file_path.split('/').pop()}`);
+  await writeFile(path, Buffer.from(await response.arrayBuffer()));
+  return path;
+}
+
+function publish(file, photos) {
+  const args = ['automation/publish.mjs', file, ...photos.flatMap((photo) => ['--photo', photo]), ...PUBLISH_ARGS];
+  return new Promise((resolve) => {
+    const child = spawn(process.execPath, args, { cwd: ROOT, stdio: 'inherit', env: process.env });
+    child.on('exit', (code) => resolve(code));
+  });
+}
+
+async function handle(messages) {
+  const text = messages.map((message) => message.text ?? message.caption ?? '').filter(Boolean).join('\n\n').trim();
+  if (/^\/(start|help)\b/.test(text)) return say(HELP);
+  if (!text) return say('Нужен текст анонса — пришлите его вместе с фото (подписью) или отдельным сообщением.');
+
+  const dir = await mkdtemp(join(tmpdir(), 'omhome-inbox-'));
+  const photos = [];
+  for (const message of messages) {
+    const photo = await download(message, dir);
+    if (photo) photos.push(photo);
+  }
+  const file = join(dir, 'announcement.txt');
+  await writeFile(file, text);
+  await say(`🛠 Принял${photos.length ? ` (+${photos.length} фото)` : ''}. Собираю афиши — превью придут сюда на ✅/❌.`);
+  const code = await publish(file, photos);
+  await say(code === 0 ? '🏁 Готово. Жду следующий анонс.' : `⚠️ Публикация упала (код ${code}) — подробности в логе. Жду следующий анонс.`);
+}
+
+console.log('📬 Бот слушает анонсы…');
+for (;;) {
+  try {
+    const messages = await poll(50);
+    if (!messages.length) continue;
+    // An album arrives as several messages in a row: give the rest of it a moment to come.
+    if (messages.some((message) => message.media_group_id)) messages.push(...(await poll(3)));
+    await handle(messages);
+  } catch (error) {
+    console.error(`⚠️ ${error.message}`);
+    await sleep(5000);
+  }
+}

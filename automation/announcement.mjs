@@ -225,3 +225,14 @@ export function toSiteEvent(event, posterPath) {
   const { warnings, times, weekday, instagram, contact, ...rest } = event;
   return { ...rest, ...(posterPath ? { poster: posterPath } : {}) };
 }
+
+// Event → the strict schedule block parseSchedule() reads back (used to edit an announcement with Gemini).
+export function toScheduleBlock(event) {
+  return [
+    `${shortDate(event.date)} ${(event.times ?? [event.time]).join(' ')}`,
+    event.subtitle ? `${event.title} | ${event.subtitle}` : event.title,
+    ...(event.description ? [event.description.replace(/\n\s*\n/g, '\n')] : []),
+    ...(event.instagram ?? []).map((handle) => `инста: @${handle}`),
+    ...(event.contact ? [`✍️ Запись: ${event.contact}`] : [])
+  ].join('\n');
+}

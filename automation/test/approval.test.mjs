@@ -23,6 +23,39 @@ test('terminal: only actions answered "y"/"да" run', () => {
   assert.deepEqual(result.statuses, ['done', 'skipped', 'done']);
 });
 
+test('terminal: an edit rebuilds the preview, «c» cancels the whole announcement', () => {
+  const script = `
+    import { runWithApproval } from ${JSON.stringify(approvalModule)};
+    const ran = [];
+    const edits = [];
+    const cancelled = [];
+    const event = { title: 'Киртан' };
+    const other = { title: 'Кино' };
+    const action = (group, name) => ({
+      label: () => name + ' — ' + group.title,
+      text: () => group.title,
+      group,
+      onEdit: async ({ text }) => { edits.push(text); group.title = text; },
+      run: async () => ran.push(name + ' — ' + group.title)
+    });
+    const results = await runWithApproval(
+      [action(event, 'канал'), action(other, 'канал'), action(other, 'инста')],
+      { onCancel: (group) => cancelled.push(group.title) }
+    );
+    console.log('RESULT ' + JSON.stringify({ ran, edits, cancelled, statuses: results.map((r) => r.status) }));
+  `;
+  const out = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    input: 'Киртан с Сашей\ny\nc\n',
+    env: { ...process.env, TELEGRAM_APPROVAL_CHAT_ID: '' },
+    encoding: 'utf8'
+  });
+  const result = JSON.parse(out.stdout.split('RESULT ')[1]);
+  assert.deepEqual(result.edits, ['Киртан с Сашей']);
+  assert.deepEqual(result.ran, ['канал — Киртан с Сашей']);
+  assert.deepEqual(result.cancelled, ['Кино']);
+  assert.deepEqual(result.statuses, ['done', 'cancelled', 'cancelled']);
+});
+
 test('telegram: waits for the button of its own preview, ignores other taps', async () => {
   process.env.TELEGRAM_BOT_TOKEN = 'test';
   process.env.TELEGRAM_APPROVAL_CHAT_ID = '42';
@@ -41,7 +74,7 @@ test('telegram: waits for the button of its own preview, ignores other taps', as
       const batch = globalThis.__batch;
       result = [
         { update_id: polls * 10, callback_query: { id: 'x', data: 'other|y', message: { chat: { id: 42 } } } },
-        { update_id: polls * 10 + 1, callback_query: { id: 'q', data: `${batch}.${id}|${id === 0 ? 'n' : 'y'}`, message: { chat: { id: 42 } } } }
+        { update_id: polls * 10 + 1, callback_query: { id: 'q', data: `${batch}.${id}.0|${id === 0 ? 'n' : 'y'}`, message: { chat: { id: 42 } } } }
       ];
     }
     return { json: async () => ({ ok: true, result }) };
