@@ -1,3 +1,5 @@
+import { stat } from 'node:fs/promises';
+
 // Instagram publishing through the official Instagram API with Instagram Login (token starts with IG…).
 //
 // Env:
@@ -28,16 +30,20 @@ async function graph(path, params) {
   return json;
 }
 
-// Right after the site commit Vercel still builds for a minute or two: wait for the poster to come online.
-async function assertOnline(url, timeoutMs = 6 * 60 * 1000) {
+// Right after the site commit Vercel still builds for a minute or two: wait until the poster online is the same
+// file as the local one (same size), so Instagram never picks up an older version.
+async function assertOnline(url, localPath, timeoutMs = 8 * 60 * 1000) {
+  const expected = localPath ? (await stat(localPath)).size : null;
   const deadline = Date.now() + timeoutMs;
   let status;
   while (Date.now() < deadline) {
-    status = (await fetch(url, { method: 'HEAD' }).catch(() => ({ status: 'нет ответа' }))).status;
-    if (status === 200) return;
+    const response = await fetch(`${url}?v=${Date.now()}`, { method: 'HEAD', cache: 'no-store' }).catch(() => null);
+    status = response?.status ?? 'нет ответа';
+    const size = Number(response?.headers.get('content-length'));
+    if (status === 200 && (expected === null || !size || size === expected)) return;
     await new Promise((resolve) => setTimeout(resolve, 10_000));
   }
-  throw new Error(`${url} недоступен (${status}) — афиша ещё не на сайте`);
+  throw new Error(`${url}: на сайте ещё нет этой версии афиши (${status}) — обновите сайт и повторите`);
 }
 
 async function waitUntilReady(containerId) {
@@ -51,8 +57,8 @@ async function waitUntilReady(containerId) {
   throw new Error('Instagram слишком долго обрабатывает картинку');
 }
 
-async function publish(params) {
-  await assertOnline(params.image_url);
+async function publish(params, localPath) {
+  await assertOnline(params.image_url, localPath);
   const container = await graph(`${account()}/media`, params);
   await waitUntilReady(container.id);
   // Right after FINISHED Instagram often answers "Media ID is not available" / "resource does not exist" for a few
@@ -70,9 +76,10 @@ async function publish(params) {
   throw lastError;
 }
 
-export const publishPost = (imagePath, caption) => publish({ image_url: publicUrl(imagePath), caption });
+export const publishPost = (imagePath, caption) => publish({ image_url: publicUrl(imagePath), caption }, imagePath);
 
-export const publishStory = (imagePath) => publish({ image_url: publicUrl(imagePath), media_type: 'STORIES' });
+export const publishStory = (imagePath) =>
+  publish({ image_url: publicUrl(imagePath), media_type: 'STORIES' }, imagePath);
 
 // Telegram captions are HTML; Instagram wants plain text and does not make links clickable.
 export function toInstagramCaption(htmlCaption, extra = '') {
