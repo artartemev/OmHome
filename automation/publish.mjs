@@ -1,7 +1,7 @@
 // One command from a schedule message to posters, the website afisha and posts everywhere.
 //
 //   node automation/publish.mjs schedule.txt --photo kirtan=./kirtan.jpg --photo шляпа=./hat.jpg [--palette brown] [--send]
-//   node automation/publish.mjs schedule.txt --ai-text expand --ai-photo     # Gemini пишет текст, FLUX рисует фото
+//   node automation/publish.mjs schedule.txt --ai-photo                      # короткий анонс Gemini развернёт сам, FLUX рисует фото
 //   node automation/publish.mjs schedule.txt --poster "Мантра-йога=./ready.jpg"  # готовая афиша — как есть
 //   node automation/publish.mjs free-text.txt                                   # свободный текст — Gemini разберёт
 //   node automation/publish.mjs free-text.txt --photo a.jpg --photo b.jpg       # фото без подписи — по порядку событий
@@ -54,6 +54,8 @@ import { renderPoster, storyFromPoster } from './poster/render.mjs';
 const EVENTS_FILE = resolve('public/events.json');
 const POSTERS_DIR = 'public/posters';
 const PARTNER_SCRIPT = resolve('automation/telegram_user.py');
+// Descriptions shorter than this are written out by Gemini (--ai-text auto).
+const SHORT_DESCRIPTION = 200;
 // Your Telethon session: a .session file (Mac) or a string (server).
 const userSession = Boolean(process.env.TG_SESSION || process.env.TG_SESSION_STRING);
 
@@ -192,7 +194,7 @@ const { values, positionals } = parseArgs({
     'ai-parse': { type: 'boolean', default: false },
     'photo-match': { type: 'string', default: 'order' },
     palette: { type: 'string' },
-    'ai-text': { type: 'string' },
+    'ai-text': { type: 'string', default: 'auto' },
     'ai-photo': { type: 'boolean', default: false },
     send: { type: 'boolean', default: false }
   }
@@ -364,9 +366,13 @@ for (const event of events) {
     }
   }
 
-  if (values['ai-text']) {
+  // --ai-text auto (default): a short note («квартирник в пятницу, приносите инструменты») becomes 1–2 paragraphs;
+  // a full text stays as written. --ai-text polish|expand|shorten applies to every event, --ai-text off — never.
+  const aiText = values['ai-text'] === 'auto' ? ((event.description ?? '').length < SHORT_DESCRIPTION ? 'expand' : null) : values['ai-text'];
+  if (aiText && aiText !== 'off') {
     try {
-      event.description = await rewriteDescription(event, values['ai-text']);
+      event.description = await rewriteDescription(event, aiText);
+      if (aiText === 'expand') console.log(`✍️  ${event.title}: короткий анонс развёрнут в текст`);
     } catch (error) {
       console.warn(`⚠️  ${event.title}: текст оставлен как есть — ${error.message}`);
     }
