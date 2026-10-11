@@ -83,10 +83,32 @@ async function generateWithCloudflare(prompt, out) {
   return out;
 }
 
-export async function generatePhoto(event, out) {
-  const prompt = `Atmospheric photo for an event poster: "${event.title}"${event.subtitle ? ` (${event.subtitle})` : ''}.
-${event.description ?? ''}
-Cozy community house in Chiang Mai, warm evening light, real people, candid, soft film look, no text, no logos, vertical 4:5.`;
+const IMAGE_STYLES = {
+  // Line-art like the old kirtan posters in Figma. Tried on 3 events: empty frames, garbled text — not the default.
+  illustration:
+    'elegant flat illustration, fine golden line art on a deep teal background, ornamental and calm, minimal, centered composition, no text, no letters',
+  photo:
+    'warm candid photograph, soft natural evening light, cosy bright home interior with plants, rugs and floor cushions, film photography, shallow depth of field, no text, no letters, no bottles, no alcohol'
+};
+
+// Gemini turns the event into a short English scene for FLUX: concrete objects of this event, no text, no alcohol.
+async function imagePrompt(event, style) {
+  const ask = `Write one English prompt (max 45 words) for an image generator, describing a single scene for the event poster below.
+Show concrete objects or actions of this exact event (e.g. a film projector screen for a movie night, a hat with paper notes for the word game "Шляпа", a teapot and small cups for a tea evening, a harmonium and karatals for kirtan).
+Few people or none, faces not in focus. No text, letters, logos, bottles or alcohol. Only the prompt, nothing else.
+Event: ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}. ${event.description ?? ''}`;
+  try {
+    const { json } = await generate(TEXT_MODELS, { contents: [{ parts: [{ text: ask }] }], generationConfig: { temperature: 0.4 } });
+    const scene = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
+    if (scene) return `${scene}. ${IMAGE_STYLES[style]}`;
+  } catch {
+    // fall through to the plain prompt
+  }
+  return `${event.title}. ${IMAGE_STYLES[style]}`;
+}
+
+export async function generatePhoto(event, out, { style = process.env.IMAGE_STYLE || 'photo' } = {}) {
+  const prompt = await imagePrompt(event, style);
   try {
     return await generateWithCloudflare(prompt, out.replace(/\.png$/, '.jpg'));
   } catch (cloudflareError) {

@@ -79,7 +79,7 @@ npm run publish:events -- schedule.txt --ai-photo
 ```
 
 - Ключи кладутся в `.env` в корне (файл в `.gitignore`): `GEMINI_API_KEY=...`, при желании `CLOUDFLARE_ACCOUNT_ID=...` и `CLOUDFLARE_API_TOKEN=...`. Перед запуском: `set -a; . ./.env; set +a`.
-- Фото рисует Cloudflare Workers AI (FLUX.1 schnell, бесплатно 10 000 «нейронов» в сутки — хватает с запасом на 5–7 картинок в неделю). Запасной вариант — Gemini (Nano Banana), но на бесплатном тарифе AI Studio у него квота 0, нужен биллинг.
+- Фото рисует Cloudflare Workers AI (FLUX.1 schnell; Gemini сначала пишет для него конкретную сцену по-английски — предметы события, без текста и алкоголя; стиль — `IMAGE_STYLE=photo` по умолчанию, `illustration` пока выходит слабо; бесплатно 10 000 «нейронов» в сутки — хватает с запасом на 5–7 картинок в неделю). Запасной вариант — Gemini (Nano Banana), но на бесплатном тарифе AI Studio у него квота 0, нужен биллинг.
 - Cloudflare: зарегистрируйтесь на dash.cloudflare.com → Workers AI → «Use REST API»: там Account ID и кнопка создания API-токена с правом Workers AI.
 
 ## Репост партнёрам
