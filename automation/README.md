@@ -83,7 +83,7 @@ npm run publish:events -- schedule.txt --ai-photo
 
 ## Instagram
 
-Публикация через официальный Instagram Graph API (`automation/instagram.mjs`): нужен профессиональный аккаунт, привязанный к странице Facebook, приложение Meta и долгоживущий токен с `instagram_content_publish`. Instagram сам скачивает картинку по ссылке, поэтому афиши должны быть уже задеплоены на omhome.space (`IG_PUBLIC_BASE_URL`). На живом аккаунте ещё не проверялось — первый запуск лучше провести вместе.
+Публикация через официальный Instagram API с входом через Instagram (`automation/instagram.mjs`, `graph.instagram.com`): нужен профессиональный аккаунт, приложение Meta и токен пользователя Instagram (`IG…`) с `instagram_business_content_publish` — `IG_ACCESS_TOKEN` и `IG_USER_ID` в `.env`. Проверить токен, ничего не публикуя: `node automation/instagram_check.mjs`. Instagram сам скачивает картинку по ссылке, поэтому афиши должны быть уже задеплоены на omhome.space (`IG_PUBLIC_BASE_URL`). На живом аккаунте ещё не проверялось — первый запуск лучше провести вместе.
 
 ## Архив
 
