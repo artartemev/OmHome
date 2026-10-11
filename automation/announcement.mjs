@@ -138,6 +138,11 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
       continue;
     }
     // Lines that repeat the standard footer are dropped; the footer is added back when formatting.
+    const contact = line.match(/^(?:✍️|✍)?\s*запись\s*(?:у|:|—|-)?\s*:?\s*(@[A-Za-z0-9_]{4,})\s*$/iu);
+    if (contact && current.lines.length) {
+      current.contact = contact[1];
+      continue;
+    }
     if (/^(📍|✍️|✍|💰)/u.test(line)) continue;
     const text = current.lines.length ? takeInstagram(line, current.instagram) : line;
     current.lastBlank = false;
@@ -146,7 +151,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
 
   return blocks
     .filter((block) => block.lines.length > 0)
-    .map(({ dateInfo, instagram, lines: [titleLine, ...rest] }) => {
+    .map(({ dateInfo, instagram, contact, lines: [titleLine, ...rest] }) => {
       const [title, subtitle] = titleLine.split('|').map((part) => part.trim());
       return {
         id: `${dateInfo.date}-${slugify(title)}`,
@@ -158,6 +163,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
         ...(subtitle ? { subtitle } : {}),
         ...(rest.length ? { description: rest.join('\n') } : {}),
         ...(instagram.length ? { instagram: [...new Set(instagram)] } : {}),
+        ...(contact ? { contact } : {}),
         warnings: dateInfo.warnings
       };
     });
@@ -172,10 +178,11 @@ export function shortDate(date) {
 
 // Event type → poster palette. Fixed so every kind of evening keeps its own colour.
 const CATEGORY_RULES = [
+  // Yoga first: «мантра-йога» is a practice, not a kirtan (kirtan gets its own colour and default description).
+  ['practice', /йог|нидр|медитац|чаш|дыхан|практик/i],
   ['kirtan', /киртан|мантр|бхаджан|прасад/i],
   ['cinema', /кино|фильм|мульт|смотрим/i],
   ['games', /квиз|werewolf|оборот|мафи|шляп|настол|игр|rpg|детектив/i],
-  ['practice', /йог|нидр|медитац|чаш|дыхан|практик/i],
   ['tea', /ча[йяю]|чаепит|посиделк/i],
   ['talks', /бесед|чтени|читк|пьес|лекци|философ|стих/i]
 ];
@@ -197,7 +204,8 @@ export function guessCategory(event) {
 
 // Telegram post in the channel's house format (parse_mode: HTML).
 export function formatPost(event, options = {}) {
-  const { mapUrl, contact, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
+  const { mapUrl, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
+  const contact = event.contact ?? options.contact ?? DEFAULTS.contact;
   const when = `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${(event.times ?? [event.time]).join(' и ')}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
   return [
@@ -214,6 +222,6 @@ export function formatPost(event, options = {}) {
 
 // Shape stored in public/events.json for the website.
 export function toSiteEvent(event, posterPath) {
-  const { warnings, times, weekday, instagram, ...rest } = event;
+  const { warnings, times, weekday, instagram, contact, ...rest } = event;
   return { ...rest, ...(posterPath ? { poster: posterPath } : {}) };
 }

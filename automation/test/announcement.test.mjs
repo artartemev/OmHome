@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatPost } from '../announcement.mjs';
+import { parseSchedule, formatPost, guessCategory } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -85,4 +85,26 @@ test('instagram notes are taken out of the post and kept as handles', () => {
   assert.equal(own.description, 'Поём вместе');
   assert.deepEqual(own.instagram, ['some.guest']);
   assert.ok(!formatPost(inline).includes('au_darya'));
+});
+
+test('own contact line replaces the default, and mantra-yoga is not a kirtan', () => {
+  const [hat, yoga, kirtan] = parseSchedule(
+    `18/10 17:00
+Шляпа | настольная игра
+Играем в настолку
+✍️ Запись: @Wasyaphi
+
+15/10 18:00
+Мантра-йога | с Дашей
+
+17/10 18:00
+Киртан`,
+    { today }
+  );
+  assert.equal(hat.contact, '@Wasyaphi');
+  assert.equal(hat.description, 'Играем в настолку');
+  assert.ok(formatPost(hat).includes('✍️ Запись: @Wasyaphi'));
+  assert.ok(formatPost(yoga).includes('✍️ Запись: @artartemev'));
+  assert.equal(guessCategory(yoga), 'practice');
+  assert.equal(guessCategory(kirtan), 'kirtan');
 });

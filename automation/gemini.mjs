@@ -104,3 +104,41 @@ Cozy community house in Chiang Mai, warm evening light, real people, candid, sof
     }
   }
 }
+
+const WEEKDAYS_RU = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+
+// Free-text announcement → the strict schedule format parseSchedule() understands. The model writes that format
+// directly (with an example to copy), and parseSchedule() then validates it — dates, weekdays, Instagram notes.
+export async function structureAnnouncement(text, today) {
+  const [y, m, d] = today.split('-').map(Number);
+  const weekday = WEEKDAYS_RU[new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  const prompt = `Сегодня ${today}, ${weekday}. Перепиши анонс организатора OmHome в строгий формат расписания.
+
+Формат: события разделены пустой строкой. У каждого события:
+1) строка «ДД/ММ ЧЧ:ММ» (дата ближайшего такого дня после сегодня; «в шесть вечера» = 18:00; нет времени — 18:00);
+2) строка «Название» или «Название | подзаголовок» (название 1–3 слова, как на афише; подзаголовок — коротко, например «с Дашей»);
+3) описание — слова организатора, можно поправить опечатки и связать фразы, но без новых фактов; если описания нет — пропусти строку;
+4) если сказано про инстаграм человека — строка «инста: @ник»;
+5) если сказано, к кому записываться, — строка «✍️ Запись: @ник».
+Ничего не выдумывай и не добавляй лишнего текста, только расписание.
+
+Пример.
+Анонс: «в пятницу в 7 смотрим Интерстеллар, обсуждаем после. в субботу киртан с Сашей, инста у него sasha.music»
+Ответ:
+16/10 19:00
+Интерстеллар | кинопоказ
+Смотрим «Интерстеллар», после — обсуждение.
+
+17/10 18:00
+Киртан | с Сашей
+инста: @sasha.music
+
+Анонс: «${text.trim()}»
+Ответ:`;
+  const { json } = await generate(TEXT_MODELS, {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0 }
+  });
+  const answer = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim() ?? '';
+  return answer.replace(/^```\w*\n?|```$/g, '').trim();
+}

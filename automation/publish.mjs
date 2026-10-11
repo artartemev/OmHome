@@ -3,6 +3,7 @@
 //   node automation/publish.mjs schedule.txt --photo kirtan=./kirtan.jpg --photo шляпа=./hat.jpg [--palette brown] [--send]
 //   node automation/publish.mjs schedule.txt --ai-text expand --ai-photo     # Gemini пишет текст, FLUX рисует фото
 //   node automation/publish.mjs schedule.txt --poster "Мантра-йога=./ready.jpg"  # готовая афиша — как есть
+//   node automation/publish.mjs free-text.txt                                   # свободный текст — Gemini разберёт
 //
 // One event = one post. A photo you attach (--photo) goes into the branded arch frame as is — nothing is searched
 // or generated for that event. Without a photo, recurring events (kirtan) rotate through automation/photos/<type>/;
@@ -32,9 +33,9 @@ import { copyFile, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, toSiteEvent } from './announcement.mjs';
+import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, todayIso, toSiteEvent } from './announcement.mjs';
 import { runWithApproval } from './approval.mjs';
-import { generatePhoto, rewriteDescription } from './gemini.mjs';
+import { generatePhoto, rewriteDescription, structureAnnouncement } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
@@ -160,6 +161,7 @@ const { values, positionals } = parseArgs({
     poster: { type: 'string', multiple: true, default: [] },
     site: { type: 'boolean', default: false },
     only: { type: 'string' },
+    'ai-parse': { type: 'boolean', default: false },
     palette: { type: 'string' },
     'ai-text': { type: 'string' },
     'ai-photo': { type: 'boolean', default: false },
@@ -199,12 +201,22 @@ const partnerPosts = []; // poster, caption, poster, caption… — sent to part
 const actions = [];
 const igActions = [];
 const titles = [];
-const events = parseSchedule(await readFile(positionals[0], 'utf8'));
+// Free text works too: if the message is not in the strict format (or --ai-parse), Gemini turns it into that format
+// first, and the result is printed so you can see exactly how it was understood.
+const message = await readFile(positionals[0], 'utf8');
+let events = values['ai-parse'] ? [] : parseSchedule(message);
+if (!events.length) {
+  const structured = await structureAnnouncement(message, todayIso());
+  console.log(`\n🧠 Gemini разобрал анонс так:\n${structured}\n`);
+  events = parseSchedule(structured);
+}
+const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
 
 for (const event of events) {
   for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
   event.category = guessCategory(event);
+  if (!event.description && defaults.descriptions[event.category]) event.description = defaults.descriptions[event.category];
 
   if (values['ai-text']) {
     try {
