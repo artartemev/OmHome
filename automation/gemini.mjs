@@ -47,7 +47,8 @@ const HOUSE_STYLE = `Ты пишешь анонсы для OmHome — комью
 const TASKS = {
   polish: 'Отредактируй описание: исправь ошибки, сделай читабельнее, сохрани длину и смысл.',
   expand: 'Расширь описание до 3–4 предложений: что будет, для кого, какое настроение. Без новых фактов.',
-  shorten: 'Сократи описание до 1–2 предложений, оставив главное.'
+  shorten: 'Сократи описание до 1–2 предложений, оставив главное.',
+  vary: 'Перескажи описание по-новому — другими словами и с другим началом, чтобы оно не повторяло прошлые анонсы дословно. Сохрани смысл, все факты и примерно ту же длину.'
 };
 
 export async function rewriteDescription(event, mode = 'polish') {
@@ -141,4 +142,35 @@ export async function structureAnnouncement(text, today) {
   });
   const answer = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim() ?? '';
   return answer.replace(/^```\w*\n?|```$/g, '').trim();
+}
+
+// Attached photos without labels: Gemini looks at them and says which photo fits which event.
+// Returns an array: for each event, the index of its photo (or -1). Falls back to the given order.
+export async function matchPhotos(events, photoPaths) {
+  const { readFile } = await import('node:fs/promises');
+  const parts = [];
+  for (const [index, path] of photoPaths.entries()) {
+    const mimeType = /\.png$/i.test(path) ? 'image/png' : /\.webp$/i.test(path) ? 'image/webp' : 'image/jpeg';
+    parts.push({ text: `Фото ${index + 1}:` }, { inlineData: { mimeType, data: (await readFile(path)).toString('base64') } });
+  }
+  const list = events
+    .map((event, index) => `${index + 1}. ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}${event.description ? ` — ${event.description.slice(0, 160)}` : ''}`)
+    .join('\n');
+  parts.push({
+    text: `События:\n${list}\n\nПодбери к каждому событию самое подходящее фото (каждое фото — не больше одного раза).
+Ответь только строками вида «событие=фото», например «1=3». Если подходящего фото нет — «1=0».`
+  });
+  const { json } = await generate(TEXT_MODELS, { contents: [{ parts }], generationConfig: { temperature: 0 } });
+  const answer = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('') ?? '';
+  const result = events.map(() => -1);
+  const used = new Set();
+  for (const [, eventNo, photoNo] of answer.matchAll(/(\d+)\s*=\s*(\d+)/g)) {
+    const e = Number(eventNo) - 1;
+    const p = Number(photoNo) - 1;
+    if (e >= 0 && e < events.length && p >= 0 && p < photoPaths.length && !used.has(p)) {
+      result[e] = p;
+      used.add(p);
+    }
+  }
+  return result;
 }

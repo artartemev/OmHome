@@ -4,6 +4,7 @@
 //   node automation/publish.mjs schedule.txt --ai-text expand --ai-photo     # Gemini пишет текст, FLUX рисует фото
 //   node automation/publish.mjs schedule.txt --poster "Мантра-йога=./ready.jpg"  # готовая афиша — как есть
 //   node automation/publish.mjs free-text.txt                                   # свободный текст — Gemini разберёт
+//   node automation/publish.mjs free-text.txt --photo a.jpg --photo b.jpg       # фото без подписи — по порядку событий
 //
 // One event = one post. A photo you attach (--photo) goes into the branded arch frame as is — nothing is searched
 // or generated for that event. Without a photo, recurring events (kirtan) rotate through automation/photos/<type>/;
@@ -35,7 +36,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, todayIso, toSiteEvent } from './announcement.mjs';
 import { runWithApproval } from './approval.mjs';
-import { generatePhoto, rewriteDescription, structureAnnouncement } from './gemini.mjs';
+import { generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
@@ -162,6 +163,7 @@ const { values, positionals } = parseArgs({
     site: { type: 'boolean', default: false },
     only: { type: 'string' },
     'ai-parse': { type: 'boolean', default: false },
+    'photo-match': { type: 'string', default: 'order' },
     palette: { type: 'string' },
     'ai-text': { type: 'string' },
     'ai-photo': { type: 'boolean', default: false },
@@ -189,7 +191,7 @@ if (values.send) {
 
 const byTitle = (entries) =>
   Object.fromEntries(
-    entries.map((entry) => {
+    entries.filter((entry) => entry.includes('=')).map((entry) => {
       const [title, ...path] = entry.split('=');
       return [title.trim().toLowerCase(), path.join('=')];
     })
@@ -211,12 +213,44 @@ if (!events.length) {
   events = parseSchedule(structured);
 }
 const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
+
+// Photos attached without a title (--photo ./a.jpg ./b.jpg) go to the events in the same order as in the text:
+// the first photo to the first event, and so on. Events here look alike, so guessing by the picture is unreliable;
+// --photo-match ai lets Gemini choose instead (leftovers still go in order). The posters are approved anyway.
+const loosePhotos = values.photo.filter((entry) => !entry.includes('='));
+if (loosePhotos.length) {
+  let match = events.map(() => -1);
+  if (values['photo-match'] === 'ai') {
+    try {
+      match = await matchPhotos(events, loosePhotos);
+    } catch (error) {
+      console.warn(`⚠️  Gemini не подобрал фото, раскладываю по порядку — ${error.message}`);
+    }
+  }
+  const used = new Set(match.filter((index) => index >= 0));
+  const spare = loosePhotos.map((_, index) => index).filter((index) => !used.has(index));
+  events.forEach((event, index) => {
+    if (match[index] < 0 && spare.length) match[index] = spare.shift();
+    if (match[index] >= 0 && !photos[event.title.toLowerCase()]) photos[event.title.toLowerCase()] = loosePhotos[match[index]];
+  });
+  console.log('📎 Фото по событиям:');
+  for (const event of events) console.log(`   ${event.title} ← ${photos[event.title.toLowerCase()]?.split('/').pop() ?? 'без фото'}`);
+}
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
 
 for (const event of events) {
   for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
   event.category = guessCategory(event);
-  if (!event.description && defaults.descriptions[event.category]) event.description = defaults.descriptions[event.category];
+  // "As usual" events get the standard text, retold by Gemini each time so the posts don't repeat word for word.
+  if (!event.description && defaults.descriptions[event.category]) {
+    event.description = defaults.descriptions[event.category];
+    try {
+      event.description = await rewriteDescription(event, 'vary');
+      console.log(`✍️  ${event.title}: стандартное описание пересказано заново`);
+    } catch (error) {
+      console.warn(`⚠️  ${event.title}: стандартное описание без пересказа — ${error.message}`);
+    }
+  }
 
   if (values['ai-text']) {
     try {
