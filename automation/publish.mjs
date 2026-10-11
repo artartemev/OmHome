@@ -15,7 +15,7 @@
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
 //
 // With --send NOTHING goes out without your approval: every action — channel post, each chat repost, the message to
-// partners, Instagram post, Instagram story — is shown to you first (in Telegram with ✅/❌ buttons when
+// partners, Instagram post — is shown to you first (in Telegram with ✅/❌ buttons when
 // TELEGRAM_APPROVAL_CHAT_ID is set, otherwise in the terminal) and runs only after ✅. See approval.mjs.
 // ❌ on an event's post opens «Что поправить?»: reply with text and/or a photo — Gemini applies the edit, the poster,
 // caption and site entry are rebuilt and the preview comes again; «🗑 Отменить анонс» drops the event everywhere.
@@ -47,7 +47,7 @@ import {
 } from './announcement.mjs';
 import { notify, requestPhoto, runWithApproval } from './approval.mjs';
 import { editAnnouncement, generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
-import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
+import { instagramConfigured, publishPost, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
 
@@ -163,7 +163,8 @@ function instagramActions(state) {
     const tags = (state.event.instagram ?? []).map((handle) => `@${handle}`).join(' ');
     return toInstagramCaption(state.caption, `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`);
   };
-  const story = () => state.posterPath.replace(/\.jpg$/, '-story.jpg');
+  // Only the post goes out; the story is shared by hand from the app (a shared post links back to it),
+  // so after the post the bot sends a reminder with its link.
   return [
     {
       kind: 'instagram',
@@ -171,14 +172,10 @@ function instagramActions(state) {
       label: () => `📸 Пост в Instagram — ${state.event.title}`,
       image: () => state.posterPath,
       text: caption,
-      run: () => publishPost(state.posterPath, caption())
-    },
-    {
-      kind: 'instagram',
-      group: state,
-      label: () => `📱 Сториз в Instagram — ${state.event.title}`,
-      image: story,
-      run: () => publishStory(story())
+      run: async () => {
+        const link = await publishPost(state.posterPath, caption());
+        await notify(`📱 Не забудь поделиться постом «${state.event.title}» в историю${link ? `:\n${link}` : ' — он уже в профиле omhome.cnx.'}`);
+      }
     }
   ];
 }

@@ -76,7 +76,16 @@ async function publish(params, localPath) {
   throw lastError;
 }
 
-export const publishPost = (imagePath, caption) => publish({ image_url: publicUrl(imagePath), caption }, imagePath);
+// → link to the published post (for the «поделись в историю» reminder).
+export async function publishPost(imagePath, caption) {
+  const { id } = await publish({ image_url: publicUrl(imagePath), caption }, imagePath);
+  try {
+    const response = await fetch(`${GRAPH}/${id}?fields=permalink&access_token=${process.env.IG_ACCESS_TOKEN}`);
+    return (await response.json()).permalink ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export const publishStory = (imagePath) =>
   publish({ image_url: publicUrl(imagePath), media_type: 'STORIES' }, imagePath);
