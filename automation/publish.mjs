@@ -5,7 +5,8 @@
 //   node automation/publish.mjs schedule.txt --poster "Мантра-йога=./ready.jpg"  # готовая афиша — как есть
 //
 // One event = one post. A photo you attach (--photo) goes into the branded arch frame as is — nothing is searched
-// or generated for that event; --ai-photo only fills events without a photo.
+// or generated for that event. Without a photo, recurring events (kirtan) rotate through automation/photos/<type>/;
+// --ai-photo only fills what is still missing.
 // --site adds one more approval: commit + push public/events.json and posters so omhome.space updates.
 // Poster colour is fixed per event type (kirtan — teal, cinema — ocean, games — navy, …); --palette overrides it.
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
@@ -33,6 +34,7 @@ import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, toSiteEvent
 import { runWithApproval } from './approval.mjs';
 import { generatePhoto, rewriteDescription } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
+import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster } from './poster/render.mjs';
 
 const EVENTS_FILE = resolve('public/events.json');
@@ -195,6 +197,11 @@ for (const event of events) {
 
   const readyPoster = readyPosters[event.title.toLowerCase()];
   let photo = readyPoster ? undefined : photos[event.title.toLowerCase()] ?? photos['*'];
+  // Recurring events (kirtan) without an attached photo take the next one from automation/photos/<category>/.
+  if (!readyPoster && !photo) {
+    photo = await pickPoolPhoto(event.category);
+    if (photo) console.log(`🖼  ${event.title}: фото из ротации — ${photo.split('/').pop()}`);
+  }
   if (!readyPoster && !photo && values['ai-photo']) {
     try {
       photo = await generatePhoto(event, join(workDir, `${event.id}.png`));
@@ -213,6 +220,7 @@ for (const event of events) {
     const palette = values.palette ?? CATEGORY_PALETTE[event.category];
     await renderPoster({ ...event, photo, palette, out });
     posterPath = `${out}.jpg`;
+    await markPoolPhotoUsed(resolve(photo), event.date);
   } else {
     console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
   }
@@ -261,7 +269,7 @@ if (values.send && values.site && titles.length) {
     text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
     run: async () => {
       const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
-      git('add', 'public/events.json', POSTERS_DIR);
+      git('add', 'public/events.json', POSTERS_DIR, 'automation/photos/history.json');
       git('commit', '-m', `Афиша: ${titles.join(', ')}`);
       git('push', 'origin', 'HEAD:main');
     }
