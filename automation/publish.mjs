@@ -2,7 +2,11 @@
 //
 //   node automation/publish.mjs schedule.txt --photo kirtan=./kirtan.jpg --photo шляпа=./hat.jpg [--palette brown] [--send]
 //   node automation/publish.mjs schedule.txt --ai-text expand --ai-photo     # Gemini пишет текст, FLUX рисует фото
+//   node automation/publish.mjs schedule.txt --poster "Мантра-йога=./ready.jpg"  # готовая афиша — как есть
 //
+// One event = one post. A photo you attach (--photo) goes into the branded arch frame as is — nothing is searched
+// or generated for that event; --ai-photo only fills events without a photo.
+// --site adds one more approval: commit + push public/events.json and posters so omhome.space updates.
 // Poster colour is fixed per event type (kirtan — teal, cinema — ocean, games — navy, …); --palette overrides it.
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
 //
@@ -21,7 +25,7 @@
 //   GEMINI_API_KEY, CLOUDFLARE_*        for --ai-text / --ai-photo
 
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -134,6 +138,8 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     photo: { type: 'string', multiple: true, default: [] },
+    poster: { type: 'string', multiple: true, default: [] },
+    site: { type: 'boolean', default: false },
     palette: { type: 'string' },
     'ai-text': { type: 'string' },
     'ai-photo': { type: 'boolean', default: false },
@@ -159,12 +165,15 @@ if (values.send) {
   }
 }
 
-const photos = Object.fromEntries(
-  values.photo.map((entry) => {
-    const [title, ...path] = entry.split('=');
-    return [title.trim().toLowerCase(), path.join('=')];
-  })
-);
+const byTitle = (entries) =>
+  Object.fromEntries(
+    entries.map((entry) => {
+      const [title, ...path] = entry.split('=');
+      return [title.trim().toLowerCase(), path.join('=')];
+    })
+  );
+const photos = byTitle(values.photo);
+const readyPosters = byTitle(values.poster);
 const workDir = await mkdtemp(join(tmpdir(), 'omhome-'));
 const partnerPosts = []; // poster, caption, poster, caption… — sent to partners in one go after the channel
 const actions = [];
@@ -184,8 +193,9 @@ for (const event of events) {
     }
   }
 
-  let photo = photos[event.title.toLowerCase()] ?? photos['*'];
-  if (!photo && values['ai-photo']) {
+  const readyPoster = readyPosters[event.title.toLowerCase()];
+  let photo = readyPoster ? undefined : photos[event.title.toLowerCase()] ?? photos['*'];
+  if (!readyPoster && !photo && values['ai-photo']) {
     try {
       photo = await generatePhoto(event, join(workDir, `${event.id}.png`));
       console.log(`🎨 ${event.title}: фото сгенерировано`);
@@ -195,7 +205,10 @@ for (const event of events) {
   }
 
   let posterPath;
-  if (photo) {
+  if (readyPoster) {
+    posterPath = `${POSTERS_DIR}/${event.id}.jpg`;
+    if (resolve(readyPoster) !== resolve(posterPath)) await copyFile(readyPoster, posterPath);
+  } else if (photo) {
     const out = `${POSTERS_DIR}/${event.id}`;
     const palette = values.palette ?? CATEGORY_PALETTE[event.category];
     await renderPoster({ ...event, photo, palette, out });
@@ -237,13 +250,28 @@ if (partnerPosts.length && process.env.TG_SESSION) {
   });
 }
 
+site.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+site.updatedAt = new Date().toISOString().slice(0, 10);
+await writeFile(EVENTS_FILE, `${JSON.stringify(site, null, 2)}\n`);
+
+if (values.send && values.site && titles.length) {
+  actions.push({
+    label: `🌐 Афиша на omhome.space: ${titles.join(', ')}`,
+    image: partnerPosts[0],
+    text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
+    run: async () => {
+      const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
+      git('add', 'public/events.json', POSTERS_DIR);
+      git('commit', '-m', `Афиша: ${titles.join(', ')}`);
+      git('push', 'origin', 'HEAD:main');
+    }
+  });
+}
+
 if (actions.length) {
   const results = await runWithApproval(actions);
   const count = (status) => results.filter((result) => result.status === status).length;
   console.log(`\nИтого: выполнено ${count('done')}, пропущено ${count('skipped')}, с ошибкой ${count('failed')}`);
 }
 
-site.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-site.updatedAt = new Date().toISOString().slice(0, 10);
-await writeFile(EVENTS_FILE, `${JSON.stringify(site, null, 2)}\n`);
 console.log(`\n📅 ${EVENTS_FILE} обновлён: ${events.length} событ.`);
