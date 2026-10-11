@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Story (1080×1920) from a ready 4:5 poster: the poster in the middle on its own background colour. -->
+    <style>
+      @font-face {
+        font-family: 'MenorahGrotesk';
+        src: url('../../src/fonts/MenorahGrotesk-Regular.ttf') format('truetype');
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: 'MenorahGrotesk', sans-serif;
+      }
+      img {
+        width: 1080px;
+        display: block;
+      }
+      .footer {
+        position: absolute;
+        bottom: 150px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 38px;
+        letter-spacing: 0.04em;
+        color: #cfba8b;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="poster" alt="" />
+    <div class="footer">omhome.space · Telegram: t.me/omhome_thai</div>
+    <script>
+      const img = document.getElementById('poster');
+      img.onload = () => {
+        // Background = the poster's own corner colour, so the frame blends in.
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const [r, g, b] = ctx.getImageData(8, 8, 1, 1).data;
+        document.body.style.background = `rgb(${r}, ${g}, ${b})`;
+        document.body.dataset.ready = '1';
+      };
+      img.src = window.POSTER_SRC;
+    </script>
+  </body>
+</html>

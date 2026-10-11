@@ -27,6 +27,7 @@
 //   GEMINI_API_KEY, CLOUDFLARE_*        for --ai-text / --ai-photo
 
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { copyFile, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -36,7 +37,7 @@ import { runWithApproval } from './approval.mjs';
 import { generatePhoto, rewriteDescription } from './gemini.mjs';
 import { instagramConfigured, publishPost, publishStory, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
-import { renderPoster } from './poster/render.mjs';
+import { renderPoster, storyFromPoster } from './poster/render.mjs';
 
 const EVENTS_FILE = resolve('public/events.json');
 const POSTERS_DIR = 'public/posters';
@@ -233,6 +234,8 @@ for (const event of events) {
   if (readyPoster) {
     posterPath = `${POSTERS_DIR}/${event.id}.jpg`;
     if (resolve(readyPoster) !== resolve(posterPath)) await copyFile(readyPoster, posterPath);
+    const storyPath = posterPath.replace(/\.jpg$/, '-story.jpg');
+    if (!existsSync(storyPath)) await storyFromPoster(posterPath, storyPath);
   } else if (photo) {
     const out = `${POSTERS_DIR}/${event.id}`;
     const palette = values.palette ?? CATEGORY_PALETTE[event.category];

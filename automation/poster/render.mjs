@@ -5,7 +5,7 @@
 //
 // Writes <out>.jpg (post) and <out>-story.jpg (story).
 
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -76,7 +76,28 @@ export async function renderPoster({ date, time, title, subtitle, photo, palette
   return written;
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+// Story version of a ready poster (e.g. from Figma): the poster centred on a 1080×1920 frame of its own colour.
+export async function storyFromPoster(posterPath, out) {
+  const chromium = await loadChromium();
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+    // A data URL keeps the canvas untainted, so the page can read the poster's corner colour.
+    const dataUrl = `data:image/jpeg;base64,${(await readFile(posterPath)).toString('base64')}`;
+    await page.addInitScript((src) => {
+      window.POSTER_SRC = src;
+    }, dataUrl);
+    await page.goto(pathToFileURL(resolve(here, 'story_frame.html')).href);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() => document.body.dataset.ready === '1');
+    await page.screenshot({ path: out, type: 'jpeg', quality: 88 });
+    return out;
+  } finally {
+    await browser.close();
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { values } = parseArgs({
     options: {
       date: { type: 'string' },
