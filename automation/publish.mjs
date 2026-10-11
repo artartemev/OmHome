@@ -233,7 +233,13 @@ const states = [];
 const message = await readFile(positionals[0], 'utf8');
 let events = values['ai-parse'] ? [] : parseSchedule(message);
 if (!events.length) {
-  const structured = await structureAnnouncement(message, todayIso());
+  let structured;
+  try {
+    structured = await structureAnnouncement(message, todayIso());
+  } catch (error) {
+    await notify(`⚠️ Не смог разобрать свободный текст — ${error.message}. Пришлите анонс в формате «дата время / название / описание».`);
+    process.exit(1);
+  }
   await notify(`🧠 Разобрал анонс так:\n\n${structured}`);
   events = parseSchedule(structured);
 }

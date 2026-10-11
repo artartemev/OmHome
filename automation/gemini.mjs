@@ -6,7 +6,8 @@
 import { writeFile } from 'node:fs/promises';
 
 const API = 'https://generativelanguage.googleapis.com/v1beta/models';
-export const TEXT_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+// Free tier: about 20 requests a day per model, so the chain is long — each model has its own daily quota.
+export const TEXT_MODELS = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-flash-latest'];
 // Image generation needs billing enabled on the AI Studio project: on the free tier these return 429 (quota 0).
 export const IMAGE_MODELS = ['gemini-3-pro-image', 'gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
