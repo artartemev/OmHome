@@ -8,6 +8,7 @@
 // or generated for that event. Without a photo, recurring events (kirtan) rotate through automation/photos/<type>/;
 // --ai-photo only fills what is still missing.
 // --site adds one more approval: commit + push public/events.json and posters so omhome.space updates.
+// --only telegram,chats,partners,site,instagram limits the run to those kinds of actions.
 // Poster colour is fixed per event type (kirtan — teal, cinema — ocean, games — navy, …); --palette overrides it.
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
 //
@@ -86,6 +87,7 @@ function eventActions(event, posterPath, caption, captionFile) {
   let channelMessage;
   const actions = [
     {
+      kind: 'telegram',
       label: `📣 Пост в канал ${channel} — ${event.title}`,
       image: posterPath,
       text: caption,
@@ -94,6 +96,7 @@ function eventActions(event, posterPath, caption, captionFile) {
       }
     },
     ...repostChats().map((chat) => ({
+      kind: 'telegram',
       label: `🔁 Репост в «${chat.name}» — ${event.title}`,
       image: posterPath,
       text: caption,
@@ -110,6 +113,7 @@ function eventActions(event, posterPath, caption, captionFile) {
   if (process.env.TG_SESSION) {
     for (const chat of userChats()) {
       actions.push({
+        kind: 'chats',
         label: `🔁 Репост в «${chat.name}» с вашего аккаунта — ${event.title}`,
         image: posterPath,
         text: caption,
@@ -136,8 +140,9 @@ function instagramActions(event, posterPath, caption) {
       `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`
     );
     actions.push(
-      { label: `📸 Пост в Instagram — ${event.title}`, image: posterPath, text: igCaption, run: () => publishPost(posterPath, igCaption) },
+      { kind: 'instagram', label: `📸 Пост в Instagram — ${event.title}`, image: posterPath, text: igCaption, run: () => publishPost(posterPath, igCaption) },
       {
+        kind: 'instagram',
         label: `📱 Сториз в Instagram — ${event.title}`,
         image: posterPath.replace(/\.jpg$/, '-story.jpg'),
         run: () => publishStory(posterPath.replace(/\.jpg$/, '-story.jpg'))
@@ -153,6 +158,7 @@ const { values, positionals } = parseArgs({
     photo: { type: 'string', multiple: true, default: [] },
     poster: { type: 'string', multiple: true, default: [] },
     site: { type: 'boolean', default: false },
+    only: { type: 'string' },
     palette: { type: 'string' },
     'ai-text': { type: 'string' },
     'ai-photo': { type: 'boolean', default: false },
@@ -259,6 +265,7 @@ if (partnerPosts.length && process.env.TG_SESSION) {
   const intro = execFileSync('python3', [PARTNER_SCRIPT, '--pick-intro']).toString().trim();
   const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => `@${p.trim().replace(/^@/, '')}`);
   actions.push({
+    kind: 'partners',
     label: `💌 Личное сообщение ${partners.join(', ')} с вашего аккаунта`,
     image: partnerPosts[0],
     text: `${intro}\n\n+ ${titles.length} афиш(и): ${titles.join(', ')}`,
@@ -277,6 +284,7 @@ await writeFile(EVENTS_FILE, `${JSON.stringify(site, null, 2)}\n`);
 
 if (values.send && values.site && titles.length) {
   actions.push({
+    kind: 'site',
     label: `🌐 Афиша на omhome.space: ${titles.join(', ')}`,
     image: partnerPosts[0],
     text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
@@ -291,8 +299,12 @@ if (values.send && values.site && titles.length) {
 
 actions.push(...igActions);
 
-if (actions.length) {
-  const results = await runWithApproval(actions);
+// --only instagram,site — ask only about these kinds (e.g. Instagram for an event already posted to Telegram).
+const onlyKinds = values.only?.split(',').map((kind) => kind.trim());
+const selected = onlyKinds ? actions.filter((action) => onlyKinds.includes(action.kind)) : actions;
+
+if (selected.length) {
+  const results = await runWithApproval(selected);
   const count = (status) => results.filter((result) => result.status === status).length;
   console.log(`\nИтого: выполнено ${count('done')}, пропущено ${count('skipped')}, с ошибкой ${count('failed')}`);
 }
