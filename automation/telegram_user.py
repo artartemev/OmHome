@@ -1,7 +1,8 @@
-"""Sends a poster from your own Telegram account (Telethon) to partners who repost announcements.
+"""Sends posters from your own Telegram account (Telethon): to partners who repost announcements, and to chats
+where the bot cannot be added (e.g. «Волшебный чат»).
 
-A bot cannot write to a person first, so partner reposts go from your account using the Telethon session
-you already have for the guide project. The session file never leaves your computer.
+A bot cannot write to a person first or post in a chat it is not a member of, so these go from your account using
+the Telethon session you already have for the guide project. The session file never leaves your computer.
 
     TG_API_ID=... TG_API_HASH=... TG_SESSION=~/path/to/guide.session \
       python3 automation/telegram_user.py poster1.jpg caption1.html [poster2.jpg caption2.html ...]
@@ -9,12 +10,14 @@ you already have for the guide project. The session file never leaves your compu
 One greeting, then every poster of the week with its caption.
 
     python3 automation/telegram_user.py --pick-intro    # prints the next greeting (used for the approval preview)
+    python3 automation/telegram_user.py --chats poster.jpg caption.html   # poster to TG_USER_REPOST_CHATS, no greeting
 
 Env:
     TG_API_ID, TG_API_HASH   — from my.telegram.org (the same as in the guide project)
     TG_SESSION               — path to the .session file (with or without the .session suffix)
     TG_PARTNERS              — comma-separated usernames, default: VeronikaKirpichenko
     TG_PARTNER_INTRO         — fixed first message instead of the rotating ones below
+    TG_USER_REPOST_CHATS     — chats for --chats: "invite-link=Name,…" (you must be a member)
 """
 import asyncio
 import os
@@ -65,8 +68,37 @@ async def main(pairs: list[tuple[str, str]]) -> None:
             print(f"✅ @{partner}: приветствие и {len(posts)} афиш(и)")
 
 
+def user_chats():
+    chats = []
+    for entry in os.environ.get("TG_USER_REPOST_CHATS", "").split(","):
+        if entry.strip():
+            link, _, name = entry.strip().partition("=")
+            chats.append((link.strip(), name.strip() or link.strip()))
+    return chats
+
+
+async def post_to_chats(pairs: list[tuple[str, str]]) -> None:
+    posts = [(poster, open(caption_path, encoding="utf-8").read()) for poster, caption_path in pairs]
+    session = os.path.expanduser(os.environ["TG_SESSION"]).removesuffix(".session")
+
+    from telethon import TelegramClient
+
+    async with TelegramClient(session, int(os.environ["TG_API_ID"]), os.environ["TG_API_HASH"]) as client:
+        for link, name in user_chats():
+            chat = await client.get_entity(link)
+            for poster, caption in posts:
+                await client.send_file(chat, poster, caption=caption, parse_mode="html")
+            print(f"✅ «{name}»: {len(posts)} афиш(и)")
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args[:1] == ["--chats"]:
+        rest = args[1:]
+        if not rest or len(rest) % 2:
+            sys.exit(__doc__)
+        asyncio.run(post_to_chats(list(zip(rest[::2], rest[1::2]))))
+        sys.exit(0)
     if args == ["--pick-intro"]:
         print(pick_intro())
         sys.exit(0)

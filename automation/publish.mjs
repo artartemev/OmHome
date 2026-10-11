@@ -16,6 +16,7 @@
 //   TELEGRAM_APPROVAL_CHAT_ID your chat with the bot, where previews with ✅/❌ arrive
 //   TELEGRAM_REPOST_CHAT_IDS  chats where the bot is a member, "id=Name,id=Name" (e.g. -1001234=Волшебный чат)
 //   TG_API_ID, TG_API_HASH, TG_SESSION  your Telethon session: partners (@VeronikaKirpichenko) get posters from your account
+//   TG_USER_REPOST_CHATS      chats the bot can't join, posted from your account: "invite-link=Name,…" (Волшебный чат)
 //   IG_USER_ID, IG_ACCESS_TOKEN         Instagram post + story (see instagram.mjs)
 //   GEMINI_API_KEY, CLOUDFLARE_*        for --ai-text / --ai-photo
 
@@ -63,8 +64,18 @@ const repostChats = () =>
       return { id: id.trim(), name: name.join('=').trim() || id.trim() };
     });
 
+const userChats = () =>
+  (process.env.TG_USER_REPOST_CHATS ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [link, ...name] = entry.split('=');
+      return { link: link.trim(), name: name.join('=').trim() || link.trim() };
+    });
+
 // Outward actions for one event, each approved separately.
-function eventActions(event, posterPath, caption) {
+function eventActions(event, posterPath, caption, captionFile) {
   const channel = process.env.TELEGRAM_CHANNEL_ID;
   let channelMessage;
   const actions = [
@@ -90,6 +101,21 @@ function eventActions(event, posterPath, caption) {
       }
     }))
   ];
+  if (process.env.TG_SESSION) {
+    for (const chat of userChats()) {
+      actions.push({
+        label: `🔁 Репост в «${chat.name}» с вашего аккаунта — ${event.title}`,
+        image: posterPath,
+        text: caption,
+        run: async () => {
+          execFileSync('python3', [PARTNER_SCRIPT, '--chats', posterPath, captionFile], {
+            stdio: 'inherit',
+            env: { ...process.env, TG_USER_REPOST_CHATS: `${chat.link}=${chat.name}` }
+          });
+        }
+      });
+    }
+  }
   if (instagramConfigured()) {
     const igCaption = toInstagramCaption(caption, '\n\nАдрес и запись — в шапке профиля и в Telegram @omhome_thai');
     actions.push(
@@ -186,9 +212,9 @@ for (const event of events) {
   if (posterPath) console.log(`🖼  ${posterPath}`);
 
   if (values.send && posterPath) {
-    actions.push(...eventActions(event, posterPath, caption));
     const captionFile = join(workDir, `${event.id}.html`);
     await writeFile(captionFile, caption);
+    actions.push(...eventActions(event, posterPath, caption, captionFile));
     partnerPosts.push(posterPath, captionFile);
     titles.push(event.title);
   }
