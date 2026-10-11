@@ -146,6 +146,31 @@ export function shortDate(date) {
   return `${day}/${month}`;
 }
 
+// Event type → poster palette. Fixed so every kind of evening keeps its own colour.
+const CATEGORY_RULES = [
+  ['kirtan', /киртан|мантр|бхаджан|прасад/i],
+  ['cinema', /кино|фильм|мульт|смотрим/i],
+  ['games', /квиз|werewolf|оборот|мафи|шляп|настол|игр|rpg|детектив/i],
+  ['practice', /йог|нидр|медитац|чаш|дыхан|практик/i],
+  ['tea', /ча[йяю]|чаепит|посиделк/i],
+  ['talks', /бесед|чтени|читк|пьес|лекци|философ|стих/i]
+];
+
+export const CATEGORY_PALETTE = {
+  kirtan: 'teal',
+  cinema: 'ocean',
+  games: 'navy',
+  practice: 'sea',
+  tea: 'olive',
+  talks: 'brown',
+  other: 'teal'
+};
+
+export function guessCategory(event) {
+  const text = `${event.title} ${event.subtitle ?? ''}`;
+  return CATEGORY_RULES.find(([, pattern]) => pattern.test(text))?.[0] ?? 'other';
+}
+
 // Telegram post in the channel's house format (parse_mode: HTML).
 export function formatPost(event, options = {}) {
   const { mapUrl, contact, donation } = { ...DEFAULTS, ...options };

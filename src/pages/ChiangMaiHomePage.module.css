@@ -854,7 +854,7 @@
 }
 
 .paymentCardQr {
-  grid-row: span 2;
+  grid-row: span 3;
   align-items: flex-start;
 }
 
@@ -951,7 +951,7 @@
 
 .projectsGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
@@ -1140,6 +1140,352 @@
 
 .footerLinks a:hover {
   color: var(--gold);
+}
+
+/* ---------- Week rhythm ---------- */
+
+.weekRhythm {
+  margin-top: 56px;
+}
+
+.weekRhythm h3 {
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a7443;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.weekGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid rgba(16, 43, 45, 0.15);
+}
+
+.weekItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 20px 4px 0;
+}
+
+.weekItem span {
+  font: 500 34px/1 var(--serif);
+  font-style: italic;
+  color: #8a7443;
+}
+
+.weekItem strong {
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.weekItem p {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted-dark);
+}
+
+/* ---------- Archive ---------- */
+
+.archiveSection {
+  padding: 120px 0;
+  background: var(--night);
+}
+
+.archiveSection .sectionHeading h2 {
+  color: var(--cream);
+}
+
+.archiveSection .eyebrow {
+  color: var(--gold);
+}
+
+.archiveLead {
+  max-width: 700px;
+  margin: -16px 0 32px !important;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--muted-light);
+}
+
+.archiveFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.chip,
+.chipActive {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-line);
+  background: transparent;
+  color: var(--muted-light);
+  font: 500 14px/1 var(--sans);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.chip:hover {
+  color: var(--gold);
+}
+
+.chipActive {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.archiveGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.archiveCard {
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--teal);
+  border: 1px solid var(--gold-line);
+  text-decoration: none;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.archiveCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+}
+
+.archivePhoto {
+  aspect-ratio: 4 / 5;
+  background: var(--teal-2);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.archivePhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.archivePhoto span {
+  font: italic 500 28px var(--serif);
+  color: var(--gold);
+}
+
+.archiveBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+  flex: 1;
+}
+
+.archiveDate {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.archiveBody h3 {
+  font-size: 19px;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.archiveDescription {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--muted-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.archiveTag {
+  margin-top: auto;
+  padding-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted-light);
+}
+
+.archiveMore {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Reviews & engagement ---------- */
+
+.reviewsSection {
+  padding: 120px 0;
+  background: var(--teal);
+}
+
+.reviewsHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.ratingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 40px;
+  padding: 14px 22px;
+  border-radius: 20px;
+  border: 1px solid var(--gold-line);
+  text-decoration: none;
+}
+
+.ratingBadge strong {
+  font: 500 44px/1 var(--serif);
+  color: var(--gold);
+}
+
+.ratingBadge span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--muted-light);
+}
+
+.ratingBadge span.stars,
+.stars {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 2px;
+  color: var(--gold);
+}
+
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  margin-bottom: 40px;
+}
+
+.reviewCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border-radius: 22px;
+  background: var(--night);
+  border: 1px solid var(--gold-line);
+}
+
+.reviewCard p {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--cream);
+}
+
+.reviewCard footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reviewCard footer img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.reviewCard footer span {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+.reviewCard small {
+  color: var(--muted-light);
+}
+
+.engageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.engageCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 32px;
+  border-radius: var(--radius);
+  background: var(--cream);
+  color: var(--ink);
+}
+
+.engageCard svg {
+  color: #8a7443;
+}
+
+.engageCard h3 {
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.engageCard p {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--muted-dark);
+  margin-bottom: 8px !important;
+}
+
+.engageCardAlt {
+  background: var(--night);
+  color: var(--cream);
+  border: 1px solid var(--gold-line);
+}
+
+.engageCardAlt svg {
+  color: var(--gold);
+}
+
+.engageCardAlt p {
+  color: var(--muted-light);
+}
+
+@media (max-width: 860px) {
+  .weekGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .engageGrid,
+  .projectsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .archiveSection,
+  .reviewsSection {
+    padding: 80px 0;
+  }
+
+  .engageCard {
+    padding: 24px;
+  }
 }
 
 /* ---------- Responsive ---------- */

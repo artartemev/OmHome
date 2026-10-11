@@ -118,3 +118,39 @@ export function useEvents() {
 
   return { loading: !data && !failed, failed, today, upcoming, recent, recurring: data?.recurring ?? [] };
 }
+
+export type ArchiveEvent = {
+  date: string;
+  time: string | null;
+  title: string;
+  description: string;
+  category: string;
+  post: string;
+  photo: string | null;
+};
+
+export type Archive = {
+  since: string;
+  total: number;
+  byCategory: Record<string, number>;
+  events: ArchiveEvent[];
+};
+
+export function useArchive() {
+  const [archive, setArchive] = useState<Archive | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${import.meta.env.BASE_URL}archive.json`)
+      .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+      .then((json: Archive) => {
+        if (!cancelled) setArchive(json);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return archive;
+}

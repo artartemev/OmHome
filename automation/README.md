@@ -43,7 +43,36 @@ TELEGRAM_BOT_TOKEN=... TELEGRAM_CHANNEL_ID=@omhome_thai TELEGRAM_REPOST_CHAT_IDS
   npm run publish:events -- schedule.txt --photo "*=./photo.jpg" --send
 ```
 
-`--photo "*=path"` задаёт одно фото для всех событий. Палитры (цвета взяты из афиш в Figma): `teal`, `brown`, `navy`, `ocean`, `sea`, `olive`.
+`--photo "*=path"` задаёт одно фото для всех событий.
+
+Цвет афиши закреплён за типом события (цвета взяты из афиш в Figma): киртан — `teal`, кино — `ocean`, игры — `navy`, практики — `sea`, чай — `olive`, беседы — `brown`. `--palette` переопределяет.
+
+## Нейросети
+
+```bash
+# текст: polish — поправить, expand — расширить, shorten — сократить (Gemini 3.8 Flash, запасные 3.5 Flash / Flash Latest)
+npm run publish:events -- schedule.txt --ai-text expand --photo "*=./photo.jpg"
+
+# фото: если для события не передано --photo, оно генерируется
+npm run publish:events -- schedule.txt --ai-photo
+```
+
+- Ключи кладутся в `.env` в корне (файл в `.gitignore`): `GEMINI_API_KEY=...`, при желании `CLOUDFLARE_ACCOUNT_ID=...` и `CLOUDFLARE_API_TOKEN=...`. Перед запуском: `set -a; . ./.env; set +a`.
+- Фото рисует Cloudflare Workers AI (FLUX.1 schnell, бесплатно 10 000 «нейронов» в сутки — хватает с запасом на 5–7 картинок в неделю). Запасной вариант — Gemini (Nano Banana), но на бесплатном тарифе AI Studio у него квота 0, нужен биллинг.
+- Cloudflare: зарегистрируйтесь на dash.cloudflare.com → Workers AI → «Use REST API»: там Account ID и кнопка создания API-токена с правом Workers AI.
+
+## Репост партнёрам
+
+Бот не может написать человеку первым, поэтому партнёрам (@VeronikaKirpichenko) афиша уходит с вашего аккаунта через Telethon — той же сессией, что в проекте guide. С `--send` это происходит автоматически, если заданы `TG_API_ID`, `TG_API_HASH`, `TG_SESSION` (путь к .session). Первым сообщением уходит «Привет) вот анонс на грядущую неделю - буду благодарен за репост», вторым — афиша с текстом. Список партнёров: `TG_PARTNERS=VeronikaKirpichenko,другой_ник`.
+
+## Архив
+
+```bash
+python3 automation/archive/scrape_channel.py omhome_thai > /tmp/channel.json   # все посты канала из публичного веб-превью
+python3 automation/archive/build_archive.py /tmp/channel.json                  # → public/archive.json + public/archive/*.jpg
+```
+
+Ручные правки (переименовать, сменить категорию, убрать отменённое, добавить пропущенное) — в `automation/archive/overrides.json`.
 
 После прогона закоммитьте `public/events.json` и `public/posters/`: Vercel пересоберёт сайт, и афиша обновится.
 

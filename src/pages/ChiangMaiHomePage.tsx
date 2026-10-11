@@ -27,10 +27,14 @@ import {
   downloadIcs,
   formatEventDate,
   relativeDayLabel,
+  todayInChiangMai,
+  useArchive,
   useEvents,
   type OmEvent,
   type RecurringEvent
 } from './home/useEvents';
+import { ArchiveSection } from './home/Archive';
+import { ReviewsSection } from './home/Reviews';
 import styles from './ChiangMaiHomePage.module.css';
 
 const LINKS = {
@@ -48,23 +52,27 @@ const ADDRESS = 'OmHome Space, Pa Daet, Chiang Mai';
 const NAV = [
   { href: '#afisha', label: 'Афиша' },
   { href: '#about', label: 'О доме' },
+  { href: '#archive', label: 'Архив' },
   { href: '#support', label: 'Поддержать' },
   { href: '#projects', label: 'Проекты' },
   { href: '#map', label: 'Как найти' }
 ];
 
 const FORMATS = [
-  { art: artConversation, title: 'Чай и разговоры', text: 'Чайные вечера, знакомства и разговоры о главном — без суеты и оценок.' },
-  { art: artYoga, title: 'Йога и киртаны', text: 'Соматическая и мантра-йога, медитации и совместное пение мантр.' },
-  { art: artHat, title: 'Игры и кино', text: 'Настолки, квизы, детективы, RPG и кинопоказы на большом экране.' },
-  { art: artSilent, title: 'Лекции и философия', text: 'Чтения и беседы о вечных ценностях — просто и по-доброму.' }
+  { art: artConversation, title: 'Чай и разговоры', text: 'Посиделки с чаем, духовные беседы, чайные медитации — без программы и спешки.' },
+  { art: artYoga, title: 'Киртаны и практики', text: 'Киртан по субботам, йога, йога-нидра, медитации с поющими чашами.' },
+  { art: artHat, title: 'Игры и кино', text: 'Кино по пятницам, квизы, Werewolf, «Шляпа», детективные настолки и RPG.' },
+  { art: artSilent, title: 'Лекции и философия', text: 'Чтения, читки пьес Вырыпаева, лекции о Ведах — просто и по-доброму.' }
 ];
 
-const STATS = [
-  { value: '3', label: 'города: Батуми, Белград, Чиангмай' },
-  { value: 'Сотни', label: 'встреч, лекций и киртанов' },
-  { value: '0', label: 'алкоголя, мяса и осуждения' }
+const WEEK = [
+  { day: 'Вт–Чт', title: 'Чайная и йога', text: 'Чайные медитации и соматическая йога днём и вечером' },
+  { day: 'Пт', title: 'Кино', text: 'Кинопоказ на большом экране и обсуждение за чаем' },
+  { day: 'Сб', title: 'Киртан', text: 'Пение мантр, живые инструменты и прасад' },
+  { day: 'Вс', title: 'Игры и посиделки', text: 'Квиз, «Шляпа», настолки или просто чай' }
 ];
+
+const PEOPLE_PER_YEAR = '≈400';
 
 const GALLERY_TOP = [photoHall, photoKirtan, photoFriends, photoAltar, photoLaugh, photoStreet, photoPrasad];
 const GALLERY_BOTTOM = [photoSmile, photoYoga, photoLamp, photoKirtan2, photoTrip, photoHarmonium, photoKids];
@@ -96,6 +104,16 @@ const PAYMENT_METHODS: {
       { label: 'ByBit UID', value: '115189352' },
       { label: 'USDT TRC20', value: 'TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5' }
     ]
+  },
+  {
+    id: 'swift',
+    title: 'SWIFT',
+    hint: 'Международный банковский перевод в USD',
+    rows: [
+      { label: 'IBAN', value: 'GE73TB7418145068100009USD' },
+      { label: 'SWIFT', value: 'TBCBGE22' },
+      { label: 'Получатель', value: 'Liubov Verba' }
+    ]
   }
 ];
 
@@ -115,14 +133,6 @@ const PROJECTS = [
     href: 'https://navito.omhome.space',
     cta: 'Перейти в NaviTo',
     tone: 'gold'
-  },
-  {
-    title: 'PAMHO',
-    tag: 'Служение',
-    text: 'Дом для преданных: совместная жизнь, служение и духовные программы. Можно приехать и присоединиться.',
-    href: '/pamho',
-    cta: 'Узнать больше',
-    tone: 'night'
   }
 ];
 
@@ -315,6 +325,16 @@ function Marquee({ images, reverse }: { images: string[]; reverse?: boolean }) {
 
 export function ChiangMaiHomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const archive = useArchive();
+  const byCategory = archive?.byCategory ?? {};
+  const stats = [
+    { value: PEOPLE_PER_YEAR, label: 'гостей за первый год' },
+    { value: archive ? `${archive.total}` : '180+', label: 'событий с октября 2025' },
+    {
+      value: archive ? `${byCategory.kirtan ?? 0} / ${byCategory.cinema ?? 0}` : '—',
+      label: 'киртанов и кинопоказов'
+    }
+  ];
 
   return (
     <div className={styles.page}>
@@ -359,7 +379,7 @@ export function ChiangMaiHomePage() {
           >
             <span className={styles.eyebrow}>
               <Sparkle className={styles.eyebrowSparkle} />
-              Чиангмай · Chang Khlan
+              Чиангмай · с октября 2025
             </span>
             <h1 className={styles.heroTitle}>
               Тёплый <em>дом</em>
@@ -368,8 +388,8 @@ export function ChiangMaiHomePage() {
               <br />и вдохновения
             </h1>
             <p className={styles.heroLead}>
-              Комьюнити-пространство OmHome: киртаны, йога, настолки, кино, чайные вечера и коворкинг. Без алкоголя и
-              мяса, по донейшену — приходите как домой.
+              OmHome — живое пространство встреч, практик, разговоров и людей. Киртаны, кино, квизы, йога и чайные
+              вечера: без алкоголя и мяса, по донейшену. Приходите как домой.
             </p>
             <div className={styles.heroActions}>
               <a className={styles.buttonGold} href="#afisha">
@@ -412,7 +432,7 @@ export function ChiangMaiHomePage() {
         </div>
 
         <div className={`${styles.container} ${styles.stats}`}>
-          {STATS.map((stat) => (
+          {stats.map((stat) => (
             <motion.div key={stat.label} className={styles.stat} {...reveal}>
               <strong>{stat.value}</strong>
               <span>{stat.label}</span>
@@ -446,6 +466,19 @@ export function ChiangMaiHomePage() {
               </motion.article>
             ))}
           </div>
+
+          <motion.div className={styles.weekRhythm} {...reveal}>
+            <h3>Ритм недели</h3>
+            <div className={styles.weekGrid}>
+              {WEEK.map((item) => (
+                <div key={item.day} className={styles.weekItem}>
+                  <span>{item.day}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -485,6 +518,10 @@ export function ChiangMaiHomePage() {
           </div>
         </div>
       </section>
+
+      <ArchiveSection archive={archive} today={todayInChiangMai()} />
+
+      <ReviewsSection />
 
       <section id="support" className={styles.supportSection}>
         <div className={styles.container}>
@@ -581,10 +618,11 @@ export function ChiangMaiHomePage() {
           <motion.img className={styles.locationArt} src={artCity} alt="" {...reveal} />
           <div>
             <SectionHeading eyebrow="Как найти" light>
-              Тихий мубан <em>недалеко от центра</em>
+              Новый дом <em>с сентября 2026</em>
             </SectionHeading>
             <motion.p className={styles.locationText} {...reveal}>
-              Район Chang Khlan, рядом с Night Bazaar. Удобно добраться на байке или Grab.
+              В сентябре OmHome переехал в новый дом — тихий мубан, куда удобно добраться на байке или Grab. Точка на
+              карте и запись — по кнопкам ниже.
             </motion.p>
             <motion.div className={styles.locationActions} {...reveal}>
               <a className={styles.buttonGold} href={LINKS.map} target="_blank" rel="noreferrer">

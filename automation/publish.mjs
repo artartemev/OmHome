@@ -1,20 +1,27 @@
 // One command from a schedule message to posters, the website afisha and Telegram posts.
 //
 //   node automation/publish.mjs schedule.txt --photo kirtan=./kirtan.jpg --photo шляпа=./hat.jpg [--palette brown] [--send]
+//   node automation/publish.mjs schedule.txt --ai-text expand --ai-photo     # Gemini пишет текст и рисует фото
 //
+// Poster colour is fixed per event type (kirtan — teal, cinema — ocean, games — navy, …); --palette overrides it.
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
 // With --send the poster + caption goes to the channel and is forwarded to every chat in TELEGRAM_REPOST_CHAT_IDS.
 //
 // Env (only needed for --send):
 //   TELEGRAM_BOT_TOKEN       token of the OmHome bot (admin in the channel)
 //   TELEGRAM_CHANNEL_ID      @omhome_thai
-//   TELEGRAM_REPOST_CHAT_IDS comma-separated chat ids where the bot is a member (repost chat, partners)
+//   TELEGRAM_REPOST_CHAT_IDS comma-separated chat ids where the bot is a member (repost chat)
+//   TG_API_ID, TG_API_HASH, TG_SESSION  your Telethon session: partners (@VeronikaKirpichenko) get the poster from your account
+//   GEMINI_API_KEY           for --ai-text / --ai-photo
 
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { formatPost, parseSchedule, toSiteEvent } from './announcement.mjs';
-import { PALETTES, renderPoster } from './poster/render.mjs';
+import { CATEGORY_PALETTE, formatPost, guessCategory, parseSchedule, toSiteEvent } from './announcement.mjs';
+import { generatePhoto, rewriteDescription } from './gemini.mjs';
+import { renderPoster } from './poster/render.mjs';
 
 const EVENTS_FILE = resolve('public/events.json');
 const POSTERS_DIR = 'public/posters';
@@ -51,6 +58,8 @@ const { values, positionals } = parseArgs({
   options: {
     photo: { type: 'string', multiple: true, default: [] },
     palette: { type: 'string' },
+    'ai-text': { type: 'string' },
+    'ai-photo': { type: 'boolean', default: false },
     send: { type: 'boolean', default: false }
   }
 });
@@ -75,22 +84,40 @@ const photos = Object.fromEntries(
     return [title.trim().toLowerCase(), path.join('=')];
   })
 );
-const paletteNames = Object.keys(PALETTES);
+const workDir = await mkdtemp(join(tmpdir(), 'omhome-'));
 const events = parseSchedule(await readFile(positionals[0], 'utf8'));
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
 
-for (const [index, event] of events.entries()) {
+for (const event of events) {
   for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
+  event.category = guessCategory(event);
 
-  const photo = photos[event.title.toLowerCase()] ?? photos['*'];
+  if (values['ai-text']) {
+    try {
+      event.description = await rewriteDescription(event, values['ai-text']);
+    } catch (error) {
+      console.warn(`⚠️  ${event.title}: текст оставлен как есть — ${error.message}`);
+    }
+  }
+
+  let photo = photos[event.title.toLowerCase()] ?? photos['*'];
+  if (!photo && values['ai-photo']) {
+    try {
+      photo = await generatePhoto(event, join(workDir, `${event.id}.png`));
+      console.log(`🎨 ${event.title}: фото сгенерировано`);
+    } catch (error) {
+      console.warn(`⚠️  ${event.title}: фото не сгенерировано — ${error.message}`);
+    }
+  }
+
   let posterPath;
   if (photo) {
     const out = `${POSTERS_DIR}/${event.id}`;
-    const palette = values.palette ?? paletteNames[index % paletteNames.length];
+    const palette = values.palette ?? CATEGORY_PALETTE[event.category];
     await renderPoster({ ...event, photo, palette, out });
     posterPath = `${out}.jpg`;
   } else {
-    console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path"), афиша не собрана`);
+    console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
   }
 
   const siteEvent = toSiteEvent(event, posterPath ? `/${posterPath.replace(/^public\//, '')}` : undefined);
@@ -103,6 +130,11 @@ for (const [index, event] of events.entries()) {
   if (values.send && posterPath) {
     await sendToChannel(posterPath, caption);
     console.log('✅ опубликовано в канал и разослано по чатам');
+    if (process.env.TG_SESSION) {
+      const captionFile = join(workDir, `${event.id}.html`);
+      await writeFile(captionFile, caption);
+      execFileSync('python3', [resolve('automation/telegram_user.py'), posterPath, captionFile], { stdio: 'inherit' });
+    }
   }
 }
 
