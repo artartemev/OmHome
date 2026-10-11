@@ -22,7 +22,7 @@
 //   TELEGRAM_REPOST_CHAT_IDS  chats where the bot is a member, "id=Name,id=Name" (e.g. -1001234=Волшебный чат)
 //   TG_API_ID, TG_API_HASH, TG_SESSION  your Telethon session: partners (@VeronikaKirpichenko) get posters from your account
 //   TG_USER_REPOST_CHATS      chats the bot can't join, posted from your account: "invite-link=Name,…" (Волшебный чат)
-//   IG_USER_ID, IG_ACCESS_TOKEN         Instagram post + story (see instagram.mjs)
+//   IG_ACCESS_TOKEN (IG_USER_ID optional) Instagram post + story (see instagram.mjs)
 //   GEMINI_API_KEY, CLOUDFLARE_*        for --ai-text / --ai-photo
 
 import { execFileSync } from 'node:child_process';

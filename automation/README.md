@@ -49,7 +49,7 @@ npm run publish:events -- schedule.txt --photo "*=./photo.jpg" --send
 
 1. 📣 пост в канал @omhome_thai;
 2. 🔁 репост в каждый чат из `TELEGRAM_REPOST_CHAT_IDS` (формат `id=Название`, например `-1001234=Волшебный чат`);
-3. 📸 пост и 📱 сториз в Instagram (если заданы `IG_USER_ID` и `IG_ACCESS_TOKEN`);
+3. 📸 пост и 📱 сториз в Instagram (если задан `IG_ACCESS_TOKEN`);
 4. 🔁 репост в чаты, куда бота добавить нельзя (Волшебный чат), — с вашего аккаунта через Telethon: `TG_USER_REPOST_CHATS="https://t.me/+…=Волшебный чат"`;
 5. 💌 личное сообщение партнёрам (Вероника) — одно на всю неделю: в превью видно точное приветствие и список афиш.
 
@@ -83,7 +83,7 @@ npm run publish:events -- schedule.txt --ai-photo
 
 ## Instagram
 
-Публикация через официальный Instagram API с входом через Instagram (`automation/instagram.mjs`, `graph.instagram.com`): нужен профессиональный аккаунт, приложение Meta и токен пользователя Instagram (`IG…`) с `instagram_business_content_publish` — `IG_ACCESS_TOKEN` и `IG_USER_ID` в `.env`. Проверить токен, ничего не публикуя: `node automation/instagram_check.mjs`. Instagram сам скачивает картинку по ссылке, поэтому афиши должны быть уже задеплоены на omhome.space (`IG_PUBLIC_BASE_URL`). На живом аккаунте ещё не проверялось — первый запуск лучше провести вместе.
+Публикация через официальный Instagram API с входом через Instagram (`automation/instagram.mjs`, `graph.instagram.com`): нужен профессиональный аккаунт, приложение Meta и токен пользователя Instagram (`IG…`) с `instagram_business_content_publish` — `IG_ACCESS_TOKEN` в `.env` (`IG_USER_ID` необязателен). Проверить токен, ничего не публикуя: `node automation/instagram_check.mjs`. Instagram сам скачивает картинку по ссылке, поэтому афиши должны быть уже задеплоены на omhome.space (`IG_PUBLIC_BASE_URL`). На живом аккаунте ещё не проверялось — первый запуск лучше провести вместе.
 
 ## Архив
 

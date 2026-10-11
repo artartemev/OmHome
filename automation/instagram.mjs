@@ -1,7 +1,7 @@
 // Instagram publishing through the official Instagram API with Instagram Login (token starts with IG…).
 //
 // Env:
-//   IG_USER_ID        Instagram professional account id (not the @handle)
+//   IG_USER_ID        optional: Instagram professional account id (default: me)
 //   IG_ACCESS_TOKEN   Instagram User token (IG…) with instagram_business_content_publish
 //   IG_PUBLIC_BASE_URL where posters are publicly reachable, default https://omhome.space
 //
@@ -10,7 +10,10 @@
 
 const GRAPH = 'https://graph.instagram.com/v21.0';
 
-export const instagramConfigured = () => Boolean(process.env.IG_USER_ID && process.env.IG_ACCESS_TOKEN);
+export const instagramConfigured = () => Boolean(process.env.IG_ACCESS_TOKEN);
+
+// With Instagram Login the token already belongs to the account, so "me" works when IG_USER_ID is not set.
+const account = () => process.env.IG_USER_ID || 'me';
 
 export function publicUrl(localPath) {
   const base = (process.env.IG_PUBLIC_BASE_URL ?? 'https://omhome.space').replace(/\/$/, '');
@@ -43,9 +46,9 @@ async function waitUntilReady(containerId) {
 
 async function publish(params) {
   await assertOnline(params.image_url);
-  const container = await graph(`${process.env.IG_USER_ID}/media`, params);
+  const container = await graph(`${account()}/media`, params);
   await waitUntilReady(container.id);
-  return graph(`${process.env.IG_USER_ID}/media_publish`, { creation_id: container.id });
+  return graph(`${account()}/media_publish`, { creation_id: container.id });
 }
 
 export const publishPost = (imagePath, caption) => publish({ image_url: publicUrl(imagePath), caption });
