@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import { useState, type ReactNode } from 'react';
-import { ArrowUpRight, CalendarPlus, Check, Copy, MapPin, Send, Instagram, Sparkles } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ArrowUpRight, CalendarPlus, MapPin, Send, Instagram, Sparkles } from 'lucide-react';
 import logo from '../assets/home/art-logo.png';
 import artYoga from '../assets/home/art-yoga.png';
 import artHat from '../assets/home/art-hat.png';
@@ -22,7 +22,6 @@ import photoYoga from '../assets/home/yoga.jpg';
 import photoHarmonium from '../assets/home/harmonium.jpg';
 import photoKids from '../assets/home/kids.jpg';
 import photoPrasad from '../assets/home/prasad.jpg';
-import promptPayQr from '../assets/support/promptpay.jpg';
 import {
   downloadIcs,
   formatEventDate,
@@ -35,6 +34,7 @@ import {
 } from './home/useEvents';
 import { ArchiveSection } from './home/Archive';
 import { ReviewsSection } from './home/Reviews';
+import { SupportSection } from './home/Support';
 import styles from './ChiangMaiHomePage.module.css';
 
 const LINKS = {
@@ -69,46 +69,6 @@ const PEOPLE_PER_YEAR = '≈400';
 
 const GALLERY_TOP = [photoHall, photoKirtan, photoFriends, photoAltar, photoLaugh, photoStreet, photoPrasad];
 const GALLERY_BOTTOM = [photoSmile, photoYoga, photoLamp, photoKirtan2, photoTrip, photoHarmonium, photoKids];
-
-const PAYMENT_METHODS: {
-  id: string;
-  title: string;
-  hint: string;
-  rows?: { label: string; value: string; copy?: string }[];
-  qr?: string;
-}[] = [
-  {
-    id: 'thai',
-    title: 'TrueMoney / PromptPay',
-    hint: 'Отсканируйте QR в любом тайском банковском приложении',
-    qr: promptPayQr
-  },
-  {
-    id: 'sbp',
-    title: 'СБП — Сбербанк',
-    hint: 'Перевод из России по номеру телефона',
-    rows: [{ label: 'Телефон', value: '+7 995 597 0108', copy: '+79955970108' }]
-  },
-  {
-    id: 'crypto',
-    title: 'Криптовалюта',
-    hint: 'USDT, USDC, BTC и другие',
-    rows: [
-      { label: 'ByBit UID', value: '115189352' },
-      { label: 'USDT TRC20', value: 'TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5' }
-    ]
-  },
-  {
-    id: 'swift',
-    title: 'SWIFT',
-    hint: 'Международный банковский перевод в USD',
-    rows: [
-      { label: 'IBAN', value: 'GE73TB7418145068100009USD' },
-      { label: 'SWIFT', value: 'TBCBGE22' },
-      { label: 'Получатель', value: 'Liubov Verba' }
-    ]
-  }
-];
 
 const PROJECTS = [
   {
@@ -153,26 +113,6 @@ function SectionHeading({ eyebrow, children, light }: { eyebrow: string; childre
       </span>
       <h2>{children}</h2>
     </motion.div>
-  );
-}
-
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      type="button"
-      className={styles.copyButton}
-      onClick={() => {
-        navigator.clipboard?.writeText(value).then(() => {
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1600);
-        });
-      }}
-      aria-label={copied ? 'Скопировано' : 'Скопировать'}
-    >
-      {copied ? <Check size={16} /> : <Copy size={16} />}
-      <span>{copied ? 'Готово' : 'Копировать'}</span>
-    </button>
   );
 }
 
@@ -319,6 +259,16 @@ function Marquee({ images, reverse }: { images: string[]; reverse?: boolean }) {
 export function ChiangMaiHomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const archive = useArchive();
+
+  // Links like omhome.space/#support: the browser jumps before the afisha and archive load and push the block down,
+  // so jump again once they are in.
+  useEffect(() => {
+    const target = window.location.hash && document.getElementById(window.location.hash.slice(1));
+    if (!target) return;
+    const timer = window.setTimeout(() => target.scrollIntoView({ block: 'start' }), 150);
+    return () => window.clearTimeout(timer);
+  }, [archive]);
+
   const byCategory = archive?.byCategory ?? {};
   const stats = [
     { value: PEOPLE_PER_YEAR, label: 'гостей за первый год' },
@@ -511,50 +461,7 @@ export function ChiangMaiHomePage() {
 
       <ReviewsSection />
 
-      <section id="support" className={styles.supportSection}>
-        <div className={styles.container}>
-          <SectionHeading eyebrow="Поддержать">
-            Дом живёт <em>благодаря вам</em>
-          </SectionHeading>
-          <motion.p className={styles.supportLead} {...reveal}>
-            Пожертвования идут на аренду дома, прасад, чай, оборудование и уют. Любая сумма — это ещё один тёплый вечер
-            для кого-то, кто только приехал в город.
-          </motion.p>
-
-          <div className={styles.paymentGrid}>
-            {PAYMENT_METHODS.map((method) => (
-              <motion.article
-                key={method.id}
-                className={`${styles.paymentCard} ${method.qr ? styles.paymentCardQr : ''}`}
-                {...reveal}
-              >
-                <h3>{method.title}</h3>
-                <p className={styles.paymentHint}>{method.hint}</p>
-                {method.qr && (
-                  <a href={method.qr} target="_blank" rel="noreferrer" className={styles.qrWrap}>
-                    <img src={method.qr} alt="QR-код PromptPay / TrueMoney — Artem Artemev" loading="lazy" />
-                  </a>
-                )}
-                {method.rows?.map((row) => (
-                  <div key={row.label} className={styles.paymentRow}>
-                    <span className={styles.paymentLabel}>{row.label}</span>
-                    <code>{row.value}</code>
-                    <CopyButton value={row.copy ?? row.value} />
-                  </div>
-                ))}
-              </motion.article>
-            ))}
-          </div>
-
-          <motion.p className={styles.supportNote} {...reveal}>
-            После перевода напишите{' '}
-            <a href={LINKS.contact} target="_blank" rel="noreferrer">
-              @artartemev
-            </a>{' '}
-            — скажем спасибо лично 🙏
-          </motion.p>
-        </div>
-      </section>
+      <SupportSection />
 
       <section id="projects" className={styles.projectsSection}>
         <div className={styles.container}>

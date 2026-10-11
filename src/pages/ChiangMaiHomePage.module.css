@@ -1474,6 +1474,32 @@
   }
 }
 
+/* ---------- /donate ---------- */
+
+.donateBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px var(--gutter);
+  background: var(--night);
+  border-bottom: 1px solid var(--gold-line);
+}
+
+.donateBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted-light) !important;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.supportStandalone {
+  padding-top: 56px;
+  min-height: calc(100vh - 70px);
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1024px) {
