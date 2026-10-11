@@ -55,7 +55,19 @@ async function publish(params) {
   await assertOnline(params.image_url);
   const container = await graph(`${account()}/media`, params);
   await waitUntilReady(container.id);
-  return graph(`${account()}/media_publish`, { creation_id: container.id });
+  // Right after FINISHED Instagram often answers "Media ID is not available" / "resource does not exist" for a few
+  // seconds: wait and retry the publish step a few times before giving up.
+  let lastError;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 5000 : 10_000));
+    try {
+      return await graph(`${account()}/media_publish`, { creation_id: container.id });
+    } catch (error) {
+      lastError = error;
+      if (!/not available|does not exist|not ready/i.test(error.message)) throw error;
+    }
+  }
+  throw lastError;
 }
 
 export const publishPost = (imagePath, caption) => publish({ image_url: publicUrl(imagePath), caption });
