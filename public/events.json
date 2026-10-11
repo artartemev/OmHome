@@ -44,25 +44,14 @@
   ],
   "recurring": [
     {
-      "id": "tea",
-      "days": "Вт–Чт",
+      "id": "kirtan",
+      "days": "Каждую субботу",
       "times": [
-        "11:00",
         "18:00"
       ],
-      "title": "Чайная",
-      "subtitle": "медитация и дегустация",
-      "poster": "/posters/tea-ceremony.jpg"
-    },
-    {
-      "id": "somatic-yoga",
-      "days": "Вт–Чт",
-      "times": [
-        "12:00",
-        "19:00"
-      ],
-      "title": "Соматическая йога",
-      "poster": "/posters/somatic-yoga.jpg"
+      "title": "Киртан",
+      "subtitle": "пение мантр, живые инструменты и прасад",
+      "poster": "/posters/2026-10-10-kirtan.jpg"
     }
   ]
 }

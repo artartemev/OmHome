@@ -85,6 +85,7 @@ const photos = Object.fromEntries(
   })
 );
 const workDir = await mkdtemp(join(tmpdir(), 'omhome-'));
+const partnerPosts = []; // poster, caption, poster, caption… — sent to partners in one go after the channel
 const events = parseSchedule(await readFile(positionals[0], 'utf8'));
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
 
@@ -130,12 +131,14 @@ for (const event of events) {
   if (values.send && posterPath) {
     await sendToChannel(posterPath, caption);
     console.log('✅ опубликовано в канал и разослано по чатам');
-    if (process.env.TG_SESSION) {
-      const captionFile = join(workDir, `${event.id}.html`);
-      await writeFile(captionFile, caption);
-      execFileSync('python3', [resolve('automation/telegram_user.py'), posterPath, captionFile], { stdio: 'inherit' });
-    }
+    const captionFile = join(workDir, `${event.id}.html`);
+    await writeFile(captionFile, caption);
+    partnerPosts.push(posterPath, captionFile);
   }
+}
+
+if (partnerPosts.length && process.env.TG_SESSION) {
+  execFileSync('python3', [resolve('automation/telegram_user.py'), ...partnerPosts], { stdio: 'inherit' });
 }
 
 site.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));

@@ -61,15 +61,8 @@ const NAV = [
 const FORMATS = [
   { art: artConversation, title: 'Чай и разговоры', text: 'Посиделки с чаем, духовные беседы, чайные медитации — без программы и спешки.' },
   { art: artYoga, title: 'Киртаны и практики', text: 'Киртан по субботам, йога, йога-нидра, медитации с поющими чашами.' },
-  { art: artHat, title: 'Игры и кино', text: 'Кино по пятницам, квизы, Werewolf, «Шляпа», детективные настолки и RPG.' },
+  { art: artHat, title: 'Игры и кино', text: 'Кинопоказы, квизы, Werewolf, «Шляпа», детективные настолки и RPG.' },
   { art: artSilent, title: 'Лекции и философия', text: 'Чтения, читки пьес Вырыпаева, лекции о Ведах — просто и по-доброму.' }
-];
-
-const WEEK = [
-  { day: 'Вт–Чт', title: 'Чайная и йога', text: 'Чайные медитации и соматическая йога днём и вечером' },
-  { day: 'Пт', title: 'Кино', text: 'Кинопоказ на большом экране и обсуждение за чаем' },
-  { day: 'Сб', title: 'Киртан', text: 'Пение мантр, живые инструменты и прасад' },
-  { day: 'Вс', title: 'Игры и посиделки', text: 'Квиз, «Шляпа», настолки или просто чай' }
 ];
 
 const PEOPLE_PER_YEAR = '≈400';
@@ -468,16 +461,11 @@ export function ChiangMaiHomePage() {
           </div>
 
           <motion.div className={styles.weekRhythm} {...reveal}>
-            <h3>Ритм недели</h3>
-            <div className={styles.weekGrid}>
-              {WEEK.map((item) => (
-                <div key={item.day} className={styles.weekItem}>
-                  <span>{item.day}</span>
-                  <strong>{item.title}</strong>
-                  <p>{item.text}</p>
-                </div>
-              ))}
-            </div>
+            <span>Сб · 18:00</span>
+            <p>
+              Каждую субботу — <strong>киртан</strong>: пение мантр, живые инструменты и прасад. Остальные вечера меняются
+              от недели к неделе — смотрите афишу.
+            </p>
           </motion.div>
         </div>
       </section>
