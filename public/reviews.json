@@ -1,7 +1,30 @@
 {
   "fetchedAt": "2026-10-12",
   "rating": 5,
+  "count": 6,
   "limited": true,
   "mapsUrl": "https://www.google.com/maps?cid=6928813553851154163",
-  "reviews": []
+  "reviews": [
+    {
+      "author": "NĖJ LUR",
+      "rating": 5,
+      "text": "Отличное место, где собирается осознанное комьюнити. Это о том, чтоб усилить интересы и качественно провести время. Но без давления ритуальных составляющих, на легке. …",
+      "when": "месяц назад",
+      "photo": "https://lh3.googleusercontent.com/a-/ALV-UjXOguczJUWpspLrAyyRyLUyJYD6xu6ik4GjMGw3D77iPfwejV0=w36-h36-p-rp-mo-ba12-br100"
+    },
+    {
+      "author": "Yuliia Wake Up",
+      "rating": 5,
+      "text": "Когда я переехала в Чианг Май одна, самым сложным оказалось не новое место, а отсутствие своего круга. Я ходила на мероприятия, знакомилась, но внутреннего «клика» не происходило. …",
+      "when": "7 месяцев назад",
+      "photo": "https://lh3.googleusercontent.com/a-/ALV-UjXCTAZpsuq4aoJcmrHJj49Qij-VWSQ4wz8fU3fEiaMLQcx9ovu6=w36-h36-p-rp-mo-ba12-br100"
+    },
+    {
+      "author": "Anna Afonkina",
+      "rating": 5,
+      "text": "Это одно из самых уютных и атмосферных мест в городе. Это пространство, где можно действительно отдохнуть сердцем и душой, замедлиться и почувствовать внутренний баланс. Прекрасное место для духовных практик, медитаций и различных вдохновляющих мероприятий. Очень тёплая энергетика и приятная атмосфера❤️",
+      "when": "7 месяцев назад",
+      "photo": "https://lh3.googleusercontent.com/a-/ALV-UjUWOewWuKuZrzK9DsIgVmrAq-_ShXp1RL8E3PtULSamkvADn2uA=w36-h36-p-rp-mo-ba12-br100"
+    }
+  ]
 }

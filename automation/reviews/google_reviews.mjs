@@ -37,31 +37,55 @@ const guideProfile = `${process.env.HOME}/.chiangmai_guide_chrome`;
 const profile =
   process.env.CHROME_PROFILE?.replace(/^~/, process.env.HOME ?? '') ??
   (process.platform === 'darwin' && existsSync(guideProfile) ? guideProfile : undefined);
-const options = { locale: 'ru-RU', viewport: { width: 1280, height: 900 } };
+// Same as the guide: a regular desktop Chrome user agent. Headless Chrome otherwise says «HeadlessChrome», and Google
+// answers with the limited card (rating only, no review texts).
+const UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+// HEADED=1 opens a visible window: e.g. to sign in to Google once in that profile.
+const headless = !process.env.HEADED;
+const options = { locale: 'ru-RU', viewport: { width: 1280, height: 900 }, userAgent: UA };
 // On a Mac the installed Google Chrome is used, so no browser download is needed.
-const browser = profile ? null : await chromium.launch(process.platform === 'darwin' ? { channel: 'chrome' } : {});
+const channel = process.platform === 'darwin' ? 'chrome' : undefined;
+const browser = profile ? null : await chromium.launch({ channel, headless });
 const context = profile
-  ? await chromium.launchPersistentContext(profile, { ...options, channel: 'chrome', headless: true })
+  ? await chromium.launchPersistentContext(profile, { ...options, channel: 'chrome', headless })
   : await browser.newContext(options);
+const LIMITED = /ограниченн|limited view/i;
 try {
   const page = context.pages()[0] ?? (await context.newPage());
-  await page.goto(`${PLACE_URL}&hl=ru`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  if (page.url().includes('/sorry/')) throw new Error('Google: unusual traffic — попробуйте через несколько часов');
+  let mainText = '';
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await page.goto(`${PLACE_URL}&hl=ru`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    if (page.url().includes('/sorry/')) throw new Error('Google: unusual traffic — попробуйте через несколько часов');
 
-  // Cookie consent screen in some regions.
-  const consent = page.locator('form[action*="consent"] button').last();
-  if (await consent.count()) {
-    await consent.click();
-    await page.waitForLoadState('domcontentloaded');
+    // Cookie consent screen in some regions.
+    const consent = page.locator('form[action*="consent"] button').last();
+    if (await consent.count()) {
+      await consent.click();
+      await page.waitForLoadState('domcontentloaded');
+    }
+
+    await page.waitForSelector('h1', { timeout: 30_000 });
+    // The panel loads in pieces: wait for review texts or the «limited view» banner.
+    for (let i = 0; i < 12; i++) {
+      await sleep(1500);
+      mainText = await page.locator('div[role="main"]').first().innerText().catch(() => '');
+      if ((await page.locator('span.wiI7pd').count()) || LIMITED.test(mainText)) break;
+    }
+    if (!LIMITED.test(mainText)) break;
+    if (attempt === 0) {
+      console.log('ℹ️  Google показал урезанный вид — пробую ещё раз через 20 секунд');
+      await sleep(20_000);
+    }
   }
-
-  await page.waitForSelector('h1', { timeout: 30_000 });
-  await sleep(4000);
-  const mainText = await page.locator('div[role="main"]').first().innerText().catch(() => '');
   const header = mainText.match(/\n(\d[.,]\d)\n(?:\(([\d\s,.]+)\))?/);
 
   const tab = page.locator('button[role="tab"]').filter({ hasText: /Отзывы|Reviews/ });
-  if (await tab.count()) await tab.first().click();
+  const more = page.locator('button[aria-label^="Ещё отзывы"], button[aria-label^="More reviews"]');
+  // A banner (e.g. «limited view» or sign-in) may lie over the tabs: click through it, never fail on it.
+  const open = (locator) => locator.first().click({ timeout: 5000 }).catch(() => locator.first().click({ force: true, timeout: 5000 })).catch(() => undefined);
+  if (await tab.count()) await open(tab);
+  else if (await more.count()) await open(more);
   await sleep(3000);
   for (let i = 0; i < 3; i++) {
     await page.evaluate(() => {
@@ -71,9 +95,14 @@ try {
     });
     await sleep(1500);
   }
-  for (const button of (await page.locator('div[data-review-id] button[aria-expanded="false"]').all()).slice(0, 30)) {
-    await button.click({ timeout: 700 }).catch(() => undefined);
+  // «Ещё» / «See more» inside a review shows its full text.
+  const expanders = page.locator(
+    'div[data-review-id] button[aria-expanded="false"], div[data-review-id] button.w8nwRe, div[data-review-id] button:has-text("Ещё"), div[data-review-id] button:has-text("More")'
+  );
+  for (const button of (await expanders.all()).slice(0, 30)) {
+    await button.click({ timeout: 1000 }).catch(() => button.click({ force: true, timeout: 1000 })).catch(() => undefined);
   }
+  await sleep(1000);
 
   const reviews = await page.evaluate((max) => {
     const out = [];
@@ -102,7 +131,7 @@ try {
     fetchedAt: new Date().toISOString().slice(0, 10),
     rating: header ? Number(header[1].replace(',', '.')) : undefined,
     count: header?.[2] ? Number(header[2].replace(/\D/g, '')) : undefined,
-    limited: mainText.includes('ограниченная версия') || mainText.includes('limited view'),
+    limited: LIMITED.test(mainText),
     mapsUrl: PLACE_URL,
     reviews
   };
