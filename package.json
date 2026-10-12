@@ -57,6 +57,7 @@
           "dev": "vite",
           "build": "vite build",
           "test": "node --test automation/test/*.test.mjs",
-          "publish:events": "node automation/publish.mjs"
+          "publish:events": "node automation/publish.mjs",
+          "reviews": "node automation/reviews/google_reviews.mjs && git add public/reviews.json && (git diff --cached --quiet || (git commit -m 'Отзывы Google' && git push origin HEAD:main))"
       }
   }

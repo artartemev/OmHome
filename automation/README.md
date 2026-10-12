@@ -133,3 +133,13 @@ cd automation/server && railway up        # сборка и запуск
 - `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` — для Волшебного чата и Вероники; строку даёт `python3 automation/server/make_session.py` (отдельная сессия «OmHome bot server», а не сессия guide).
 
 Бот должен работать в одном месте: два процесса с одним токеном мешают друг другу получать сообщения.
+
+## Отзывы Google на сайте
+
+Тем же способом, что в guide (`gmaps_reviews.py`): Chrome открывает карточку OmHome Space на Google Maps и читает рейтинг и отзывы как человек, без API. Из облака (и с сервера) Google показывает урезанный вид без текстов, поэтому запускать на Mac — там подхватится профиль Chrome от guide (`~/.chiangmai_guide_chrome`):
+
+```bash
+cd OmHome && git pull && npm run reviews      # собрать → закоммитить public/reviews.json → push в main
+```
+
+Раз в неделю-две достаточно. Если Google всё же покажет урезанный вид, собранные ранее отзывы на сайте не стираются.

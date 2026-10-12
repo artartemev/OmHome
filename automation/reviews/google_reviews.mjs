@@ -4,13 +4,13 @@
 //   node automation/reviews/google_reviews.mjs            # → public/reviews.json (read by the site widget)
 //
 // From a cloud server Google shows a "limited view" (rating only, no review texts). On your Mac it works like the guide:
-//   CHROME_PROFILE=~/.chiangmai_guide_chrome node automation/reviews/google_reviews.mjs
-// reuses the guide's Chrome profile and the installed Google Chrome.
+//   npm run reviews        # reads the reviews with the guide's Chrome profile, commits and pushes them to the site
 //
 // Run it once a week or so; a "limited view" or the "unusual traffic" page means "try again later", never retry hard.
 
 import { execSync } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -32,7 +32,11 @@ async function loadChromium() {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const chromium = await loadChromium();
-const profile = process.env.CHROME_PROFILE?.replace(/^~/, process.env.HOME ?? '');
+// On a Mac with the guide set up, its Chrome profile is picked up by itself (same as gmaps_reviews.py).
+const guideProfile = `${process.env.HOME}/.chiangmai_guide_chrome`;
+const profile =
+  process.env.CHROME_PROFILE?.replace(/^~/, process.env.HOME ?? '') ??
+  (process.platform === 'darwin' && existsSync(guideProfile) ? guideProfile : undefined);
 const options = { locale: 'ru-RU', viewport: { width: 1280, height: 900 } };
 const browser = profile ? null : await chromium.launch();
 const context = profile
@@ -102,6 +106,15 @@ try {
     reviews
   };
   if (!data.rating && reviews.length === 0) throw new Error('Google показал урезанную карточку — попробуйте позже');
+  // A limited view has no texts: keep the reviews collected earlier instead of wiping them from the site.
+  if (reviews.length === 0) {
+    const previous = await readFile(OUT, 'utf8').then(JSON.parse).catch(() => null);
+    if (previous?.reviews?.length) {
+      data.reviews = previous.reviews;
+      data.limited = previous.limited;
+      console.log('ℹ️  Google показал урезанный вид — оставляю отзывы из прошлого раза');
+    }
+  }
   await writeFile(OUT, `${JSON.stringify(data, null, 2)}\n`);
   console.log(`⭐ ${data.rating} (${data.count}), отзывов с текстом: ${reviews.length} → ${OUT}`);
 } finally {
