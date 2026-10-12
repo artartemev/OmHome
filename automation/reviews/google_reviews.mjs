@@ -38,7 +38,8 @@ const profile =
   process.env.CHROME_PROFILE?.replace(/^~/, process.env.HOME ?? '') ??
   (process.platform === 'darwin' && existsSync(guideProfile) ? guideProfile : undefined);
 const options = { locale: 'ru-RU', viewport: { width: 1280, height: 900 } };
-const browser = profile ? null : await chromium.launch();
+// On a Mac the installed Google Chrome is used, so no browser download is needed.
+const browser = profile ? null : await chromium.launch(process.platform === 'darwin' ? { channel: 'chrome' } : {});
 const context = profile
   ? await chromium.launchPersistentContext(profile, { ...options, channel: 'chrome', headless: true })
   : await browser.newContext(options);

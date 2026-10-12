@@ -139,7 +139,7 @@ cd automation/server && railway up        # сборка и запуск
 Тем же способом, что в guide (`gmaps_reviews.py`): Chrome открывает карточку OmHome Space на Google Maps и читает рейтинг и отзывы как человек, без API. Из облака (и с сервера) Google показывает урезанный вид без текстов, поэтому запускать на Mac — там подхватится профиль Chrome от guide (`~/.chiangmai_guide_chrome`):
 
 ```bash
-cd OmHome && git pull && npm run reviews      # собрать → закоммитить public/reviews.json → push в main
+cd OmHome && git pull && npm install && npm run reviews   # собрать → закоммитить public/reviews.json → push в main
 ```
 
 Раз в неделю-две достаточно. Если Google всё же покажет урезанный вид, собранные ранее отзывы на сайте не стираются.
