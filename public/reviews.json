@@ -2,13 +2,13 @@
   "fetchedAt": "2026-10-12",
   "rating": 5,
   "count": 6,
-  "limited": true,
+  "limited": false,
   "mapsUrl": "https://www.google.com/maps?cid=6928813553851154163",
   "reviews": [
     {
       "author": "NĖJ LUR",
       "rating": 5,
-      "text": "Отличное место, где собирается осознанное комьюнити. Это о том, чтоб усилить интересы и качественно провести время. Но без давления ритуальных составляющих, на легке. …",
+      "text": "Отличное место, где собирается осознанное комьюнити. Это о том, чтоб усилить интересы и качественно провести время. Но без давления ритуальных составляющих, на легке.\nБольше б таких пространств.🙏🏼🕉️",
       "when": "месяц назад",
       "photo": "https://lh3.googleusercontent.com/a-/ALV-UjXOguczJUWpspLrAyyRyLUyJYD6xu6ik4GjMGw3D77iPfwejV0=w36-h36-p-rp-mo-ba12-br100"
     },
@@ -25,6 +25,20 @@
       "text": "Это одно из самых уютных и атмосферных мест в городе. Это пространство, где можно действительно отдохнуть сердцем и душой, замедлиться и почувствовать внутренний баланс. Прекрасное место для духовных практик, медитаций и различных вдохновляющих мероприятий. Очень тёплая энергетика и приятная атмосфера❤️",
       "when": "7 месяцев назад",
       "photo": "https://lh3.googleusercontent.com/a-/ALV-UjUWOewWuKuZrzK9DsIgVmrAq-_ShXp1RL8E3PtULSamkvADn2uA=w36-h36-p-rp-mo-ba12-br100"
+    },
+    {
+      "author": "Atman108 Gopal",
+      "rating": 5,
+      "text": "Организатор этого пространства, большой молодец, проводит и мантра медитации и всякие настольные игры и кинопоказ, много разных программ, рекомендую, есть телеграмм канал с расписанием программ.",
+      "when": "6 месяцев назад",
+      "photo": "https://lh3.googleusercontent.com/a/ACg8ocI4JJ64Y1PGAAan80fviYo6fUjN8bYtZI6PlA3v19LTqqgB2Q=w36-h36-p-rp-mo-br100"
+    },
+    {
+      "author": "Aleksandr",
+      "rating": 5,
+      "text": "точно НЕ притон!!! Советую к посещению, если НЕ хочется оказаться в притоне",
+      "when": "5 дней назад",
+      "photo": "https://lh3.googleusercontent.com/a-/ALV-UjWYmSft6ezbFdpvEYyeWtRLsWSpnQvNhp8IOYjj4qBF4-xTkasD=w36-h36-p-rp-mo-ba12-br100"
     }
   ]
 }
