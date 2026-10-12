@@ -21,7 +21,8 @@ const translations = {
     spiritualTitle: 'Духовные программы:',
     socialTitle: 'Социальные события:',
     spiritualPrograms: [
-      'Киртаны / мантра‑йога',
+      'Киртан каждую субботу в 18:00',
+      'Мантра‑йога',
       'Вечерние чтения',
       'Нама‑хатты и бхакти‑врикши',
       'Воскресные программы',
@@ -29,9 +30,10 @@ const translations = {
     ],
     socialEvents: [
       'Кинопоказы (семейные, без сцен насилия и т.п.)',
-      'Йога и мастер‑классы (вегетарианская кулинария, творчество и т.д.)',
-      'Настольные игры и квизы',
-      'Музыкальные квартирники'
+      'Йога, медитации и мастер‑классы (вегетарианская кулинария, творчество и т.д.)',
+      'Настольные и ролевые игры, квизы',
+      'Музыкальные квартирники',
+      'Чайные вечера и читки пьес'
     ],
     goalLabel: 'Цель:',
     goalText:
@@ -42,7 +44,8 @@ const translations = {
     spiritualTitle: 'Spiritual programs:',
     socialTitle: 'Social events:',
     spiritualPrograms: [
-      'Kirtans / mantra yoga',
+      'Kirtan every Saturday at 6 pm',
+      'Mantra yoga',
       'Evening readings',
       'Nama-hattas and bhakti-vrikshas',
       'Sunday programs',
@@ -50,9 +53,10 @@ const translations = {
     ],
     socialEvents: [
       'Movie nights (family-friendly, no violence scenes)',
-      'Yoga and workshops (vegetarian cooking, creativity, etc.)',
-      'Board games and quizzes',
-      'Acoustic music gatherings'
+      'Yoga, meditation and workshops (vegetarian cooking, creativity, etc.)',
+      'Board games, role-playing games and quizzes',
+      'Acoustic music gatherings',
+      'Tea evenings and play readings'
     ],
     goalLabel: 'Goal:',
     goalText:

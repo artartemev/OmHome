@@ -24,9 +24,9 @@ const translations = {
       }
     },
     stats: [
-      { number: '3+', label: 'года' },
-      { number: '2', label: 'страны' },
-      { number: '400+', label: 'встреч и программ' }
+      { number: '3', label: 'страны: Грузия, Сербия, Таиланд' },
+      { number: '185+', label: 'событий за первый год в Чиангмае' },
+      { number: '≈400', label: 'гостей за год' }
     ]
   },
   en: {
@@ -49,9 +49,9 @@ const translations = {
       }
     },
     stats: [
-      { number: '3+', label: 'years' },
-      { number: '2', label: 'countries' },
-      { number: '400+', label: 'events and programs' }
+      { number: '3', label: 'countries: Georgia, Serbia, Thailand' },
+      { number: '185+', label: 'events in our first year in Chiang Mai' },
+      { number: '≈400', label: 'guests a year' }
     ]
   }
 } as const;

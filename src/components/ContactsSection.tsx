@@ -11,7 +11,7 @@ const translations = {
       {
         category: 'Артём',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/omhome_cnx' },
+          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/artartemev' },
           { icon: <Phone size={24} />, label: 'WhatsApp', link: 'https://wa.me/79955970108' }
         ]
       },
@@ -19,16 +19,17 @@ const translations = {
         category: 'Социальные сети',
         items: [
           { icon: <MessageCircle size={24} />, label: 'Telegram канал', link: 'https://t.me/omhome_thai' },
-          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' }
+          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' },
+          { icon: <ExternalLink size={24} />, label: 'Сайт и афиша', link: 'https://omhome.space' }
         ]
       },
       {
-        category: 'Адрес:',
+        category: 'Адрес (новый дом с сентября 2026):',
         items: [
           {
             icon: <MapPin size={24} />,
             label: 'Google Maps',
-            link: 'https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59'
+            link: 'https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7'
           }
         ]
       }
@@ -42,7 +43,7 @@ const translations = {
       {
         category: 'Artyom',
         items: [
-          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/omhome_cnx' },
+          { icon: <MessageCircle size={24} />, label: 'Telegram', link: 'https://t.me/artartemev' },
           { icon: <Phone size={24} />, label: 'WhatsApp', link: 'https://wa.me/79955970108' }
         ]
       },
@@ -50,16 +51,17 @@ const translations = {
         category: 'Social media',
         items: [
           { icon: <MessageCircle size={24} />, label: 'Telegram channel', link: 'https://t.me/omhome_thai' },
-          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' }
+          { icon: <Instagram size={24} />, label: 'Instagram', link: 'https://www.instagram.com/omhome.cnx' },
+          { icon: <ExternalLink size={24} />, label: 'Website & events', link: 'https://omhome.space' }
         ]
       },
       {
-        category: 'Address:',
+        category: 'Address (new home since September 2026):',
         items: [
           {
             icon: <MapPin size={24} />,
             label: 'Google Maps',
-            link: 'https://maps.app.goo.gl/ijzfWJtGuTHMwWZ59'
+            link: 'https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7'
           }
         ]
       }

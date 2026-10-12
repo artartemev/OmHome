@@ -15,8 +15,8 @@ import { ContactsSection } from '../components/ContactsSection';
 import { LanguageProvider, useLanguage } from '../contexts/LanguageContext';
 
 const footerTexts = {
-  ru: '© 2024 OmHome. Пространство единства, вдохновения и служения.',
-  en: '© 2024 OmHome. A space of unity, inspiration, and service.'
+  ru: '© 2024–2026 OmHome. Пространство единства, вдохновения и служения.',
+  en: '© 2024–2026 OmHome. A space of unity, inspiration, and service.'
 };
 
 function PamhoContent() {

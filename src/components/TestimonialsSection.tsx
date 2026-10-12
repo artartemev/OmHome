@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useInView } from 'motion/react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const translations = {
@@ -13,7 +13,7 @@ const translations = {
       },
       {
         title: 'Реальные плоды:',
-        description: 'новые гости возвращаются, интересуются практикой, присоединяются к программам.'
+        description: 'за первый год в Чиангмае — 185+ событий и около 400 гостей; многие возвращаются, интересуются практикой и присоединяются к программам.'
       },
       {
         title: 'Мягкая проповедь:',
@@ -44,7 +44,7 @@ const translations = {
       },
       {
         title: 'Tangible results:',
-        description: 'new guests return, get curious about the practice, and join the programs.'
+        description: '185+ events and around 400 guests in our first year in Chiang Mai; many return, get curious about the practice, and join the programs.'
       },
       {
         title: 'Gentle outreach:',
@@ -68,11 +68,37 @@ const translations = {
   }
 } as const;
 
+type GoogleReviews = { rating?: number; count?: number; mapsUrl?: string; reviews: { author: string; text: string }[] };
+
+const shorten = (text: string) => {
+  const clean = text.replace(/\s*…$/, '').trim();
+  return clean.length > 260 ? `${clean.slice(0, clean.lastIndexOf(' ', 260)).replace(/[.,;:!?…\s]+$/, '')}…` : clean;
+};
+
+const reviewsRu = (n: number) => {
+  const tail = n % 100 >= 11 && n % 100 <= 14 ? 'отзывов' : ['отзывов', 'отзыв', 'отзыва', 'отзыва', 'отзыва'][n % 10] ?? 'отзывов';
+  return `${n} ${tail}`;
+};
+
 export function TestimonialsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const { language } = useLanguage();
-  const { title, impactPoints, testimonials } = translations[language];
+  const { title, impactPoints } = translations[language];
+
+  // Real Google Maps reviews (public/reviews.json, the same as on the home page); the quotes above are the fallback.
+  const [google, setGoogle] = useState<GoogleReviews | null>(null);
+  useEffect(() => {
+    fetch('/reviews.json')
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: GoogleReviews | null) => setGoogle(data))
+      .catch(() => undefined);
+  }, []);
+  const fromGoogle = (google?.reviews ?? []).filter((review) => review.text).slice(0, 3);
+  const googleLabel = language === 'ru' ? 'отзыв в Google' : 'Google review';
+  const testimonials = fromGoogle.length
+    ? fromGoogle.map((review) => ({ text: `«${shorten(review.text)}»`, author: `${review.author} · ${googleLabel}` }))
+    : translations[language].testimonials;
 
   return (
     <section ref={ref} className="py-16 lg:py-24 bg-[#f8f6f3]">
@@ -155,6 +181,21 @@ export function TestimonialsSection() {
             </motion.div>
           ))}
         </div>
+
+        {fromGoogle.length && google?.mapsUrl ? (
+          <div className="text-center mt-10">
+            <a
+              href={google.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block text-lg font-semibold text-[#241f74] underline hover:text-[#73729b]"
+            >
+              {language === 'ru'
+                ? `⭐ ${google.rating ?? 5} · ${google.count ? reviewsRu(google.count) : 'все отзывы'} в Google — читать и оставить свой`
+                : `⭐ ${google.rating ?? 5} · ${google.count ? `${google.count} reviews` : 'all reviews'} on Google — read or leave yours`}
+            </a>
+          </div>
+        ) : null}
       </div>
     </section>
   );

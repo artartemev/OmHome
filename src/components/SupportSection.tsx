@@ -3,6 +3,7 @@ import { useInView } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink, Table } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import promptPayQr from '../assets/support/promptpay.jpg';
 
 const translations = {
   ru: {
@@ -11,9 +12,16 @@ const translations = {
     donationsHelpText:
       'арендовать дом, проводить программы, готовить прасад, украшать алтарь, поддерживать чистоту и оборудование.',
     launchSupportText:
-      'Сейчас мы запускаем пространство, и старт — самый затратный этап: покупка мебели, украшение и обустройство алтаря, кухонная утварь, оборудование для готовки, реклама. Поддержка в начале помогает нам уверенно встать на ноги и приглашает разделить мощную духовную ответственность, стать частью этого проекта.',
-    paymentMethodsTitle: 'Способы превода',
+      'За первый год в Чиангмае прошло больше 185 событий и около 400 гостей. С сентября 2026 года OmHome — в новом доме, и мы продолжаем его обустраивать: мебель, алтарь, кухня, оборудование для программ. Регулярная поддержка помогает дому стоять уверенно и приглашает разделить эту духовную ответственность — стать частью проекта.',
+    paymentMethodsTitle: 'Способы перевода',
     paymentMethods: [
+      {
+        title: 'TrueMoney / PromptPay',
+        description: 'из Таиланда — по QR-коду',
+        details: ['Отсканируйте QR-код в любом тайском банковском приложении или TrueMoney.'],
+        qr: promptPayQr,
+        note: 'После перевода сообщите: t.me/artartemev'
+      },
       {
         title: 'Криптовалюта',
         description: 'USDT/USDC/BTC и др.',
@@ -21,16 +29,16 @@ const translations = {
           'ByBit UID: 115189352',
           'USDT TRC20: TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5'
         ],
-        note: 'После перевода сообщите: t.me/artarteemev'
+        note: 'После перевода сообщите: t.me/artartemev'
       },
       {
         title: 'СБП',
-        description: 'быстрые переводы внутри РФ',
+        description: 'из России по номеру телефона',
         details: [
           'Телефон: +7 995 597 0108',
-          'Банки: Яндекс Банк / Сбербанк'
+          'Банк: Сбербанк'
         ],
-        note: 'После перевода сообщите: t.me/artarteemev'
+        note: 'После перевода сообщите: t.me/artartemev'
       },
       {
         title: 'SWIFT',
@@ -40,7 +48,7 @@ const translations = {
           'SWIFT: TBCBGE22',
           'Получатель: Liubov Verba'
         ],
-        note: 'После перевода сообщите: t.me/artarteemev'
+        note: 'После перевода сообщите: t.me/artartemev'
       }
     ],
     supportLevelsTitle: 'Уровни ежемесячной поддержки',
@@ -95,9 +103,16 @@ const translations = {
     donationsHelpText:
       'rent the house, host programs, cook prasadam, decorate the altar, and keep everything clean and equipped.',
     launchSupportText:
-      'We are launching the space now, and the starting phase is the most expensive one: furnishing the house, creating and decorating the altar, equipping the kitchen, cooking gear, and outreach. Early support helps us gain momentum with confidence — an invitation to share a profound spiritual responsibility and become part of the project.',
+      'In our first year in Chiang Mai we held more than 185 events with around 400 guests. Since September 2026 OmHome lives in a new house, and we keep setting it up: furniture, the altar, the kitchen, equipment for programs. Regular support keeps the home steady — an invitation to share this spiritual responsibility and become part of the project.',
     paymentMethodsTitle: 'Payment methods',
     paymentMethods: [
+      {
+        title: 'TrueMoney / PromptPay',
+        description: 'from Thailand — by QR code',
+        details: ['Scan the QR code in any Thai banking app or TrueMoney.'],
+        qr: promptPayQr,
+        note: 'After the transfer, message: t.me/artartemev'
+      },
       {
         title: 'Cryptocurrency',
         description: 'USDT/USDC/BTC and more',
@@ -105,16 +120,16 @@ const translations = {
           'ByBit UID: 115189352',
           'USDT TRC20: TUTZBW9sH341B7Rz43UnTU9sjVdbTCN1F5'
         ],
-        note: 'After the transfer, message: t.me/artarteemev'
+        note: 'After the transfer, message: t.me/artartemev'
       },
       {
         title: 'SBP',
-        description: 'instant transfers within Russia',
+        description: 'from Russia by phone number',
         details: [
           'Phone: +7 995 597 0108',
-          'Banks: Yandex Bank / Sberbank'
+          'Bank: Sberbank'
         ],
-        note: 'After the transfer, message: t.me/artarteemev'
+        note: 'After the transfer, message: t.me/artartemev'
       },
       {
         title: 'SWIFT',
@@ -124,7 +139,7 @@ const translations = {
           'SWIFT: TBCBGE22',
           'Beneficiary: Liubov Verba'
         ],
-        note: 'After the transfer, message: t.me/artarteemev'
+        note: 'After the transfer, message: t.me/artartemev'
       }
     ],
     supportLevelsTitle: 'Monthly support tiers',
@@ -378,6 +393,13 @@ export function SupportSection() {
                   </li>
                 ))}
               </ul>
+              {'qr' in selectedMethod && selectedMethod.qr ? (
+                <img
+                  src={selectedMethod.qr}
+                  alt="QR PromptPay / TrueMoney"
+                  className="w-full max-w-xs mx-auto rounded-xl mb-6"
+                />
+              ) : null}
               {selectedMethod.note ? (
                 <p className="text-base text-[#4b4a73] leading-relaxed">{selectedMethod.note}</p>
               ) : null}
