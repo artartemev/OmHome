@@ -225,6 +225,44 @@ ${block}
   return answer.replace(/^```\w*\n?|```$/g, '').trim();
 }
 
+// One lively personal message with the whole schedule, for a friendly chat or a partner's channel: Artem speaks to
+// that audience himself. Every audience gets its own text; `avoid` (texts already written this run) keeps them apart.
+export async function writeDigest(events, audience, { avoid = [] } = {}) {
+  const list = events
+    .map((event) => `• ${event.weekday} ${event.date.slice(8)}/${event.date.slice(5, 7)}, ${event.time} — ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}\n  ${(event.description ?? '').replace(/\s+/g, ' ').slice(0, 600)}`)
+    .join('\n');
+  const prompt = `Ты — Артём, организатор OmHome: дом-пространство в Чиангмае, где мы с друзьями проводим киртаны, кино, игры, чаепития и другие тёплые встречи.
+Напиши ${audience}.
+
+Это одно сообщение со всеми событиями ниже. Пиши лично и живо, от первого лица, как пишет живой человек знакомым людям: с теплом, лёгким юмором, без канцелярита, рекламных штампов и пафоса. Начни с обращения к читателям и пары фраз от себя — что за неделя нас ждёт. Потом каждое событие — 1–2 строки: день и время, название и чем зацепит. Под конец — тёплое приглашение.
+Факты (даты, время, имена, условия) бери только из списка, ничего не выдумывай. Эмодзи — по одному на событие, не больше. Длина — до 800 знаков. Не добавляй адрес, ссылки, запись и донейшен — они будут ниже отдельно. Без markdown и звёздочек.
+${avoid.length ? `\nЭти тексты уже ушли другим адресатам — напиши совсем по-другому, другими словами и с другим началом:\n${avoid.map((text) => `«${text}»`).join('\n')}\n` : ''}
+События:
+${list}`;
+  const { json } = await generate(TEXT_MODELS, {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.95 }
+  });
+  const text = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
+  if (!text) throw new Error('Gemini вернул пустой ответ');
+  return text.replace(/\*\*/g, '');
+}
+
+// An edit of such a message from the approval dialogue («короче», «добавь, что будет пир»).
+export async function editDigest(text, instruction) {
+  const prompt = `Вот сообщение-анонс от Артёма из OmHome:
+
+${text}
+
+Правка: «${instruction.trim()}»
+
+Внеси правку и верни сообщение целиком. Меняй только то, о чём просят, тон и факты сохрани. Без markdown, без пояснений.`;
+  const { json } = await generate(TEXT_MODELS, { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.4 } });
+  const answer = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
+  if (!answer) throw new Error('Gemini вернул пустой ответ');
+  return answer.replace(/\*\*/g, '');
+}
+
 // Attached photos without labels: Gemini looks at them and says which photo fits which event.
 // Returns an array: for each event, the index of its photo (or -1). Falls back to the given order.
 export async function matchPhotos(events, photoPaths) {

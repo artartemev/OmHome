@@ -227,7 +227,7 @@ async function askTerminal(action) {
 
 /**
  * Asks for approval of every action in order and runs the approved ones.
- * action: { label, text?, image?, run, group?, onEdit?({ text, photo }) } — label/text/image may be functions.
+ * action: { label, text?, image?, run, group?, prepare?(), skip?(), onEdit?({ text, photo }) } — label/text/image may be functions.
  * onCancel(group) is called when an announcement is cancelled; its remaining actions are skipped.
  * Returns [{ label, status: 'done' | 'skipped' | 'cancelled' | 'failed', error? }].
  */
@@ -242,6 +242,14 @@ export async function runWithApproval(actions, { onCancel } = {}) {
       continue;
     }
     if (action.skip?.()) continue;
+    // Some previews are written just before they are shown (e.g. the schedule message — only the events not cancelled).
+    if (action.prepare) {
+      try {
+        await action.prepare();
+      } catch (error) {
+        console.warn(`⚠️  ${value(action.label)}: ${error.message}`);
+      }
+    }
 
     let answer;
     for (let round = 0; ; round++) {

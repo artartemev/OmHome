@@ -236,3 +236,17 @@ export function toScheduleBlock(event) {
     ...(event.contact ? [`✍️ Запись: ${event.contact}`] : [])
   ].join('\n');
 }
+
+// Footer of the one-message schedule for chats and partners (HTML, as for the channel).
+export function digestFooter(options = {}) {
+  const { mapUrl, contact } = { ...DEFAULTS, ...options };
+  return [`📍 <a href="${mapUrl}">Адрес</a>`, `✍️ Запись: ${escapeHtml(contact)}`, '💰 Донейшен', '📣 Все анонсы: t.me/omhome_thai'].join('\n');
+}
+
+// The schedule as a plain list — when Gemini is not available.
+export function digestPlain(events) {
+  const lines = events.map((event) => `${event.weekday.toUpperCase()} ${shortDate(event.date)} ${event.time} — ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}`);
+  return `Друзья, привет! Вот что у нас в OmHome на неделе:\n\n${lines.join('\n')}\n\nПриходите, будем рады 🤍`;
+}
+
+export const digestHtml = (text) => escapeHtml(text);

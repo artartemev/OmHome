@@ -11,6 +11,9 @@ One greeting, then every poster of the week with its caption.
 
     python3 automation/telegram_user.py --pick-intro    # prints the next greeting (used for the approval preview)
     python3 automation/telegram_user.py --chats poster.jpg caption.html   # poster to TG_USER_REPOST_CHATS, no greeting
+    python3 automation/telegram_user.py --digest user:VeronikaKirpichenko text.html poster1.jpg poster2.jpg …
+    python3 automation/telegram_user.py --digest chat:https://t.me/+invite text.html poster1.jpg …
+        # the whole schedule in one message: an album of posters with its own text (to a partner — after a greeting)
 
 Env:
     TG_API_ID, TG_API_HASH   — from my.telegram.org (the same as in the guide project)
@@ -101,8 +104,36 @@ async def post_to_chats(pairs: list[tuple[str, str]]) -> None:
             print(f"✅ «{name}»: {len(posts)} афиш(и)")
 
 
+CAPTION_LIMIT = 1024  # Telegram media caption limit
+
+
+async def send_digest(target: str, text_path: str, posters: list[str]) -> None:
+    """One message with the whole schedule: an album of posters captioned with the text written for this audience.
+    A text longer than a caption goes right after the album. A partner (user:…) first gets a greeting."""
+    text = open(text_path, encoding="utf-8").read()
+    kind, _, address = target.partition(":")
+
+    from telethon import TelegramClient
+
+    async with TelegramClient(user_session(), int(os.environ["TG_API_ID"]), os.environ["TG_API_HASH"]) as client:
+        peer = await client.get_entity(address.lstrip("@"))
+        if kind == "user":
+            await client.send_message(peer, pick_intro())
+        if len(text) <= CAPTION_LIMIT:
+            await client.send_file(peer, posters, caption=text, parse_mode="html")
+        else:
+            await client.send_file(peer, posters)
+            await client.send_message(peer, text, parse_mode="html", link_preview=False)
+        print(f"✅ {address}: {len(posters)} афиш(и) и текст")
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args[:1] == ["--digest"]:
+        if len(args) < 4:
+            sys.exit(__doc__)
+        asyncio.run(send_digest(args[1], args[2], args[3:]))
+        sys.exit(0)
     if args[:1] == ["--chats"]:
         rest = args[1:]
         if not rest or len(rest) % 2:

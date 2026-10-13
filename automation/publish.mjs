@@ -38,6 +38,9 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
   CATEGORY_PALETTE,
+  digestFooter,
+  digestHtml,
+  digestPlain,
   formatPost,
   guessCategory,
   parseSchedule,
@@ -46,7 +49,15 @@ import {
   toSiteEvent
 } from './announcement.mjs';
 import { notify, requestPhoto, runWithApproval } from './approval.mjs';
-import { editAnnouncement, generatePhoto, matchPhotos, rewriteDescription, structureAnnouncement } from './gemini.mjs';
+import {
+  editAnnouncement,
+  editDigest,
+  generatePhoto,
+  matchPhotos,
+  rewriteDescription,
+  structureAnnouncement,
+  writeDigest
+} from './gemini.mjs';
 import { instagramConfigured, publishPost, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
@@ -136,26 +147,6 @@ function eventActions(state) {
       })
     )
   ];
-  if (userSession) {
-    for (const chat of userChats()) {
-      actions.push(
-        editable({
-          kind: 'chats',
-          group: state,
-          label: () => `🔁 Репост в «${chat.name}» с вашего аккаунта — ${title()}`,
-          image: () => state.posterPath,
-          text: () => state.caption,
-          run: async () => {
-            execFileSync('python3', [PARTNER_SCRIPT, '--chats', state.posterPath, state.captionFile], {
-              stdio: 'inherit',
-              env: { ...process.env, TG_USER_REPOST_CHATS: `${chat.link}=${chat.name}` }
-            });
-            state.published = true;
-          }
-        })
-      );
-    }
-  }
   return actions;
 }
 
@@ -419,24 +410,65 @@ if (values.send) {
   const ready = states.filter((state) => state.posterPath);
   for (const state of ready) actions.push(...eventActions(state));
 
+  // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko): not a post per event, but ONE message with the
+  // whole schedule — an album of posters and a text Gemini writes for exactly that audience, in your voice. Each
+  // audience gets its own text; it is written right before its preview, from the events that were not cancelled.
   if (ready.length && userSession) {
-    // The greeting is picked now so the preview shows exactly what will be sent.
-    const intro = execFileSync('python3', [PARTNER_SCRIPT, '--pick-intro']).toString().trim();
-    const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => `@${p.trim().replace(/^@/, '')}`);
-    actions.push({
-      kind: 'partners',
-      label: `💌 Личное сообщение ${partners.join(', ')} с вашего аккаунта`,
-      image: () => live()[0]?.posterPath,
-      text: () => `${intro}\n\n+ ${live().length} афиш(и): ${live().map((state) => state.event.title).join(', ')}`,
-      skip: () => !live().length,
-      run: async () => {
-        execFileSync('python3', [PARTNER_SCRIPT, ...live().flatMap((state) => [state.posterPath, state.captionFile])], {
-          stdio: 'inherit',
-          env: { ...process.env, TG_PARTNER_INTRO: intro }
-        });
-        for (const state of live()) state.published = true;
-      }
-    });
+    const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => p.trim().replace(/^@/, '')).filter(Boolean);
+    const audiences = [
+      ...userChats().map((chat) => ({
+        kind: 'chats',
+        target: `chat:${chat.link}`,
+        label: `🔁 Подборка в «${chat.name}» с вашего аккаунта`,
+        audience: `сообщение в дружественный Telegram-чат «${chat.name}». Ты пишешь его участникам как свой человек в этом чате — по-соседски, просто и дружелюбно`
+      })),
+      ...partners.map((partner) => ({
+        kind: 'partners',
+        target: `user:${partner}`,
+        label: `💌 Подборка для @${partner} (для репоста в канал) с вашего аккаунта`,
+        audience: `текст, который @${partner} перепостит у себя в канале. Ты обращаешься к подписчикам этого канала: они тебя, скорее всего, не знают, поэтому одной фразой представься и скажи, что такое OmHome`,
+        intro: true
+      }))
+    ];
+    const written = []; // texts already written this run — the next audience gets a different one
+    for (const audience of audiences) {
+      let text;
+      const write = async () => {
+        const events = live().map((state) => state.event);
+        try {
+          text = await writeDigest(events, audience.audience, { avoid: written });
+        } catch (error) {
+          console.warn(`⚠️  ${audience.label}: текст без Gemini — ${error.message}`);
+          text = digestPlain(events);
+        }
+        written.push(text);
+      };
+      const html = () => `${digestHtml(text ?? '')}\n\n${digestFooter()}`;
+      actions.push({
+        kind: audience.kind,
+        label: audience.label,
+        image: () => live()[0]?.posterPath,
+        text: () => (audience.intro ? `<i>сначала приветствие, потом:</i>\n\n${html()}` : html()),
+        skip: () => !live().length,
+        prepare: async () => {
+          if (!text) await write();
+        },
+        // ❌ → reply with what to change («короче», «добавь про пир»), or «заново» for a fresh text.
+        onEdit: async ({ text: instruction }) => {
+          if (!instruction) return;
+          if (/^(заново|ещё|еще|другой|перепиши)\b/i.test(instruction.trim())) await write();
+          else text = await editDigest(text, instruction);
+        },
+        run: async () => {
+          const file = join(workDir, `digest-${audiences.indexOf(audience)}.html`);
+          await writeFile(file, html());
+          execFileSync('python3', [PARTNER_SCRIPT, '--digest', audience.target, file, ...live().map((state) => state.posterPath)], {
+            stdio: 'inherit'
+          });
+          for (const state of live()) state.published = true;
+        }
+      });
+    }
   }
 
   if (values.site && ready.length) {
