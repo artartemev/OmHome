@@ -142,4 +142,4 @@ cd automation/server && railway up        # сборка и запуск
 cd OmHome && git pull && npm install && npm run reviews   # собрать → закоммитить public/reviews.json → push в main
 ```
 
-Раз в неделю-две достаточно. Если Google всё же покажет урезанный вид, собранные ранее отзывы на сайте не стираются.
+Раз в неделю-две достаточно. Если Google всё же покажет урезанный вид, собранные ранее отзывы на сайте не стираются. Скрыть отзыв или подставить полный текст (Google обрезает длинные на «…») — в `automation/reviews/overrides.json`.

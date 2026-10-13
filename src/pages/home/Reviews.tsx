@@ -3,6 +3,23 @@ import { useEffect, useState } from 'react';
 import { Instagram, MessageSquareHeart, Star } from 'lucide-react';
 import styles from '../ChiangMaiHomePage.module.css';
 
+const PREVIEW_LENGTH = 320;
+
+// Long reviews show their beginning (cut on a word) and open in full on «Читать полностью», paragraphs kept.
+function ReviewText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  if (text.length <= PREVIEW_LENGTH) return <p className={styles.reviewText}>{text}</p>;
+  const preview = `${text.slice(0, text.lastIndexOf(' ', PREVIEW_LENGTH)).replace(/[.,;:!?—\s]+$/, '')}…`;
+  return (
+    <>
+      <p className={styles.reviewText}>{open ? text : preview}</p>
+      <button type="button" className={styles.reviewMore} onClick={() => setOpen(!open)}>
+        {open ? 'Свернуть' : 'Читать полностью'}
+      </button>
+    </>
+  );
+}
+
 type Review = { author: string; rating: number; text: string; when?: string; photo?: string };
 type ReviewsData = { rating?: number; count?: number; reviews: Review[]; mapsUrl?: string; writeReviewUrl?: string };
 
@@ -66,7 +83,7 @@ export function ReviewsSection() {
             {reviews.map((review) => (
               <article key={`${review.author}-${review.when}`} className={styles.reviewCard}>
                 <Stars value={review.rating} />
-                <p>{review.text.length > 320 ? `${review.text.slice(0, 320)}…` : review.text}</p>
+                <ReviewText text={review.text} />
                 <footer>
                   {review.photo && <img src={review.photo} alt="" loading="lazy" referrerPolicy="no-referrer" />}
                   <span>

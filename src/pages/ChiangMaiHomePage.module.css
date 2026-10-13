@@ -1382,6 +1382,23 @@
   color: var(--cream);
 }
 
+.reviewText {
+  white-space: pre-line;
+}
+
+.reviewMore {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
 .reviewCard footer {
   margin-top: auto;
   display: flex;

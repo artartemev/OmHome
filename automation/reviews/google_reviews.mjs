@@ -145,6 +145,11 @@ try {
       console.log('ℹ️  Google показал урезанный вид — оставляю отзывы из прошлого раза');
     }
   }
+  // Manual fixes (automation/reviews/overrides.json): hidden authors, full texts Google cuts with «…».
+  const overrides = await readFile(resolve('automation/reviews/overrides.json'), 'utf8').then(JSON.parse).catch(() => ({}));
+  data.reviews = data.reviews
+    .filter((review) => !(overrides.hide ?? []).includes(review.author))
+    .map((review) => ({ ...review, text: overrides.text?.[review.author] ?? review.text }));
   await writeFile(OUT, `${JSON.stringify(data, null, 2)}\n`);
   console.log(`⭐ ${data.rating} (${data.count}), отзывов с текстом: ${reviews.length} → ${OUT}`);
 } finally {
