@@ -10,12 +10,12 @@
 // or generated for that event. Without a photo, recurring events (kirtan) rotate through automation/photos/<type>/;
 // --ai-photo only fills what is still missing.
 // --site adds one more approval: commit + push public/events.json and posters so omhome.space updates.
-// --only telegram,chats,partners,site,instagram limits the run to those kinds of actions.
+// --only telegram,site,instagram limits the run to those kinds of actions.
 // Poster colour is fixed per event type (kirtan — teal, cinema — ocean, games — navy, …); --palette overrides it.
 // Without --send it is a dry run: posters are rendered, public/events.json is updated and the posts are printed.
 //
-// With --send NOTHING goes out without your approval: every action — channel post, each chat repost, the message to
-// partners, Instagram post — is shown to you first (in Telegram with ✅/❌ buttons when
+// With --send NOTHING goes out without your approval: every action — channel post, reposts, site update,
+// Instagram post — is shown to you first (in Telegram with ✅/❌ buttons when
 // TELEGRAM_APPROVAL_CHAT_ID is set, otherwise in the terminal) and runs only after ✅. See approval.mjs.
 // ❌ on an event's post opens «Что поправить?»: reply with text and/or a photo — Gemini applies the edit, the poster,
 // caption and site entry are rebuilt and the preview comes again; «🗑 Отменить анонс» drops the event everywhere.
@@ -25,8 +25,7 @@
 //   TELEGRAM_CHANNEL_ID       @omhome_thai
 //   TELEGRAM_APPROVAL_CHAT_ID your chat with the bot, where previews with ✅/❌ arrive
 //   TELEGRAM_REPOST_CHAT_IDS  chats where the bot is a member, "id=Name,id=Name" (e.g. -1001234=Волшебный чат)
-//   TG_API_ID, TG_API_HASH, TG_SESSION  your Telethon session: partners (@VeronikaKirpichenko) get posters from your account
-//   TG_USER_REPOST_CHATS      chats the bot can't join, posted from your account: "invite-link=Name,…" (Волшебный чат)
+//   (Волшебный чат and @VeronikaKirpichenko get the whole week in one message — weekly.mjs)
 //   IG_ACCESS_TOKEN (IG_USER_ID optional) Instagram post + story (see instagram.mjs)
 //   GEMINI_API_KEY, CLOUDFLARE_*        for --ai-text / --ai-photo
 
@@ -38,9 +37,6 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
   CATEGORY_PALETTE,
-  digestFooter,
-  digestHtml,
-  digestPlain,
   formatPost,
   guessCategory,
   parseSchedule,
@@ -51,12 +47,10 @@ import {
 import { notify, requestPhoto, runWithApproval } from './approval.mjs';
 import {
   editAnnouncement,
-  editDigest,
   generatePhoto,
   matchPhotos,
   rewriteDescription,
-  structureAnnouncement,
-  writeDigest
+  structureAnnouncement
 } from './gemini.mjs';
 import { instagramConfigured, publishPost, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
@@ -64,11 +58,8 @@ import { renderPoster, storyFromPoster } from './poster/render.mjs';
 
 const EVENTS_FILE = resolve('public/events.json');
 const POSTERS_DIR = 'public/posters';
-const PARTNER_SCRIPT = resolve('automation/telegram_user.py');
 // Descriptions shorter than this are written out by Gemini (--ai-text auto).
 const SHORT_DESCRIPTION = 200;
-// Your Telethon session: a .session file (Mac) or a string (server).
-const userSession = Boolean(process.env.TG_SESSION || process.env.TG_SESSION_STRING);
 
 async function telegram(method, body, isForm = false) {
   const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/${method}`, {
@@ -97,16 +88,6 @@ const repostChats = () =>
     .map((entry) => {
       const [id, ...name] = entry.split('=');
       return { id: id.trim(), name: name.join('=').trim() || id.trim() };
-    });
-
-const userChats = () =>
-  (process.env.TG_USER_REPOST_CHATS ?? '')
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean)
-    .map((entry) => {
-      const [link, ...name] = entry.split('=');
-      return { link: link.trim(), name: name.join('=').trim() || link.trim() };
     });
 
 // Outward actions for one event, each approved separately. Fields are read from the state at approval time, so
@@ -410,66 +391,8 @@ if (values.send) {
   const ready = states.filter((state) => state.posterPath);
   for (const state of ready) actions.push(...eventActions(state));
 
-  // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko): not a post per event, but ONE message with the
-  // whole schedule — an album of posters and a text Gemini writes for exactly that audience, in your voice. Each
-  // audience gets its own text; it is written right before its preview, from the events that were not cancelled.
-  if (ready.length && userSession) {
-    const partners = (process.env.TG_PARTNERS ?? 'VeronikaKirpichenko').split(',').map((p) => p.trim().replace(/^@/, '')).filter(Boolean);
-    const audiences = [
-      ...userChats().map((chat) => ({
-        kind: 'chats',
-        target: `chat:${chat.link}`,
-        label: `🔁 Подборка в «${chat.name}» с вашего аккаунта`,
-        audience: `сообщение в дружественный Telegram-чат «${chat.name}». Ты пишешь его участникам как свой человек в этом чате — по-соседски, просто и дружелюбно`
-      })),
-      ...partners.map((partner) => ({
-        kind: 'partners',
-        target: `user:${partner}`,
-        label: `💌 Подборка для @${partner} (для репоста в канал) с вашего аккаунта`,
-        audience: `текст, который @${partner} перепостит у себя в канале. Ты обращаешься к подписчикам этого канала: они тебя, скорее всего, не знают, поэтому одной фразой представься и скажи, что такое OmHome`,
-        intro: true
-      }))
-    ];
-    const written = []; // texts already written this run — the next audience gets a different one
-    for (const audience of audiences) {
-      let text;
-      const write = async () => {
-        const events = live().map((state) => state.event);
-        try {
-          text = await writeDigest(events, audience.audience, { avoid: written });
-        } catch (error) {
-          console.warn(`⚠️  ${audience.label}: текст без Gemini — ${error.message}`);
-          text = digestPlain(events);
-        }
-        written.push(text);
-      };
-      const html = () => `${digestHtml(text ?? '')}\n\n${digestFooter()}`;
-      actions.push({
-        kind: audience.kind,
-        label: audience.label,
-        image: () => live()[0]?.posterPath,
-        text: () => (audience.intro ? `<i>сначала приветствие, потом:</i>\n\n${html()}` : html()),
-        skip: () => !live().length,
-        prepare: async () => {
-          if (!text) await write();
-        },
-        // ❌ → reply with what to change («короче», «добавь про пир»), or «заново» for a fresh text.
-        onEdit: async ({ text: instruction }) => {
-          if (!instruction) return;
-          if (/^(заново|ещё|еще|другой|перепиши)\b/i.test(instruction.trim())) await write();
-          else text = await editDigest(text, instruction);
-        },
-        run: async () => {
-          const file = join(workDir, `digest-${audiences.indexOf(audience)}.html`);
-          await writeFile(file, html());
-          execFileSync('python3', [PARTNER_SCRIPT, '--digest', audience.target, file, ...live().map((state) => state.posterPath)], {
-            stdio: 'inherit'
-          });
-          for (const state of live()) state.published = true;
-        }
-      });
-    }
-  }
+  // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko) get the whole week in one message once a week,
+  // not a post per announcement — see weekly.mjs (the bot runs it on schedule and on /week).
 
   if (values.site && ready.length) {
     const titles = () => live().map((state) => state.event.title).join(', ');

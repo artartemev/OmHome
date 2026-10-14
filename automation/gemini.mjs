@@ -29,7 +29,8 @@ async function generate(models, body, { attempts = 3, timeoutMs = 90_000 } = {})
         const json = await response.json();
         if (response.ok) return { model, json };
         errors.push(`${model}: ${json.error?.code} ${json.error?.status}`);
-        if (response.status === 429 || response.status === 404) break; // no quota / no model: next model
+        // No quota / no model / overloaded: another model answers sooner than this one after a pause.
+        if ([429, 404, 503].includes(response.status)) break;
       } catch (error) {
         errors.push(`${model}: ${error.name}`);
       }
