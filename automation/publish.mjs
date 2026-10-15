@@ -39,6 +39,7 @@ import {
   CATEGORY_PALETTE,
   formatPost,
   guessCategory,
+  looksStrict,
   parseSchedule,
   todayIso,
   toScheduleBlock,
@@ -205,7 +206,7 @@ const states = [];
 // first, and the result is printed so you can see exactly how it was understood.
 const message = await readFile(positionals[0], 'utf8');
 let events = values['ai-parse'] ? [] : parseSchedule(message);
-if (!events.length) {
+if (!looksStrict(events)) {
   let structured;
   try {
     structured = await structureAnnouncement(message, todayIso());
@@ -394,7 +395,14 @@ if (values.send) {
   // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko) get the whole week in one message once a week,
   // not a post per announcement — see weekly.mjs (the bot runs it on schedule and on /week).
 
-  if (values.site && ready.length) {
+  // On the server the site is updated by a push with GITHUB_TOKEN; without it the push (and Instagram, which takes the
+  // poster from the site) can only fail — say so once instead of offering them.
+  const canPushSite = !process.env.BOT_SYNC_GIT || Boolean(process.env.GITHUB_TOKEN);
+  if (values.site && ready.length && !canPushSite) {
+    await notify('ℹ️ Сайт и Instagram пропускаю: на сервере нет GITHUB_TOKEN. Пост в канал — как обычно.');
+  }
+
+  if (values.site && ready.length && canPushSite) {
     const titles = () => live().map((state) => state.event.title).join(', ');
     actions.push({
       kind: 'site',
@@ -412,7 +420,7 @@ if (values.send) {
     });
   }
 
-  for (const state of ready) actions.push(...instagramActions(state));
+  if (canPushSite) for (const state of ready) actions.push(...instagramActions(state));
 }
 
 // --only instagram,site — ask only about these kinds (e.g. Instagram for an event already posted to Telegram).

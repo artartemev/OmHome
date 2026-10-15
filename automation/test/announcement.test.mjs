@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatPost, guessCategory, toScheduleBlock } from '../announcement.mjs';
+import { parseSchedule, formatPost, guessCategory, looksStrict, toScheduleBlock } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -116,4 +116,12 @@ test('an event survives the round trip through its schedule block (used for edit
   );
   const [again] = parseSchedule(toScheduleBlock(event), { today: '2026-10-11' });
   assert.deepEqual(again, event);
+});
+
+test('free text that only looks like a schedule goes to Gemini', () => {
+  const strict = parseSchedule('пт 16/10 18:00\nКвартирник\nПоём песни.', { today: '2026-10-15' });
+  assert.equal(looksStrict(strict), true);
+  const free = parseSchedule('ср 21/10\n11:00 23 октября бранч у Никиты, запись @nikitosnik', { today: '2026-10-15' });
+  assert.equal(looksStrict(free), false);
+  assert.equal(looksStrict([]), false);
 });

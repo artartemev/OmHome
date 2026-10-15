@@ -7,13 +7,23 @@ import { writeFile } from 'node:fs/promises';
 
 const API = 'https://generativelanguage.googleapis.com/v1beta/models';
 // Free tier: about 20 requests a day per model, so the chain is long — each model has its own daily quota.
-export const TEXT_MODELS = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-flash-latest'];
+export const TEXT_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-3-flash-preview',
+  'gemini-3.5-flash-lite',
+  'gemini-flash-lite-latest'
+];
+// When every Gemini model is overloaded (it happens for hours), texts come from Llama on Cloudflare Workers AI.
+const FALLBACK_TEXT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 // Image generation needs billing enabled on the AI Studio project: on the free tier these return 429 (quota 0).
 export const IMAGE_MODELS = ['gemini-3-pro-image', 'gemini-3.1-flash-image', 'gemini-2.5-flash-image'];
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function generate(models, body, { attempts = 3, timeoutMs = 90_000 } = {}) {
+async function generate(models, body, { attempts = 2, timeoutMs = 40_000 } = {}) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY is not set');
   const errors = [];
@@ -37,7 +47,40 @@ async function generate(models, body, { attempts = 3, timeoutMs = 90_000 } = {})
       await sleep(2000 * 2 ** attempt);
     }
   }
+  // Text-only requests (not pictures) can still be answered by the fallback model.
+  const parts = body.contents.flatMap((content) => content.parts);
+  if (models === TEXT_MODELS && parts.every((part) => typeof part.text === 'string')) {
+    try {
+      const text = await generateWithCloudflareText(body);
+      console.warn(`ℹ️  Gemini перегружен — текст написал ${FALLBACK_TEXT_MODEL}`);
+      return { model: FALLBACK_TEXT_MODEL, json: { candidates: [{ content: { parts: [{ text }] } }] } };
+    } catch (error) {
+      errors.push(`${FALLBACK_TEXT_MODEL}: ${error.message}`);
+    }
+  }
   throw new Error(`Gemini недоступен: ${errors.join('; ')}`);
+}
+
+async function generateWithCloudflareText(body) {
+  const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const token = process.env.CLOUDFLARE_API_TOKEN;
+  if (!account || !token) throw new Error('нет CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN');
+  const system = body.systemInstruction?.parts?.map((part) => part.text).join('\n');
+  const user = body.contents.flatMap((content) => content.parts).map((part) => part.text).join('\n');
+  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${FALLBACK_TEXT_MODEL}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      messages: [...(system ? [{ role: 'system', content: system }] : []), { role: 'user', content: user }],
+      max_tokens: 1500,
+      temperature: body.generationConfig?.temperature ?? 0.7
+    }),
+    signal: AbortSignal.timeout(60_000)
+  });
+  const json = await response.json();
+  const text = json.result?.response;
+  if (!response.ok || !text) throw new Error(json.errors?.[0]?.message ?? String(response.status));
+  return text.trim();
 }
 
 const HOUSE_STYLE = `Ты пишешь анонсы для OmHome — комьюнити-пространства в Чиангмае (киртаны, кино, квизы, йога, чайные вечера).

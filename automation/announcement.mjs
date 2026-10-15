@@ -250,3 +250,18 @@ export function digestPlain(events) {
 }
 
 export const digestHtml = (text) => escapeHtml(text);
+
+// Did the strict parser really get the schedule format, or did it bite into free text? A title that is itself a date
+// or a time, or a whole sentence, means free words — those go to Gemini instead.
+export function looksStrict(events) {
+  return (
+    events.length > 0 &&
+    events.every(
+      (event) =>
+        event.title.length <= 60 &&
+        !DATE_NUMERIC.test(event.title) &&
+        !DATE_WORDS.test(event.title) &&
+        !/(?<!\d)([01]?\d|2[0-3])[:.][0-5]\d(?!\d)/.test(event.title)
+    )
+  );
+}
