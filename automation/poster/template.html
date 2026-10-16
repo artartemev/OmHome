@@ -206,15 +206,18 @@
       const pill = document.getElementById('pill');
       if (p.subtitle) pill.classList.add('bordered');
       const title = document.createElement('div');
-      // The title is one line, large; a subtitle («с чаем», «с Дашей») goes below it, smaller.
+      // The title is one line, large. A subtitle saying who/what with («с чаем», «с Дашей») goes below it; a format
+      // («читка пьесы», «кинопоказ») goes above, small, over the name itself («Вишнёвый сад»).
       title.className = 'title';
       title.textContent = p.title;
       pill.append(title);
       if (p.subtitle) {
+        const below = /^(с|со|и|для|вместе)\s/i.test(p.subtitle);
         const subtitle = document.createElement('div');
-        subtitle.className = 'subtitle below';
+        subtitle.className = below ? 'subtitle below' : 'subtitle';
         subtitle.textContent = p.subtitle;
-        pill.append(subtitle);
+        if (below) pill.append(subtitle);
+        else pill.prepend(subtitle);
       }
       // A long title shrinks until it fits the pill in one line — measured once the brand font is loaded.
       document.fonts.ready.then(() => {
