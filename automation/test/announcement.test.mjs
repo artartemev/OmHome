@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatPost, guessCategory, looksStrict, toScheduleBlock } from '../announcement.mjs';
+import { parseSchedule, formatPost, guessCategory, looksStrict, mergeRepeats, toScheduleBlock } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -124,4 +124,18 @@ test('free text that only looks like a schedule goes to Gemini', () => {
   const free = parseSchedule('ср 21/10\n11:00 23 октября бранч у Никиты, запись @nikitosnik', { today: '2026-10-15' });
   assert.equal(looksStrict(free), false);
   assert.equal(looksStrict([]), false);
+});
+
+test('one event on several days: one announcement with all the dates', () => {
+  const [event] = parseSchedule('21/10 и 23/10 11:00\nМастер-класс по Го\nРазберём правила.', { today: '2026-10-15' });
+  assert.deepEqual(event.dates, ['2026-10-21', '2026-10-23']);
+  assert.equal(event.id, '2026-10-21-master-klass-po-go');
+  assert.match(formatPost(event), /^<b>СР 21\/10 и ПТ 23\/10 ✦ 11:00<\/b>/);
+  // Gemini may still split it in two — they are merged back.
+  const split = parseSchedule('21/10 11:00\nМастер-класс по Го\n\n23/10 11:00\nМастер-класс по Го', { today: '2026-10-15' });
+  const merged = mergeRepeats(split);
+  assert.equal(merged.length, 1);
+  assert.deepEqual(merged[0].dates, ['2026-10-21', '2026-10-23']);
+  // And the block for edits keeps both dates.
+  assert.deepEqual(parseSchedule(toScheduleBlock(event), { today: '2026-10-15' })[0].dates, event.dates);
 });

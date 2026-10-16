@@ -65,6 +65,20 @@
         font-size: 64px;
         font-weight: 500;
       }
+      /* Several days: «ср 21/10 и пт 23/10 ✦ 11:00» */
+      .when.multi {
+        gap: 26px;
+      }
+      .when.multi .date {
+        font-size: 52px;
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+      }
+      .when.multi .date small {
+        font-size: 36px;
+        font-weight: 400;
+      }
       .when svg {
         width: 34px;
         height: 40px;
@@ -172,6 +186,18 @@
       if (p.format === 'story') document.body.classList.add('story');
       document.getElementById('weekday').textContent = p.weekday;
       document.getElementById('date').textContent = p.date;
+      if (p.days && p.days.length > 1) {
+        const when = document.querySelector('.when');
+        when.classList.add('multi');
+        document.getElementById('weekday').remove();
+        when.querySelector('svg').remove();
+        const date = document.getElementById('date');
+        date.textContent = '';
+        p.days.forEach((day, index) => {
+          if (index) date.append(Object.assign(document.createElement('small'), { textContent: 'и' }));
+          date.append(Object.assign(document.createElement('small'), { textContent: day.weekday }), day.date);
+        });
+      }
       document.getElementById('time').textContent = p.time;
       document.getElementById('photo').src = p.photo;
       if (p.outlined) document.getElementById('arch').classList.add('outlined');

@@ -24,7 +24,9 @@ import photoKids from '../assets/home/kids.jpg';
 import photoPrasad from '../assets/home/prasad.jpg';
 import {
   downloadIcs,
+  eventDates,
   formatEventDate,
+  nextDate,
   relativeDayLabel,
   todayInChiangMai,
   useArchive,
@@ -117,8 +119,8 @@ function SectionHeading({ eyebrow, children, light }: { eyebrow: string; childre
 }
 
 function EventCard({ event, today, past }: { event: OmEvent; today: string; past?: boolean }) {
-  const { weekday, short } = formatEventDate(event.date);
-  const badge = past ? 'Было' : relativeDayLabel(event.date, today);
+  const days = eventDates(event).map(formatEventDate);
+  const badge = past ? 'Было' : relativeDayLabel(nextDate(event, today), today);
 
   return (
     <motion.article className={`${styles.eventCard} ${past ? styles.eventCardPast : ''}`} {...reveal}>
@@ -134,9 +136,13 @@ function EventCard({ event, today, past }: { event: OmEvent; today: string; past
       </div>
       <div className={styles.eventBody}>
         <p className={styles.eventDate}>
-          <span>{weekday}</span>
-          <Sparkle className={styles.inlineSparkle} />
-          <strong>{short}</strong>
+          {days.map(({ weekday, short }, index) => (
+            <span key={short} className={styles.eventDay}>
+              {index > 0 && <span className={styles.eventDayJoin}>и</span>}
+              <span>{weekday}</span>
+              <strong>{short}</strong>
+            </span>
+          ))}
           <Sparkle className={styles.inlineSparkle} />
           <span>{event.time}</span>
         </p>

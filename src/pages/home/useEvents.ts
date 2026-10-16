@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 export type OmEvent = {
   id: string;
-  date: string; // YYYY-MM-DD, Chiang Mai local date
+  date: string; // YYYY-MM-DD, Chiang Mai local date (the first one when there are several)
+  dates?: string[]; // the same event on several days — one card, one poster, one post
   time: string; // HH:MM
   title: string;
   subtitle?: string;
@@ -29,6 +30,11 @@ type EventsFile = {
 };
 
 export const TIME_ZONE = 'Asia/Bangkok';
+
+export const eventDates = (event: OmEvent) => (event.dates?.length ? [...event.dates].sort() : [event.date]);
+const lastDate = (event: OmEvent) => eventDates(event).at(-1) ?? event.date;
+// The next day the event happens on (or its last day once it is over).
+export const nextDate = (event: OmEvent, today: string) => eventDates(event).find((date) => date >= today) ?? lastDate(event);
 
 export const todayInChiangMai = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date());
@@ -72,15 +78,17 @@ export const downloadIcs = (event: OmEvent, location: string) => {
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//OmHome//Afisha//RU',
-    'BEGIN:VEVENT',
-    `UID:${event.id}@omhome.space`,
-    `DTSTAMP:${toUtcStamp(todayInChiangMai(), '07:00')}`,
-    `DTSTART:${toUtcStamp(event.date, event.time)}`,
-    `DTEND:${toUtcStamp(event.date, event.time, 2)}`,
-    `SUMMARY:${escape(`${event.title} · OmHome`)}`,
-    `DESCRIPTION:${escape(event.description ?? event.subtitle ?? '')}`,
-    `LOCATION:${escape(location)}`,
-    'END:VEVENT',
+    ...eventDates(event).flatMap((date) => [
+      'BEGIN:VEVENT',
+      `UID:${event.id}-${date}@omhome.space`,
+      `DTSTAMP:${toUtcStamp(todayInChiangMai(), '07:00')}`,
+      `DTSTART:${toUtcStamp(date, event.time)}`,
+      `DTEND:${toUtcStamp(date, event.time, 2)}`,
+      `SUMMARY:${escape(`${event.title} · OmHome`)}`,
+      `DESCRIPTION:${escape(event.description ?? event.subtitle ?? '')}`,
+      `LOCATION:${escape(location)}`,
+      'END:VEVENT'
+    ]),
     'END:VCALENDAR'
   ];
   const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
@@ -112,9 +120,15 @@ export function useEvents() {
   }, []);
 
   const today = todayInChiangMai();
-  const all = [...(data?.events ?? [])].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-  const upcoming = all.filter((event) => event.date >= today);
-  const recent = all.filter((event) => event.date < today).reverse().slice(0, 3);
+  const all = [...(data?.events ?? [])];
+  // An event on several days stays upcoming until its last day and is sorted by its next day.
+  const upcoming = all
+    .filter((event) => lastDate(event) >= today)
+    .sort((a, b) => (nextDate(a, today) + a.time).localeCompare(nextDate(b, today) + b.time));
+  const recent = all
+    .filter((event) => lastDate(event) < today)
+    .sort((a, b) => (lastDate(b) + b.time).localeCompare(lastDate(a) + a.time))
+    .slice(0, 3);
 
   return { loading: !data && !failed, failed, today, upcoming, recent, recurring: data?.recurring ?? [] };
 }

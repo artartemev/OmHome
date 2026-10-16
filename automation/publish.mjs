@@ -37,9 +37,11 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
   CATEGORY_PALETTE,
+  daysText,
   formatPost,
   guessCategory,
   looksStrict,
+  mergeRepeats,
   parseSchedule,
   todayIso,
   toScheduleBlock,
@@ -205,7 +207,7 @@ const states = [];
 // Free text works too: if the message is not in the strict format (or --ai-parse), Gemini turns it into that format
 // first, and the result is printed so you can see exactly how it was understood.
 const message = await readFile(positionals[0], 'utf8');
-let events = values['ai-parse'] ? [] : parseSchedule(message);
+let events = values['ai-parse'] ? [] : mergeRepeats(parseSchedule(message));
 if (!looksStrict(events)) {
   let structured;
   try {
@@ -215,10 +217,10 @@ if (!looksStrict(events)) {
     process.exit(1);
   }
   console.log(`\n🧠 Gemini разобрал анонс так:\n${structured}\n`);
-  events = parseSchedule(structured);
+  events = mergeRepeats(parseSchedule(structured));
   // A short summary, not the intermediate text: the post itself comes in the house format with the preview.
   if (events.length) {
-    const list = events.map((event) => `• ${event.weekday} ${event.date.slice(8)}/${event.date.slice(5, 7)}, ${event.time} — ${event.title}`);
+    const list = events.map((event) => `• ${daysText(event)}, ${event.time} — ${event.title}`);
     await notify(`🧠 Понял анонс: ${events.length === 1 ? 'одно событие' : `событий: ${events.length}`}\n${list.join('\n')}\n\nПревью постов придут следом.`);
   } else {
     await notify('⚠️ Не нашёл в тексте ни одного события с датой. Напишите, когда и что будет.');

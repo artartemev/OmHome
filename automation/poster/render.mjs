@@ -34,13 +34,18 @@ async function loadChromium() {
   }
 }
 
-export async function renderPoster({ date, time, title, subtitle, photo, palette = 'teal', out, formats = ['post', 'story'] }) {
+export async function renderPoster({ date, dates, time, title, subtitle, photo, palette = 'teal', out, formats = ['post', 'story'] }) {
   const [year, month, day] = date.split('-').map(Number);
   const colors = PALETTES[palette] ?? PALETTES.teal;
   const photoUrl = /^https?:|^data:/.test(photo) ? photo : pathToFileURL(resolve(photo)).href;
   const base = {
     weekday: WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()],
     date: `${String(day)}/${String(month).padStart(2, '0')}`,
+    // Several days of the same event: «ср 21/10 и пт 23/10» in the top line.
+    days: (dates ?? [date]).map((day) => {
+      const [y, m, d] = day.split('-').map(Number);
+      return { weekday: WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()], date: `${d}/${String(m).padStart(2, '0')}` };
+    }),
     time,
     title,
     subtitle,

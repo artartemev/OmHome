@@ -18,7 +18,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { digestFooter, digestHtml, digestPlain, shortDate, todayIso } from './announcement.mjs';
+import { daysText, digestFooter, digestHtml, digestPlain, shortDate, todayIso } from './announcement.mjs';
 import { notify, runWithApproval } from './approval.mjs';
 import { editDigest, writeDigest } from './gemini.mjs';
 
@@ -38,11 +38,12 @@ async function weekEvents() {
   const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
   const from = todayIso();
   const to = addDays(from, Number(values.days) - 1);
-  const events = site.events.filter((event) => event.date >= from && event.date <= to);
+  // An event on several days counts when any of its days falls in the window.
+  const events = site.events.filter((event) => (event.dates ?? [event.date]).some((date) => date >= from && date <= to));
   const kirtan = site.recurring?.find((entry) => entry.id === 'kirtan');
   if (kirtan) {
     for (let date = from; date <= to; date = addDays(date, 1)) {
-      if (weekday(date) === 'сб' && !events.some((event) => event.date === date && /киртан/i.test(event.title))) {
+      if (weekday(date) === 'сб' && !events.some((event) => (event.dates ?? [event.date]).includes(date) && /киртан/i.test(event.title))) {
         events.push({
           id: `${date}-kirtan`,
           date,
@@ -111,7 +112,7 @@ if (!events.length) {
 const posters = [...new Set(events.map((event) => posterFile(event.poster)).filter((path) => path && existsSync(path)))];
 const span = `${shortDate(events[0].date)}–${shortDate(events.at(-1).date)}`;
 await notify(
-  `🗓 Подборка на неделю (${span}): ${events.length} событ.\n${events.map((event) => `• ${event.weekday} ${shortDate(event.date)}, ${event.time} — ${event.title}`).join('\n')}\n\nПишу тексты — превью придут следом.`
+  `🗓 Подборка на неделю (${span}): ${events.length} событ.\n${events.map((event) => `• ${daysText(event)}, ${event.time} — ${event.title}`).join('\n')}\n\nПишу тексты — превью придут следом.`
 );
 
 const audiences = [

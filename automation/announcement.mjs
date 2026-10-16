@@ -67,19 +67,30 @@ function parseDateLine(line, today) {
     if (candidate < Date.UTC(ty, tm - 1, td) - 31 * 86_400_000) year += 1;
   }
 
-  const dateOnly = line.replace(DATE_WORDS, ' ').replace(DATE_NUMERIC, ' ');
+  // «21/10 и 23/10 11:00» — the same event on several days: one announcement, one poster, all the dates.
+  const more = words
+    ? []
+    : [...line.matchAll(new RegExp(DATE_NUMERIC.source, 'g'))].slice(1).map((m) => {
+        const [ty] = today.split('-').map(Number);
+        const y = m[3] ? Number(m[3].length === 2 ? `20${m[3]}` : m[3]) : Number(m[2]) < month ? Math.max(year, ty) + 1 : year;
+        return `${y}-${pad(Number(m[2]))}-${pad(Number(m[1]))}`;
+      });
+
+  const dateOnly = line.replace(DATE_WORDS, ' ').replace(new RegExp(DATE_NUMERIC.source, 'g'), ' ');
   const times = [...dateOnly.matchAll(TIME)].map((m) => `${pad(m[1])}:${m[2]}`);
   const date = `${year}-${pad(month)}-${pad(day)}`;
   const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
   const writtenWeekday = line.toLowerCase().match(/(?:^|[^а-я])(пн|вт|ср|чт|пт|сб|вс)(?![а-я])/)?.[1];
 
+  const dates = [...new Set([date, ...more])].sort();
   return {
-    date,
+    date: dates[0],
+    ...(dates.length > 1 ? { dates } : {}),
     time: times[0] ?? '18:00',
     times: times.length ? times : ['18:00'],
-    weekday,
+    weekday: WEEKDAYS[new Date(`${dates[0]}T00:00:00Z`).getUTCDay()],
     warnings:
-      writtenWeekday && writtenWeekday !== weekday
+      dates.length === 1 && writtenWeekday && writtenWeekday !== weekday
         ? [`В тексте «${writtenWeekday}», но ${pad(day)}/${pad(month)}/${year} — это «${weekday}». Проверь дату.`]
         : []
   };
@@ -156,6 +167,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
       return {
         id: `${dateInfo.date}-${slugify(title)}`,
         date: dateInfo.date,
+        ...(dateInfo.dates ? { dates: dateInfo.dates } : {}),
         time: dateInfo.time,
         times: dateInfo.times,
         weekday: dateInfo.weekday,
@@ -170,6 +182,13 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
 }
 
 const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const weekdayOf = (date) => WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()];
+
+// «ср 21/10» or, for an event on several days, «ср 21/10 и пт 23/10».
+export function daysText(event) {
+  return (event.dates ?? [event.date]).map((date) => `${weekdayOf(date)} ${shortDate(date)}`).join(' и ');
+}
 
 export function shortDate(date) {
   const [, month, day] = date.split('-');
@@ -206,7 +225,10 @@ export function guessCategory(event) {
 export function formatPost(event, options = {}) {
   const { mapUrl, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
   const contact = event.contact ?? options.contact ?? DEFAULTS.contact;
-  const when = `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${(event.times ?? [event.time]).join(' и ')}`;
+  const time = (event.times ?? [event.time]).join(' и ');
+  const when = event.dates?.length > 1
+    ? `${event.dates.map((date) => `${weekdayOf(date).toUpperCase()} ${shortDate(date)}`).join(' и ')} ✦ ${time}`
+    : `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${time}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
   return [
     `<b>${escapeHtml(when)}</b>`,
@@ -229,7 +251,7 @@ export function toSiteEvent(event, posterPath) {
 // Event → the strict schedule block parseSchedule() reads back (used to edit an announcement with Gemini).
 export function toScheduleBlock(event) {
   return [
-    `${shortDate(event.date)} ${(event.times ?? [event.time]).join(' ')}`,
+    `${(event.dates ?? [event.date]).map(shortDate).join(' и ')} ${(event.times ?? [event.time]).join(' ')}`,
     event.subtitle ? `${event.title} | ${event.subtitle}` : event.title,
     ...(event.description ? [event.description.replace(/\n\s*\n/g, '\n')] : []),
     ...(event.instagram ?? []).map((handle) => `инста: @${handle}`),
@@ -245,7 +267,7 @@ export function digestFooter(options = {}) {
 
 // The schedule as a plain list — when Gemini is not available.
 export function digestPlain(events) {
-  const lines = events.map((event) => `${event.weekday.toUpperCase()} ${shortDate(event.date)} ${event.time} — ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}`);
+  const lines = events.map((event) => `${daysText(event).toUpperCase().replace(' И ', ' и ')}, ${event.time} — ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}`);
   return `Друзья, привет! Вот что у нас в OmHome на неделе:\n\n${lines.join('\n')}\n\nПриходите, будем рады 🤍`;
 }
 
@@ -264,4 +286,29 @@ export function looksStrict(events) {
         !/(?<!\d)([01]?\d|2[0-3])[:.][0-5]\d(?!\d)/.test(event.title)
     )
   );
+}
+
+// The same event announced for several days (or split so by Gemini) becomes ONE event with all its dates:
+// one poster, one post, one card on the site.
+export function mergeRepeats(events) {
+  const merged = [];
+  for (const event of events) {
+    const same = merged.find(
+      (other) =>
+        other.title.toLowerCase() === event.title.toLowerCase() &&
+        (other.subtitle ?? '') === (event.subtitle ?? '') &&
+        other.time === event.time
+    );
+    if (!same) {
+      merged.push({ ...event });
+      continue;
+    }
+    same.dates = [...new Set([...(same.dates ?? [same.date]), ...(event.dates ?? [event.date])])].sort();
+    same.date = same.dates[0];
+    same.weekday = WEEKDAYS[new Date(`${same.date}T00:00:00Z`).getUTCDay()];
+    same.id = `${same.date}-${slugify(same.title)}`;
+    same.description ??= event.description;
+    same.warnings = [...(same.warnings ?? []), ...(event.warnings ?? [])];
+  }
+  return merged;
 }
