@@ -66,6 +66,7 @@ export async function renderPoster({ date, dates, time, title, subtitle, photo, 
       }, { ...base, format });
       await page.goto(pathToFileURL(resolve(here, 'template.html')).href);
       await page.evaluate(() => document.fonts.ready);
+      await page.waitForFunction(() => document.body.dataset.fitted === '1');
       await page.waitForFunction(() => {
         const img = document.getElementById('photo');
         return img.complete && img.naturalWidth > 0;

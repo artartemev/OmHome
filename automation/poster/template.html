@@ -127,6 +127,7 @@
         font-size: 80px;
         line-height: 1.05;
         font-weight: 500;
+        white-space: nowrap;
       }
       .pill .title.long {
         font-size: 58px;
@@ -205,15 +206,22 @@
       const pill = document.getElementById('pill');
       if (p.subtitle) pill.classList.add('bordered');
       const title = document.createElement('div');
-      title.className = 'title' + (p.title.length > 16 ? ' long' : '');
-      title.textContent = p.subtitle ? p.title.toUpperCase() : p.title;
+      // The title is one line, large; a subtitle («с чаем», «с Дашей») goes below it, smaller.
+      title.className = 'title';
+      title.textContent = p.title;
+      pill.append(title);
       if (p.subtitle) {
         const subtitle = document.createElement('div');
-        subtitle.className = 'subtitle';
+        subtitle.className = 'subtitle below';
         subtitle.textContent = p.subtitle;
         pill.append(subtitle);
       }
-      pill.append(title);
+      // A long title shrinks until it fits the pill in one line — measured once the brand font is loaded.
+      document.fonts.ready.then(() => {
+        const room = pill.clientWidth - 96;
+        for (let size = 80; size > 40 && title.scrollWidth > room; size -= 2) title.style.fontSize = `${size}px`;
+        document.body.dataset.fitted = '1';
+      });
 
       // Gold wave lines: two families of offset curves sweeping in from the sides, like in the Figma frames.
       const height = p.format === 'story' ? 1920 : 1350;
