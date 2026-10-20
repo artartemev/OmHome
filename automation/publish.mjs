@@ -110,6 +110,12 @@ function eventActions(state) {
       run: async () => {
         state.channelMessage = await sendPhoto(channel, state.posterPath, state.caption);
         state.published = true;
+        // The post's link goes to the afisha: the weekly announcement and the site link to it.
+        if (/^@/.test(channel)) {
+          state.event.post = `https://t.me/${channel.slice(1)}/${state.channelMessage.message_id}`;
+          site.events = site.events.map((existing) => (existing.id === state.event.id ? { ...existing, post: state.event.post } : existing));
+          await saveSite();
+        }
       }
     }),
     ...repostChats().map((chat) =>

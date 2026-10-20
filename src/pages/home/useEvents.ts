@@ -11,6 +11,7 @@ export type OmEvent = {
   poster?: string;
   category?: string;
   registration?: string;
+  post?: string; // the announcement in the Telegram channel
 };
 
 export type RecurringEvent = {

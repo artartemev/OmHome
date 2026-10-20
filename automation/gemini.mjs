@@ -293,6 +293,28 @@ ${list}`;
   return text.replace(/\*\*/g, '');
 }
 
+// The week's message for public chats and partners' channels: a warm opening, one featured event told properly (the
+// Saturday kirtan, usually), and a lead-in to the rest — which the code lists below with links to their posts.
+export async function writeWeekIntro(feature, others) {
+  const prompt = `Ты — Артём, организатор OmHome: дом-пространство в Чиангмае, где мы с друзьями проводим киртаны, кино, игры, чаепития и другие тёплые встречи.
+Напиши начало анонса недели для публичных Telegram-чатов и каналов друзей — его читают люди, которые нас, возможно, ещё не знают.
+
+1) Одна-две фразы приветствия от себя — просто и тепло, без пафоса («Друзья, привет!» и т. п.), одной фразой — что такое OmHome.
+2) Потом живым абзацем на 3–4 предложения расскажи о событии ниже: что будет, какое настроение, почему стоит прийти; день и время — обязательно. Не называй его «главным событием» — просто зови на него, как зовут друзей.
+Закончи приглашением на это событие. Не пиши подводок к другим событиям и не перечисляй их — список будет ниже отдельно, с заголовком «Ещё на неделе».
+
+Факты бери только из описаний, ничего не выдумывай. Эмодзи — 1–2 на весь текст. До 600 знаков. Без markdown, без адреса, ссылок, записи и донейшена.
+
+Событие: ${daysText(feature)}, ${feature.time} — ${feature.title}${feature.subtitle ? ` (${feature.subtitle})` : ''}
+${(feature.description ?? '').replace(/\s+/g, ' ').slice(0, 700)}
+
+Остальные события недели (только для контекста): ${others.map((event) => event.title).join(', ') || 'нет'}`;
+  const { json } = await generate(TEXT_MODELS, { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.9 } });
+  const text = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
+  if (!text) throw new Error('Gemini вернул пустой ответ');
+  return text.replace(/\*\*/g, '');
+}
+
 // An edit of such a message from the approval dialogue («короче», «добавь, что будет пир»).
 export async function editDigest(text, instruction) {
   const prompt = `Вот сообщение-анонс от Артёма из OmHome:

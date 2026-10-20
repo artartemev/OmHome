@@ -1,16 +1,17 @@
-// The week's schedule in ONE message for friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko).
+// The week's announcement for friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko): ONE message.
 //
 //   node automation/weekly.mjs              # events of the next 7 days from public/events.json
 //   node automation/weekly.mjs --days 10    # a longer window
 //
-// Announcements come one by one through the week; this runs once a week (the bot starts it on schedule or on /week)
-// and gathers everything on the afisha: an album of the posters and a lively text Gemini writes for exactly that
-// audience, in your voice — each audience gets its own. The Saturday kirtan is added even without its own announcement.
-// Every message is previewed with ✅/❌ like everything else; on ❌ reply with an edit («короче», «добавь про пир»)
-// or «заново» for a fresh text.
+// Announcements come one by one through the week; this runs once a week (the bot starts it on schedule or on /week).
+// One event is told properly — the Saturday kirtan (WEEKLY_FEATURE, a regexp) — in a warm text Gemini writes in your
+// voice, with its poster; the rest of the week is listed below, each with a link to its post in the channel. The same
+// text goes to every chat and partner (a partner first gets a greeting). The kirtan is added even without its own
+// announcement. Previewed with ✅/❌ like everything else; on ❌ reply with an edit («короче», «больше про киртан») or
+// «заново» for a fresh text.
 //
 // Sent from your account (Telethon: TG_SESSION / TG_SESSION_STRING). Without a session the bot sends you the ready
-// album and text, and you forward them yourself.
+// poster and text, and you forward them yourself.
 
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -20,7 +21,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { daysText, digestFooter, digestHtml, digestPlain, shortDate, todayIso } from './announcement.mjs';
 import { notify, runWithApproval } from './approval.mjs';
-import { editDigest, writeDigest } from './gemini.mjs';
+import { editDigest, writeWeekIntro } from './gemini.mjs';
 
 const PARTNER_SCRIPT = resolve('automation/telegram_user.py');
 const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
@@ -89,19 +90,20 @@ async function telegram(method, body, isForm = false) {
 // Without a Telethon session: the ready album + text go to you, to forward by hand.
 async function sendToMe(posters, html) {
   const chatId = process.env.TELEGRAM_APPROVAL_CHAT_ID;
-  const form = new FormData();
-  form.set('chat_id', chatId);
-  const media = posters.slice(0, 10).map((_, index) => ({
-    type: 'photo',
-    media: `attach://p${index}`,
-    ...(index === 0 && html.length <= 1024 ? { caption: html, parse_mode: 'HTML' } : {})
-  }));
-  form.set('media', JSON.stringify(media));
-  for (const [index, poster] of posters.slice(0, 10).entries()) {
-    form.set(`p${index}`, new Blob([await readFile(poster)], { type: 'image/jpeg' }), `poster${index}.jpg`);
+  const fits = html.length <= 1024;
+  if (posters.length) {
+    const form = new FormData();
+    form.set('chat_id', chatId);
+    form.set('photo', new Blob([await readFile(posters[0])], { type: 'image/jpeg' }), 'poster.jpg');
+    if (fits) {
+      form.set('caption', html);
+      form.set('parse_mode', 'HTML');
+    }
+    await telegram('sendPhoto', form, true);
   }
-  await telegram('sendMediaGroup', form, true);
-  if (html.length > 1024) await telegram('sendMessage', { chat_id: chatId, text: html, parse_mode: 'HTML', disable_web_page_preview: true });
+  if (!posters.length || !fits) {
+    await telegram('sendMessage', { chat_id: chatId, text: html, parse_mode: 'HTML', disable_web_page_preview: true });
+  }
 }
 
 const events = await weekEvents();
@@ -109,65 +111,103 @@ if (!events.length) {
   await notify(`📭 В афише на ближайшие ${values.days} дней пусто — подборку для чатов и партнёров не собираю. Пришлите анонсы, и запустите /week.`);
   process.exit(0);
 }
-const posters = [...new Set(events.map((event) => posterFile(event.poster)).filter((path) => path && existsSync(path)))];
-const span = `${shortDate(events[0].date)}–${shortDate(events.at(-1).date)}`;
+// Links to the channel posts: events published from now on remember theirs (`post`); for older ones the post is found
+// in the channel's public feed by its date and title.
+async function findPosts(events) {
+  const channel = (process.env.TELEGRAM_CHANNEL_ID ?? '@omhome_thai').replace(/^@/, '');
+  let feed = [];
+  try {
+    const page = await (await fetch(`https://t.me/s/${channel}`, { signal: AbortSignal.timeout(20_000) })).text();
+    feed = page
+      .split(`data-post="${channel}/`)
+      .slice(1)
+      .map((block) => ({
+        id: block.split('"')[0],
+        text: (block.match(/js-message_text[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '').replace(/<[^>]+>/g, ' ').toLowerCase()
+      }));
+  } catch (error) {
+    console.warn(`⚠️  Лента канала недоступна — без ссылок на посты: ${error.message}`);
+  }
+  for (const event of events) {
+    if (event.post) continue;
+    // The post for the event's first day (the newest one if it was posted twice).
+    const match = (event.dates ?? [event.date])
+      .map((date) => feed.findLast((post) => post.text.includes(event.title.toLowerCase()) && post.text.includes(shortDate(date))))
+      .find(Boolean);
+    if (match) event.post = `https://t.me/${channel}/${match.id}`;
+  }
+}
+
+const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+await findPosts(events);
+// One event is told properly — the kirtan (FEATURE, a regexp), otherwise the first one; the rest are listed with links.
+const featurePattern = new RegExp(process.env.WEEKLY_FEATURE ?? 'киртан', 'i');
+const feature = events.find((event) => featurePattern.test(event.title)) ?? events[0];
+const others = events.filter((event) => event !== feature);
+const poster = [feature, ...others].map((event) => posterFile(event.poster)).find((path) => path && existsSync(path));
+const lastDate = (event) => (event.dates ?? [event.date]).at(-1);
+const span = `${shortDate(events[0].date)}–${shortDate(events.map(lastDate).sort().at(-1))}`;
 await notify(
-  `🗓 Подборка на неделю (${span}): ${events.length} событ.\n${events.map((event) => `• ${daysText(event)}, ${event.time} — ${event.title}`).join('\n')}\n\nПишу тексты — превью придут следом.`
+  `🗓 Подборка на неделю (${span}): ${events.length} событ., в центре — ${feature.title}.\n${events.map((event) => `• ${daysText(event)}, ${event.time} — ${event.title}${event.post ? '' : ' (поста в канале не нашёл)'}`).join('\n')}\n\nПишу текст — превью придёт следом.`
 );
 
-const audiences = [
-  ...userChats().map((chat) => ({
-    kind: 'chats',
-    target: `chat:${chat.link}`,
-    name: `«${chat.name}»`,
-    audience: `сообщение в дружественный Telegram-чат «${chat.name}». Ты пишешь его участникам как свой человек в этом чате — по-соседски, просто и дружелюбно`
-  })),
-  ...partners().map((partner) => ({
-    kind: 'partners',
-    target: `user:${partner}`,
-    name: `@${partner}`,
-    audience: `текст, который @${partner} перепостит у себя в канале. Ты обращаешься к подписчикам этого канала: они тебя, скорее всего, не знают, поэтому одной фразой представься и скажи, что такое OmHome`,
-    intro: true
-  }))
-];
+const listLine = (event) => {
+  const name = `${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}`;
+  const when = daysText(event).replace(/^./, (letter) => letter.toUpperCase());
+  return `• ${escapeHtml(when)}, ${event.time} — ${event.post ? `<a href="${event.post}">${escapeHtml(name)}</a>` : escapeHtml(name)}`;
+};
 
+let intro;
+const write = async () => {
+  try {
+    intro = await writeWeekIntro(feature, others);
+  } catch (error) {
+    console.warn(`⚠️  Текст без Gemini — ${error.message}`);
+    intro = digestPlain([feature]);
+  }
+};
+const html = () =>
+  [
+    digestHtml(intro ?? ''),
+    ...(others.length ? ['', '<b>Ещё на неделе:</b>', ...others.map(listLine)] : []),
+    '',
+    digestFooter()
+  ].join('\n');
+
+const targets = [
+  ...userChats().map((chat) => ({ target: `chat:${chat.link}`, name: `«${chat.name}»` })),
+  ...partners().map((partner) => ({ target: `user:${partner}`, name: `@${partner} (сначала приветствие)` }))
+];
 const workDir = await mkdtemp(join(tmpdir(), 'omhome-week-'));
-const written = []; // texts already written this run — the next audience gets a different one
-const actions = audiences.map((audience, index) => {
-  let text;
-  const write = async () => {
-    try {
-      text = await writeDigest(events, audience.audience, { avoid: written });
-    } catch (error) {
-      console.warn(`⚠️  ${audience.name}: текст без Gemini — ${error.message}`);
-      text = digestPlain(events);
-    }
-    written.push(text);
-  };
-  const html = () => `${digestHtml(text ?? '')}\n\n${digestFooter()}`;
-  return {
-    label: userSession
-      ? `${audience.intro ? '💌' : '🔁'} Подборка на неделю → ${audience.name} с вашего аккаунта${audience.intro ? ' (сначала приветствие)' : ''}`
-      : `📨 Подборка для ${audience.name} — пришлю вам, перешлите сами`,
-    image: posters[0],
+
+// One text for everyone: approved once, then sent to every chat and partner.
+const results = await runWithApproval([
+  {
+    label: () =>
+      userSession
+        ? `🗓 Анонс недели → ${targets.map((target) => target.name).join(', ')} с вашего аккаунта`
+        : `🗓 Анонс недели для ${targets.map((target) => target.name).join(', ')} — пришлю вам, перешлите сами`,
+    image: poster,
     text: html,
     prepare: async () => {
-      if (!text) await write();
+      if (!intro) await write();
     },
+    // ❌ → reply with what to change («короче», «больше про киртан»), or «заново» for a fresh text.
     onEdit: async ({ text: instruction }) => {
       if (!instruction) return;
       if (/^(заново|ещё|еще|другой|перепиши)\b/i.test(instruction.trim())) await write();
-      else text = await editDigest(text, instruction);
+      else intro = await editDigest(intro, instruction);
     },
     run: async () => {
+      const posters = poster ? [poster] : [];
       if (!userSession) return sendToMe(posters, html());
-      const file = join(workDir, `digest-${index}.html`);
+      const file = join(workDir, 'week.html');
       await writeFile(file, html());
-      execFileSync('python3', [PARTNER_SCRIPT, '--digest', audience.target, file, ...posters], { stdio: 'inherit' });
+      for (const { target } of targets) {
+        execFileSync('python3', [PARTNER_SCRIPT, '--digest', target, file, ...posters], { stdio: 'inherit' });
+      }
     }
-  };
-});
-
-const results = await runWithApproval(actions);
-const done = results.filter((result) => result.status === 'done').length;
-await notify(`🏁 Подборка на неделю: отправлено ${done} из ${actions.length}.`);
+  }
+]);
+await notify(results[0]?.status === 'done' ? '🏁 Анонс недели отправлен.' : '⏭ Анонс недели не отправлен.');
