@@ -31,7 +31,7 @@ const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const DATE_NUMERIC = /(?<!\d)(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?(?!\d)/;
 const DATE_WORDS = /(?<!\d)(\d{1,2})\s+(янв|фев|мар|апр|мая|май|июн|июл|авг|сен|окт|ноя|дек)[а-я]*/i;
 // A new event starts only with a line that begins with a weekday or a day number, right after a blank line.
-const DATE_LINE_START = /^((пн|вт|ср|чт|пт|сб|вс)[\s,.]*)?\d/i;
+const DATE_LINE_START = /^((пн|вт|ср|чт|пт|сб|вс)[\s,.]*)?(с\s+)?\d/i;
 const TIME = /(?<!\d)([01]?\d|2[0-3])[:.]([0-5]\d)(?!\d)/g;
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -68,13 +68,26 @@ function parseDateLine(line, today) {
   }
 
   // «21/10 и 23/10 11:00» — the same event on several days: one announcement, one poster, all the dates.
+  // «с 26/10 по 01/11», «26/10–01/11» — every day of the range.
+  const range = line.match(/(\d{1,2})[./](\d{1,2})\s*(?:-|–|—|по)\s*(\d{1,2})[./](\d{1,2})/);
+  const rangeDays = [];
+  if (range && !words) {
+    const [ty] = today.split('-').map(Number);
+    const endYear = Number(range[4]) < month ? Math.max(year, ty) + 1 : year;
+    const end = Date.UTC(endYear, Number(range[4]) - 1, Number(range[3]));
+    for (let t = Date.UTC(year, month - 1, day) + 86_400_000; t <= end && rangeDays.length < 62; t += 86_400_000) {
+      rangeDays.push(new Date(t).toISOString().slice(0, 10));
+    }
+  }
   const more = words
     ? []
-    : [...line.matchAll(new RegExp(DATE_NUMERIC.source, 'g'))].slice(1).map((m) => {
+    : range
+      ? rangeDays
+      : [...line.matchAll(new RegExp(DATE_NUMERIC.source, 'g'))].slice(1).map((m) => {
         const [ty] = today.split('-').map(Number);
         const y = m[3] ? Number(m[3].length === 2 ? `20${m[3]}` : m[3]) : Number(m[2]) < month ? Math.max(year, ty) + 1 : year;
         return `${y}-${pad(Number(m[2]))}-${pad(Number(m[1]))}`;
-      });
+        });
 
   const dateOnly = line.replace(DATE_WORDS, ' ').replace(new RegExp(DATE_NUMERIC.source, 'g'), ' ');
   const times = [...dateOnly.matchAll(TIME)].map((m) => `${pad(m[1])}:${m[2]}`);
@@ -186,8 +199,34 @@ const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').r
 const weekdayOf = (date) => WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()];
 
 // «ср 21/10» or, for an event on several days, «ср 21/10 и пт 23/10».
+// Days that follow one another (three or more) read as a range: «с 26/10 по 01/11», not seven dates in a row.
+export function dateGroups(dates) {
+  const sorted = [...new Set(dates)].sort();
+  const runs = [];
+  for (const date of sorted) {
+    const last = runs.at(-1);
+    const next = last && new Date(Date.parse(`${last.at(-1)}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+    if (next === date) last.push(date);
+    else runs.push([date]);
+  }
+  return runs.flatMap((run) => (run.length >= 3 ? [{ from: run[0], to: run.at(-1) }] : run.map((date) => ({ date }))));
+}
+
+// «ср 21/10», «ср 21/10 и пт 23/10», «с 26/10 по 01/11».
 export function daysText(event) {
-  return (event.dates ?? [event.date]).map((date) => `${weekdayOf(date)} ${shortDate(date)}`).join(' и ');
+  return dateGroups(event.dates ?? [event.date])
+    .map((group) => (group.date ? `${weekdayOf(group.date)} ${shortDate(group.date)}` : `с ${shortDate(group.from)} по ${shortDate(group.to)}`))
+    .join(' и ');
+}
+
+// The same for the poster's top line: small words (weekday, «с», «по», «и») and large dates.
+export function whenParts(dates) {
+  return dateGroups(dates).flatMap((group, index) => [
+    ...(index ? [{ small: 'и' }] : []),
+    ...(group.date
+      ? [{ small: weekdayOf(group.date) }, { big: shortDate(group.date) }]
+      : [{ small: 'с' }, { big: shortDate(group.from) }, { small: 'по' }, { big: shortDate(group.to) }])
+  ]);
 }
 
 export function shortDate(date) {
@@ -227,7 +266,7 @@ export function formatPost(event, options = {}) {
   const contact = event.contact ?? options.contact ?? DEFAULTS.contact;
   const time = (event.times ?? [event.time]).join(' и ');
   const when = event.dates?.length > 1
-    ? `${event.dates.map((date) => `${weekdayOf(date).toUpperCase()} ${shortDate(date)}`).join(' и ')} ✦ ${time}`
+    ? `${daysText(event).toUpperCase().replace(/ (И|С|ПО) /g, (word) => word.toLowerCase()).replace(/^С /, 'С ')} ✦ ${time}`
     : `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${time}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
   return [

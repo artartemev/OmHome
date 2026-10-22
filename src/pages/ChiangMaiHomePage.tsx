@@ -24,6 +24,7 @@ import photoKids from '../assets/home/kids.jpg';
 import photoPrasad from '../assets/home/prasad.jpg';
 import {
   downloadIcs,
+  dateGroups,
   eventDates,
   formatEventDate,
   nextDate,
@@ -119,7 +120,7 @@ function SectionHeading({ eyebrow, children, light }: { eyebrow: string; childre
 }
 
 function EventCard({ event, today, past }: { event: OmEvent; today: string; past?: boolean }) {
-  const days = eventDates(event).map(formatEventDate);
+  const groups = dateGroups(eventDates(event));
   const badge = past ? 'Было' : relativeDayLabel(nextDate(event, today), today);
 
   return (
@@ -136,11 +137,22 @@ function EventCard({ event, today, past }: { event: OmEvent; today: string; past
       </div>
       <div className={styles.eventBody}>
         <p className={styles.eventDate}>
-          {days.map(({ weekday, short }, index) => (
-            <span key={short} className={styles.eventDay}>
+          {groups.map((group, index) => (
+            <span key={'date' in group ? group.date : group.from} className={styles.eventDay}>
               {index > 0 && <span className={styles.eventDayJoin}>и</span>}
-              <span>{weekday}</span>
-              <strong>{short}</strong>
+              {'date' in group ? (
+                <>
+                  <span>{formatEventDate(group.date).weekday}</span>
+                  <strong>{formatEventDate(group.date).short}</strong>
+                </>
+              ) : (
+                <>
+                  <span className={styles.eventDayJoin}>с</span>
+                  <strong>{formatEventDate(group.from).short}</strong>
+                  <span className={styles.eventDayJoin}>по</span>
+                  <strong>{formatEventDate(group.to).short}</strong>
+                </>
+              )}
             </span>
           ))}
           <Sparkle className={styles.inlineSparkle} />

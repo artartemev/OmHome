@@ -139,3 +139,12 @@ test('one event on several days: one announcement with all the dates', () => {
   // And the block for edits keeps both dates.
   assert.deepEqual(parseSchedule(toScheduleBlock(event), { today: '2026-10-15' })[0].dates, event.dates);
 });
+
+test('days in a row read as a range — in the text, the post and back', () => {
+  const [event] = parseSchedule('с 26/10 по 01/11 20:30\nКиртан', { today: '2026-10-22' });
+  assert.equal(event.dates.length, 7);
+  assert.match(formatPost(event), /^<b>С 26\/10 по 01\/11 ✦ 20:30<\/b>/);
+  const [listed] = parseSchedule('26/10 и 27/10 и 28/10 и 31/10 20:30\nКиртан', { today: '2026-10-22' });
+  assert.match(formatPost(listed), /^<b>С 26\/10 по 28\/10 и СБ 31\/10 ✦ 20:30<\/b>/);
+  assert.deepEqual(parseSchedule(toScheduleBlock(event), { today: '2026-10-22' })[0].dates, event.dates);
+});

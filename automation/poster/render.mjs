@@ -9,6 +9,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { whenParts } from '../announcement.mjs';
 
 // Background colours sampled from the Figma posters.
 export const PALETTES = {
@@ -41,11 +42,8 @@ export async function renderPoster({ date, dates, time, title, subtitle, photo, 
   const base = {
     weekday: WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()],
     date: `${String(day)}/${String(month).padStart(2, '0')}`,
-    // Several days of the same event: «ср 21/10 и пт 23/10» in the top line.
-    days: (dates ?? [date]).map((day) => {
-      const [y, m, d] = day.split('-').map(Number);
-      return { weekday: WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()], date: `${d}/${String(m).padStart(2, '0')}` };
-    }),
+    // Several days of the same event: «ср 21/10 и пт 23/10», «с 26/10 по 01/11» in the top line.
+    whenParts: dates?.length > 1 ? whenParts(dates) : null,
     time,
     title,
     subtitle,

@@ -51,8 +51,10 @@
       .when {
         position: absolute;
         top: 110px;
-        left: 0;
-        right: 0;
+        left: 50%;
+        width: max-content;
+        transform: translateX(-50%);
+        white-space: nowrap;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -187,17 +189,17 @@
       if (p.format === 'story') document.body.classList.add('story');
       document.getElementById('weekday').textContent = p.weekday;
       document.getElementById('date').textContent = p.date;
-      if (p.days && p.days.length > 1) {
+      if (p.whenParts) {
         const when = document.querySelector('.when');
         when.classList.add('multi');
         document.getElementById('weekday').remove();
         when.querySelector('svg').remove();
         const date = document.getElementById('date');
         date.textContent = '';
-        p.days.forEach((day, index) => {
-          if (index) date.append(Object.assign(document.createElement('small'), { textContent: 'и' }));
-          date.append(Object.assign(document.createElement('small'), { textContent: day.weekday }), day.date);
-        });
+        for (const part of p.whenParts) {
+          if (part.small) date.append(Object.assign(document.createElement('small'), { textContent: part.small }));
+          else date.append(part.big);
+        }
       }
       document.getElementById('time').textContent = p.time;
       document.getElementById('photo').src = p.photo;
@@ -223,6 +225,10 @@
       document.fonts.ready.then(() => {
         const room = pill.clientWidth - 96;
         for (let size = 80; size > 40 && title.scrollWidth > room; size -= 2) title.style.fontSize = `${size}px`;
+        // The date line never runs off the poster either: it scales down as a whole.
+        const when = document.querySelector('.when');
+        const free = document.body.clientWidth - 80;
+        if (when.offsetWidth > free) when.style.transform = `translateX(-50%) scale(${free / when.offsetWidth})`;
         document.body.dataset.fitted = '1';
       });
 

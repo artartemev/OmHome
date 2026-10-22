@@ -33,6 +33,19 @@ type EventsFile = {
 export const TIME_ZONE = 'Asia/Bangkok';
 
 export const eventDates = (event: OmEvent) => (event.dates?.length ? [...event.dates].sort() : [event.date]);
+
+// Days that follow one another (three or more) read as a range: «с 26/10 по 01/11».
+export type DateGroup = { date: string } | { from: string; to: string };
+export const dateGroups = (dates: string[]): DateGroup[] => {
+  const runs: string[][] = [];
+  for (const date of [...new Set(dates)].sort()) {
+    const last = runs.at(-1);
+    const next = last && new Date(Date.parse(`${last.at(-1)}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+    if (last && next === date) last.push(date);
+    else runs.push([date]);
+  }
+  return runs.flatMap((run) => (run.length >= 3 ? [{ from: run[0], to: run[run.length - 1] }] : run.map((date) => ({ date }))));
+};
 const lastDate = (event: OmEvent) => eventDates(event).at(-1) ?? event.date;
 // The next day the event happens on (or its last day once it is over).
 export const nextDate = (event: OmEvent, today: string) => eventDates(event).find((date) => date >= today) ?? lastDate(event);
