@@ -66,7 +66,11 @@ function runScript(args) {
   // On the server (BOT_SYNC_GIT=1) the clone is brought up to date with main first: fresh code and afisha.
   if (process.env.BOT_SYNC_GIT) {
     try {
-      execFileSync('git', ['pull', '--ff-only', 'origin', 'main'], { cwd: ROOT, stdio: 'inherit' });
+      // Exactly main: whatever an earlier run left behind (an abandoned announcement in events.json, its posters)
+      // must not reach the site with the next one.
+      execFileSync('git', ['fetch', 'origin', 'main'], { cwd: ROOT, stdio: 'inherit' });
+      execFileSync('git', ['reset', '--hard', 'origin/main'], { cwd: ROOT, stdio: 'inherit' });
+      execFileSync('git', ['clean', '-fd', 'public/posters'], { cwd: ROOT, stdio: 'inherit' });
     } catch (error) {
       console.error(`⚠️ git pull: ${error.message}`);
     }

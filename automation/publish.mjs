@@ -275,6 +275,12 @@ if (loosePhotos.length) {
   console.log('📎 Фото по событиям:');
   for (const event of events) console.log(`   ${event.title} ← ${photos[event.title.toLowerCase()]?.split('/').pop() ?? 'без фото'}`);
 }
+// On the server the afisha starts from main exactly: an abandoned earlier run must not leave its event behind
+// to be committed together with this one.
+if (process.env.BOT_SYNC_GIT) {
+  execFileSync('git', ['checkout', '--', 'public/events.json', 'automation/photos/history.json'], { stdio: 'inherit' });
+  execFileSync('git', ['clean', '-fdq', POSTERS_DIR], { stdio: 'inherit' });
+}
 const site = JSON.parse(await readFile(EVENTS_FILE, 'utf8'));
 
 async function saveSite() {
