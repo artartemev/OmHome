@@ -280,7 +280,8 @@ export async function runWithApproval(actions, { onCancel } = {}) {
       console.log(`✅ ${value(action.label)}`);
       results.push({ label: value(action.label), status: 'done' });
     } catch (error) {
-      console.error(`❌ ${value(action.label)}: ${error.message}`);
+      // Said in the chat too: the preview already shows «✅ Одобрено», so a silent failure would look like success.
+      await notify(`❌ Не получилось: ${value(action.label)}\n${error.message}`);
       results.push({ label: value(action.label), status: 'failed', error: error.message });
     }
   }

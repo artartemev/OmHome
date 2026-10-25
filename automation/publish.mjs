@@ -74,13 +74,30 @@ async function telegram(method, body, isForm = false) {
   return json.result;
 }
 
+// Telegram allows 1024 characters under a photo (counted without the HTML tags). A longer announcement goes as the
+// poster followed right away by its full text. Returns the poster message (its link is the post's link).
+const CAPTION_LIMIT = 1024;
+const visibleLength = (html) => html.replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, ' ').length;
+
 async function sendPhoto(chatId, posterPath, caption) {
+  const fits = visibleLength(caption) <= CAPTION_LIMIT;
   const form = new FormData();
   form.set('chat_id', chatId);
-  form.set('caption', caption);
-  form.set('parse_mode', 'HTML');
+  if (fits) {
+    form.set('caption', caption);
+    form.set('parse_mode', 'HTML');
+  }
   form.set('photo', new Blob([await readFile(posterPath)], { type: 'image/jpeg' }), 'poster.jpg');
-  return telegram('sendPhoto', form, true);
+  const photo = await telegram('sendPhoto', form, true);
+  if (!fits) {
+    photo.textMessage = await telegram('sendMessage', {
+      chat_id: chatId,
+      text: caption,
+      parse_mode: 'HTML',
+      link_preview_options: { is_disabled: true }
+    });
+  }
+  return photo;
 }
 
 const repostChats = () =>
@@ -128,7 +145,9 @@ function eventActions(state) {
         run: async () => {
           // Forward keeps the link to the channel; if the channel post was skipped, send the poster itself.
           if (state.channelMessage) {
-            await telegram('forwardMessage', { chat_id: chat.id, from_chat_id: channel, message_id: state.channelMessage.message_id });
+            for (const message of [state.channelMessage, state.channelMessage.textMessage].filter(Boolean)) {
+              await telegram('forwardMessage', { chat_id: chat.id, from_chat_id: channel, message_id: message.message_id });
+            }
           } else {
             await sendPhoto(chat.id, state.posterPath, state.caption);
           }
