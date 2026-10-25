@@ -38,6 +38,7 @@ import {
 import { ArchiveSection } from './home/Archive';
 import { ReviewsSection } from './home/Reviews';
 import { SupportSection } from './home/Support';
+import { kartikaStatus } from './kartika/storage';
 import styles from './ChiangMaiHomePage.module.css';
 
 const LINKS = {
@@ -53,6 +54,7 @@ const LINKS = {
 const ADDRESS = 'OmHome Space, Pa Daet, Chiang Mai';
 
 const NAV = [
+  { href: '/kartika', label: 'Картика' },
   { href: '#afisha', label: 'Афиша' },
   { href: '#about', label: 'О доме' },
   { href: '#archive', label: 'Архив' },
@@ -124,7 +126,7 @@ function EventCard({ event, today, past }: { event: OmEvent; today: string; past
   const badge = past ? 'Было' : relativeDayLabel(nextDate(event, today), today);
 
   return (
-    <motion.article className={`${styles.eventCard} ${past ? styles.eventCardPast : ''}`} {...reveal}>
+    <motion.article className={`flame-shadow ${styles.eventCard} ${past ? styles.eventCardPast : ''}`} {...reveal}>
       <div className={styles.eventPoster}>
         {event.poster ? (
           <img src={event.poster} alt={`Афиша: ${event.title}`} loading="lazy" />
@@ -178,7 +180,7 @@ function EventCard({ event, today, past }: { event: OmEvent; today: string; past
 
 function RecurringCard({ item }: { item: RecurringEvent }) {
   return (
-    <motion.article className={styles.recurringCard} {...reveal}>
+    <motion.article className={`flame-shadow ${styles.recurringCard}`} {...reveal}>
       {item.poster && <img src={item.poster} alt={`Афиша: ${item.title}`} loading="lazy" />}
       <div>
         <p className={styles.recurringWhen}>
@@ -256,6 +258,22 @@ function Afisha() {
         )}
       </div>
     </section>
+  );
+}
+
+function KartikaBanner() {
+  const status = kartikaStatus();
+  if (status.phase === 'after' || (status.phase === 'before' && status.daysLeft > 14)) return null;
+
+  return (
+    <motion.a href="/kartika" className={`flame-shadow ${styles.kartikaBanner}`} {...reveal}>
+      <span className={styles.kartikaFlame} aria-hidden="true" />
+      <span className={styles.kartikaText}>
+        <strong>{status.phase === 'during' ? `Идёт Картика · день ${status.day} из ${status.total}` : 'Скоро Картика'}</strong>
+        Месяц Дамодары: предложите лампаду, послушайте Дамодараштаку, примите обет
+      </span>
+      <ArrowUpRight size={20} />
+    </motion.a>
   );
 }
 
@@ -342,7 +360,7 @@ export function ChiangMaiHomePage() {
               <Sparkle className={styles.eyebrowSparkle} />
               Чиангмай · с октября 2025
             </span>
-            <h1 className={styles.heroTitle}>
+            <h1 className={`flame-text ${styles.heroTitle}`}>
               Тёплый <em>дом</em>
               <br />
               для встреч
@@ -364,7 +382,7 @@ export function ChiangMaiHomePage() {
 
           <div className={styles.heroArches} aria-hidden="true">
             <motion.div
-              className={`${styles.arch} ${styles.archMain}`}
+              className={`flame-shadow ${styles.arch} ${styles.archMain}`}
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
@@ -372,7 +390,7 @@ export function ChiangMaiHomePage() {
               <img src={photoHall} alt="" />
             </motion.div>
             <motion.div
-              className={`${styles.arch} ${styles.archSmall}`}
+              className={`flame-shadow ${styles.arch} ${styles.archSmall}`}
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -380,16 +398,20 @@ export function ChiangMaiHomePage() {
               <img src={photoKirtan} alt="" />
             </motion.div>
             <motion.img
-              className={styles.heroLogo}
+              className={`flame-drop ${styles.heroLogo}`}
               src={logo}
               alt=""
               initial={{ opacity: 0, rotate: -8 }}
               animate={{ opacity: 1, rotate: 0 }}
               transition={{ duration: 1.2, delay: 0.4 }}
             />
-            <Sparkle className={`${styles.floatSparkle} ${styles.floatSparkleOne}`} />
-            <Sparkle className={`${styles.floatSparkle} ${styles.floatSparkleTwo}`} />
+            <Sparkle className={`flame-drop ${styles.floatSparkle} ${styles.floatSparkleOne}`} />
+            <Sparkle className={`flame-drop ${styles.floatSparkle} ${styles.floatSparkleTwo}`} />
           </div>
+        </div>
+
+        <div className={styles.container}>
+          <KartikaBanner />
         </div>
 
         <div className={`${styles.container} ${styles.stats}`}>
@@ -417,7 +439,7 @@ export function ChiangMaiHomePage() {
             {FORMATS.map((format, index) => (
               <motion.article
                 key={format.title}
-                className={styles.formatCard}
+                className={`flame-shadow ${styles.formatCard}`}
                 {...reveal}
                 transition={{ ...reveal.transition, delay: index * 0.08 }}
               >
@@ -428,7 +450,7 @@ export function ChiangMaiHomePage() {
             ))}
           </div>
 
-          <motion.div className={styles.weekRhythm} {...reveal}>
+          <motion.div className={`flame-shadow ${styles.weekRhythm}`} {...reveal}>
             <span>Сб · 18:00</span>
             <p>
               Каждую субботу — <strong>киртан</strong>: пение мантр, живые инструменты и прасад. Остальные вечера меняются
@@ -452,7 +474,7 @@ export function ChiangMaiHomePage() {
 
       <section className={styles.valuesSection}>
         <div className={`${styles.container} ${styles.valuesGrid}`}>
-          <motion.img className={styles.valuesArt} src={artCow} alt="" {...reveal} />
+          <motion.img className={`flame-drop ${styles.valuesArt}`} src={artCow} alt="" {...reveal} />
           <div>
             <SectionHeading eyebrow="Принципы" light>
               Пространство доверия <em>и чистоты</em>
@@ -493,7 +515,7 @@ export function ChiangMaiHomePage() {
                 href={project.href}
                 target={project.href.startsWith('http') ? '_blank' : undefined}
                 rel="noreferrer"
-                className={`${styles.projectCard} ${styles[`project_${project.tone}`]}`}
+                className={`flame-shadow ${styles.projectCard} ${styles[`project_${project.tone}`]}`}
                 {...reveal}
               >
                 <span className={styles.projectTag}>{project.tag}</span>
@@ -528,7 +550,7 @@ export function ChiangMaiHomePage() {
 
       <section id="map" className={styles.locationSection}>
         <div className={`${styles.container} ${styles.locationGrid}`}>
-          <motion.img className={styles.locationArt} src={artCity} alt="" {...reveal} />
+          <motion.img className={`flame-drop ${styles.locationArt}`} src={artCity} alt="" {...reveal} />
           <div>
             <SectionHeading eyebrow="Как найти" light>
               Новый дом <em>с сентября 2026</em>

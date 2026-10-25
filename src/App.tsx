@@ -1,8 +1,10 @@
 import { ChiangMaiHomePage } from './pages/ChiangMaiHomePage';
 import { DonatePage } from './pages/DonatePage';
+import { KartikaPage } from './pages/KartikaPage';
 import { PamhoPage } from './pages/PamhoPage';
+import { FlameAtmosphere } from './flame/FlameAtmosphere';
 
-export default function App() {
+function Route() {
   if (typeof window === 'undefined') {
     return <ChiangMaiHomePage />;
   }
@@ -17,5 +19,18 @@ export default function App() {
     return <PamhoPage />;
   }
 
+  if (pathname.startsWith('/kartika')) {
+    return <KartikaPage />;
+  }
+
   return <ChiangMaiHomePage />;
+}
+
+export default function App() {
+  return (
+    <>
+      <Route />
+      <FlameAtmosphere />
+    </>
+  );
 }

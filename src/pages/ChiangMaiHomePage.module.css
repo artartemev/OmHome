@@ -347,6 +347,81 @@
   }
 }
 
+/* ---------- Kartika banner ---------- */
+
+.kartikaBanner {
+  position: relative;
+  margin-top: 56px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 28px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--cream) !important;
+  background: linear-gradient(90deg, rgba(240, 164, 88, 0.16), rgba(207, 186, 139, 0.05));
+  border: 1px solid rgba(255, 196, 120, 0.35);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.kartikaBanner:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 196, 120, 0.7);
+}
+
+.kartikaBanner > svg {
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.kartikaFlame {
+  flex-shrink: 0;
+  width: 14px;
+  height: 22px;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 50% 70%, #fff6d8, #f0a458 70%);
+  box-shadow: 0 0 18px 6px rgba(255, 170, 80, calc(0.45 * var(--flame-i, 1)));
+  animation: kartikaFlicker 2.6s ease-in-out infinite;
+}
+
+@keyframes kartikaFlicker {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(0.9, 1.12);
+  }
+  70% {
+    transform: scale(1.05, 0.94);
+  }
+}
+
+.kartikaText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+  color: var(--muted-light);
+}
+
+.kartikaText strong {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .kartikaBanner {
+    border-radius: 24px;
+    padding: 18px 20px;
+    align-items: flex-start;
+  }
+}
+
 .stats {
   position: relative;
   margin-top: 64px;

@@ -8,6 +8,14 @@
     {
       "source": "/donate/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/kartika",
+      "destination": "/kartika/index.html"
+    },
+    {
+      "source": "/kartika/",
+      "destination": "/kartika/index.html"
     }
   ]
 }

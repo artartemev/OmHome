@@ -1,0 +1,74 @@
+:root {
+  --flame-x: 0;
+  --flame-y: 0;
+  --flame-i: 1;
+  --flame-lit: 0;
+}
+
+/* Warm light rising from the lamps at the bottom of the screen, and a soft dusk at the edges. */
+.flame-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.flame-atmosphere__glow {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: -38vh;
+  height: 90vh;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 60%,
+    rgba(255, 168, 84, 0.2) 0%,
+    rgba(255, 140, 60, 0.08) 45%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+  opacity: calc((0.55 + 0.35 * var(--flame-lit)) * var(--flame-i));
+  transform: translate3d(calc(var(--flame-x) * 2.5vw), calc(var(--flame-y) * -1.2vh), 0)
+    scale(calc(0.96 + 0.06 * var(--flame-i)));
+  will-change: transform, opacity;
+}
+
+.flame-atmosphere__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 75% at 50% 62%, transparent 55%, rgba(6, 4, 2, 0.32) 100%);
+  opacity: calc(1.15 - 0.25 * var(--flame-i));
+}
+
+/* Objects lit from below by a swaying flame: the shadow climbs up and leans away from it. */
+.flame-shadow.flame-shadow {
+  box-shadow:
+    calc(var(--flame-x) * -18px) calc(-12px - var(--flame-y) * 10px) calc(38px + var(--flame-i) * 10px) -6px
+      rgba(0, 0, 0, 0.5),
+    0 22px 46px -26px rgba(255, 150, 64, calc(0.42 * var(--flame-i))),
+    inset 0 -1px 0 rgba(255, 196, 120, calc(0.22 * var(--flame-i)));
+}
+
+.flame-drop {
+  filter: drop-shadow(
+    calc(var(--flame-x) * -14px) calc(-8px - var(--flame-y) * 8px) 14px rgba(0, 0, 0, 0.45)
+  );
+}
+
+.flame-text {
+  text-shadow:
+    calc(var(--flame-x) * -4px) calc(-3px - var(--flame-y) * 3px) 14px rgba(0, 0, 0, 0.55),
+    0 0 calc(22px * var(--flame-i)) rgba(255, 176, 90, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flame-atmosphere__glow {
+    will-change: auto;
+  }
+}
+
+@media print {
+  .flame-atmosphere {
+    display: none;
+  }
+}

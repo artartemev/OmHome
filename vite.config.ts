@@ -88,6 +88,7 @@ export default defineConfig({
         input: {
           main: path.resolve(__dirname, 'index.html'),
           pamho: path.resolve(__dirname, 'pamho/index.html'),
+          kartika: path.resolve(__dirname, 'kartika/index.html'),
         },
       },
     },
