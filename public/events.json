@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-23",
+  "updatedAt": "2026-10-26",
   "events": [
     {
       "id": "2026-10-09-ghost-letters",
@@ -132,6 +132,16 @@
       "category": "other",
       "poster": "/posters/2026-10-26-vedicheskaya-tseremoniya.jpg",
       "post": "https://t.me/omhome_thai/310"
+    },
+    {
+      "id": "2026-10-28-master-klass-po-go",
+      "date": "2026-10-28",
+      "time": "11:00",
+      "title": "Мастер-класс по Го",
+      "description": "Мастер-класс по игре в Го — одной из древнейших стратегических игр, в которую играли правители, полководцы и философы, оттачивая навыки стратегического мышления. Мы разберём основные правила, познакомимся со стратегиями и сыграем свою первую партию. Длительность: 1.5–2 часа.",
+      "category": "other",
+      "poster": "/posters/2026-10-28-master-klass-po-go.jpg",
+      "post": "https://t.me/omhome_thai/315"
     },
     {
       "id": "2026-10-28-kofeynaya-industriya",
