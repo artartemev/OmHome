@@ -24,7 +24,7 @@ const WEEKLY_AT = (process.env.WEEKLY_AT ?? 'mon 11:00').toLowerCase();
 const HELP = `Пришлите анонс одним сообщением — в строгом формате или свободным текстом, можно с фото (альбомом, подпись — анонс).
 Я соберу афиши и пришлю каждое действие на ✅/❌. На ❌ можно ответить правкой текстом или новым фото.
 
-/week — собрать подборку на неделю для Волшебного чата и Вероники (сама собирается по расписанию: ${WEEKLY_AT}, время Чиангмая).`;
+/week — собрать подборку на неделю для Волшебного чата и Вероники («/week фитильки» — в центре другое событие) (сама собирается по расписанию: ${WEEKLY_AT}, время Чиангмая).`;
 
 if (!process.env.TELEGRAM_BOT_TOKEN || !CHAT) {
   console.error('Нужны TELEGRAM_BOT_TOKEN и TELEGRAM_APPROVAL_CHAT_ID');
@@ -84,8 +84,9 @@ function runScript(args) {
 const publish = (file, photos) =>
   runScript(['automation/publish.mjs', file, ...photos.flatMap((photo) => ['--photo', photo]), ...PUBLISH_ARGS]);
 
-async function weekly() {
-  const code = await runScript(['automation/weekly.mjs']);
+// «/week фитильки» — the week's announcement told around that event (the kirtan by default).
+async function weekly(feature = '') {
+  const code = await runScript(['automation/weekly.mjs', ...(feature ? ['--feature', feature] : [])]);
   if (code !== 0) await say(`⚠️ Подборка на неделю упала (код ${code}) — подробности в логе.`);
 }
 
@@ -107,7 +108,7 @@ function weeklyDue() {
 async function handle(messages) {
   const text = messages.map((message) => message.text ?? message.caption ?? '').filter(Boolean).join('\n\n').trim();
   if (/^\/(start|help)\b/.test(text)) return say(HELP);
-  if (/^\/week\b/.test(text)) return weekly();
+  if (/^\/week\b/.test(text)) return weekly(text.replace(/^\/week\s*/, ''));
   if (!text) return say('Нужен текст анонса — пришлите его вместе с фото (подписью) или отдельным сообщением.');
 
   const dir = await mkdtemp(join(tmpdir(), 'omhome-inbox-'));

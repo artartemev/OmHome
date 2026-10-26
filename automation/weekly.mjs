@@ -34,7 +34,7 @@ process.on('uncaughtException', async (error) => {
 const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const userSession = Boolean(process.env.TG_SESSION || process.env.TG_SESSION_STRING);
 
-const { values } = parseArgs({ options: { days: { type: 'string', default: '7' } } });
+const { values } = parseArgs({ options: { days: { type: 'string', default: '7' }, feature: { type: 'string' } } });
 
 const addDays = (iso, days) => new Date(Date.parse(`${iso}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 const weekday = (iso) => WEEKDAYS[new Date(`${iso}T00:00:00Z`).getUTCDay()];
@@ -149,8 +149,13 @@ const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').r
 
 await findPosts(events);
 // One event is told properly — the kirtan (FEATURE, a regexp), otherwise the first one; the rest are listed with links.
+// --feature фитильки (from «/week фитильки») picks the event by any word of its title, subtitle or description.
+const featureWord = values.feature?.trim().toLowerCase().replace(/(ки|ка|ок|и|а|ы)$/u, '');
 const featurePattern = new RegExp(process.env.WEEKLY_FEATURE ?? 'киртан', 'i');
-const feature = events.find((event) => featurePattern.test(event.title)) ?? events[0];
+const byWord = featureWord
+  ? events.find((event) => `${event.title} ${event.subtitle ?? ''} ${event.description ?? ''}`.toLowerCase().includes(featureWord))
+  : null;
+const feature = byWord ?? events.find((event) => featurePattern.test(event.title)) ?? events[0];
 const others = events.filter((event) => event !== feature);
 const poster = [feature, ...others].map((event) => posterFile(event.poster)).find((path) => path && existsSync(path));
 const lastDate = (event) => (event.dates ?? [event.date]).at(-1);
