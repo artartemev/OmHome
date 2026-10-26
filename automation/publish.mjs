@@ -60,6 +60,13 @@ import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
 
 const EVENTS_FILE = resolve('public/events.json');
+
+// Any crash is told in the chat with its reason, not only as «упала (код 1)» from the bot.
+process.on('uncaughtException', async (error) => {
+  console.error(error);
+  await notify(`⚠️ Ошибка: ${error.message}`.slice(0, 3500));
+  process.exit(1);
+});
 const POSTERS_DIR = 'public/posters';
 // Descriptions shorter than this are written out by Gemini (--ai-text auto).
 const SHORT_DESCRIPTION = 200;

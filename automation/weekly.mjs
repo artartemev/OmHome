@@ -24,6 +24,13 @@ import { notify, runWithApproval } from './approval.mjs';
 import { editDigest, writeWeekIntro } from './gemini.mjs';
 
 const PARTNER_SCRIPT = resolve('automation/telegram_user.py');
+
+// Any crash is told in the chat with its reason, not only as «упала (код 1)» from the bot.
+process.on('uncaughtException', async (error) => {
+  console.error(error);
+  await notify(`⚠️ Ошибка: ${error.message}`.slice(0, 3500));
+  process.exit(1);
+});
 const WEEKDAYS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
 const userSession = Boolean(process.env.TG_SESSION || process.env.TG_SESSION_STRING);
 
