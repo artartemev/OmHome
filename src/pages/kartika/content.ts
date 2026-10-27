@@ -28,6 +28,14 @@ export const TRACKS: Track[] = [
     kind: 'song'
   },
   {
+    id: 'dhira',
+    title: 'Шри Дамодараштака',
+    artist: 'Дхира Гауранга',
+    src: '/kartika/audio/dhira-gauranga-damodarashtakam.mp3',
+    note: 'Вечерний напев · 11 мин',
+    kind: 'song'
+  },
+  {
     id: 'aruna',
     title: 'Шри Дамодараштака',
     artist: 'Аруна деви',
