@@ -368,6 +368,10 @@ const live = () => states.filter((state) => !state.cancelled && state.posterPath
 for (const event of events) {
   for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
   event.category = guessCategory(event);
+  // How this kind of evening goes (a play reading: everyone takes a role) — Gemini tells it in the post.
+  const haystack = [event.title, event.subtitle, event.description].filter(Boolean).join(' ').toLowerCase();
+  event.formatNote = Object.entries(defaults.formats ?? {}).find(([key]) => haystack.includes(key))?.[1];
+  const standardText = !event.description && Boolean(defaults.descriptions[event.category]);
   // "As usual" events get the standard text, retold by Gemini each time so the posts don't repeat word for word.
   if (!event.description && defaults.descriptions[event.category]) {
     event.description = defaults.descriptions[event.category];
@@ -380,12 +384,16 @@ for (const event of events) {
   }
 
   // --ai-text auto (default): a short note («квартирник в пятницу, приносите инструменты») becomes 1–2 paragraphs;
-  // a full text stays as written. --ai-text polish|expand|shorten applies to every event, --ai-text off — never.
-  const aiText = values['ai-text'] === 'auto' ? ((event.description ?? '').length < SHORT_DESCRIPTION ? 'expand' : null) : values['ai-text'];
+  // a full text is kept, only a paragraph about the evening itself is added when it tells just the play or film.
+  // --ai-text polish|expand|shorten applies to every event, --ai-text off — never.
+  const auto = (event.description ?? '').length < SHORT_DESCRIPTION ? 'expand' : standardText ? null : 'frame';
+  const aiText = values['ai-text'] === 'auto' ? auto : values['ai-text'];
   if (aiText && aiText !== 'off') {
+    const before = event.description;
     try {
       event.description = await rewriteDescription(event, aiText);
       if (aiText === 'expand') console.log(`✍️  ${event.title}: короткий анонс развёрнут в текст`);
+      if (aiText === 'frame' && event.description !== before) console.log(`✍️  ${event.title}: добавлено, как пройдёт встреча`);
     } catch (error) {
       console.warn(`⚠️  ${event.title}: текст оставлен как есть — ${error.message}`);
     }

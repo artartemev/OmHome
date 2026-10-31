@@ -283,7 +283,7 @@ export function formatPost(event, options = {}) {
 
 // Shape stored in public/events.json for the website.
 export function toSiteEvent(event, posterPath) {
-  const { warnings, times, weekday, instagram, contact, ...rest } = event;
+  const { warnings, times, weekday, instagram, contact, formatNote, ...rest } = event;
   return { ...rest, ...(posterPath ? { poster: posterPath } : {}) };
 }
 
