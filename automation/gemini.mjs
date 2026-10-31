@@ -123,6 +123,25 @@ export async function rewriteDescription(event, mode = 'polish') {
   return text;
 }
 
+// The channel post has to fit under the poster (Telegram: 1024 characters): the description is shortened to maxChars.
+export async function fitDescription(event, maxChars) {
+  const prompt = `Сократи описание анонса так, чтобы в нём было не больше ${maxChars} знаков вместе с пробелами — это жёсткий предел.
+Оставь главное: что будет на встрече и как она проходит, ради чего стоит прийти, все имена и условия. Сюжет и подробности о произведении сожми сильнее всего.
+Тон и стиль сохрани, новых фактов не добавляй. Абзацы раздели пустой строкой. Верни только текст описания.
+
+Название: ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}
+Описание:
+${event.description}`;
+  const { json } = await generate(TEXT_MODELS, {
+    systemInstruction: { parts: [{ text: HOUSE_STYLE }] },
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.3 }
+  });
+  const text = json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
+  if (!text) throw new Error('Gemini вернул пустой ответ');
+  return text;
+}
+
 const CLOUDFLARE_MODEL = '@cf/black-forest-labs/flux-1-schnell';
 
 async function generateWithCloudflare(prompt, out) {

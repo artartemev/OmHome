@@ -52,6 +52,7 @@ import {
   editAnnouncement,
   generatePhoto,
   matchPhotos,
+  fitDescription,
   rewriteDescription,
   structureAnnouncement
 } from './gemini.mjs';
@@ -81,9 +82,11 @@ async function telegram(method, body, isForm = false) {
   return json.result;
 }
 
-// Telegram allows 1024 characters under a photo (counted without the HTML tags). A longer announcement goes as the
-// poster followed right away by its full text. Returns the poster message (its link is the post's link).
+// Telegram allows 1024 characters under a photo (counted without the HTML tags). build() shortens the description to
+// fit; if it still doesn't, the poster goes followed right away by its full text. Returns the poster message.
 const CAPTION_LIMIT = 1024;
+// The post is shortened to this, so the approval preview («Подтвердить? …» above the text) shows it whole as well.
+const CAPTION_TARGET = 960;
 const visibleLength = (html) => html.replace(/<[^>]+>/g, '').replace(/&(lt|gt|amp|quot);/g, ' ').length;
 
 async function sendPhoto(chatId, posterPath, caption) {
@@ -330,6 +333,7 @@ async function build(state) {
     console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
   }
   state.caption = formatPost(event);
+  await fitCaption(state);
   if (!state.posterPath) {
     site.events = site.events.filter((existing) => existing.id !== event.id);
     return;
@@ -338,6 +342,33 @@ async function build(state) {
   await writeFile(state.captionFile, state.caption);
   const siteEvent = toSiteEvent(event, state.posterPath ? `/${state.posterPath.replace(/^public\//, '')}` : undefined);
   site.events = [...site.events.filter((existing) => existing.id !== event.id), siteEvent];
+}
+
+// A long post (the plot of a play, say) is shortened by Gemini to fit under the poster instead of being split in two.
+async function fitCaption(state) {
+  const { event } = state;
+  for (let attempt = 0; attempt < 3 && event.description; attempt++) {
+    const over = visibleLength(state.caption) - CAPTION_TARGET;
+    if (over <= 0) return;
+    const maxChars = event.description.length - over - 40 * attempt;
+    try {
+      event.description = await fitDescription(event, maxChars);
+    } catch (error) {
+      console.warn(`⚠️  ${event.title}: не удалось сократить текст — ${error.message}`);
+      break;
+    }
+    state.caption = formatPost(event);
+    console.log(`✂️  ${event.title}: текст сокращён, чтобы влезть под афишу (${visibleLength(state.caption)} знаков)`);
+  }
+  // Last resort without Gemini: cut the description on a sentence end.
+  const over = visibleLength(state.caption) - CAPTION_TARGET;
+  if (over > 0 && event.description) {
+    const room = event.description.slice(0, Math.max(0, event.description.length - over - 1));
+    const end = Math.max(room.lastIndexOf('. '), room.lastIndexOf('! '), room.lastIndexOf('? '), room.lastIndexOf('\n'));
+    event.description = `${end > 0 ? room.slice(0, end + 1) : `${room}…`}`.trim();
+    state.caption = formatPost(event);
+    console.warn(`✂️  ${event.title}: текст обрезан по предложению, чтобы влезть под афишу`);
+  }
 }
 
 // An edit from the approval dialogue: text goes to Gemini together with the announcement, a photo replaces the one in

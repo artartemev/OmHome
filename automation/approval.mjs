@@ -35,7 +35,9 @@ const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').r
 function previewText(action) {
   const head = `<b>Подтвердить?</b>\n${escapeHtml(value(action.label))}`;
   const body = value(action.text) ?? '';
-  const room = CAPTION_LIMIT - head.length - 10;
+  // Telegram counts the caption without HTML tags, so the tags of the body don't eat the room.
+  const tags = body.length - body.replace(/<[^>]+>/g, '').length;
+  const room = CAPTION_LIMIT - head.length - 10 + tags;
   // The body is already HTML (channel caption); cut on a line break so no tag is left half-open.
   const cut = body.length > room ? `${body.slice(0, body.lastIndexOf('\n', room) > 0 ? body.lastIndexOf('\n', room) : room)}\n…` : body;
   return `${head}\n\n${cut}`;
