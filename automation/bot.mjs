@@ -88,10 +88,12 @@ function runScript(args) {
   });
 }
 
-// Railway bills the container's file cache as memory, and it can stay for days after a run: git and Chromium are
-// taken out of it as soon as the run ends.
+// Railway bills the container's file cache as memory, and it can stay for days after a run: git, Chromium and the
+// system libraries it loads are taken out of it as soon as the run ends. Not the whole /usr: walking its 23 000 files
+// adds about 80 MB of kernel memory, which is billed too.
 function dropFileCache() {
-  const paths = [ROOT, process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/ms-playwright', tmpdir()].filter(existsSync);
+  const system = ['/usr/lib/x86_64-linux-gnu', '/usr/share/fonts', '/usr/lib/node_modules', process.execPath];
+  const paths = [ROOT, process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/ms-playwright', tmpdir(), ...system].filter(existsSync);
   try {
     execFileSync('vmtouch', ['-eq', ...paths], { stdio: 'ignore' });
   } catch (error) {
@@ -108,7 +110,7 @@ async function logMemory(when) {
     const pids = (await readdir('/proc')).filter((name) => /^\d+$/.test(name));
     const names = await Promise.all(pids.map((pid) => readFile(`/proc/${pid}/comm`, 'utf8').catch(() => '')));
     const chromium = names.filter((name) => /chrome|headless/i.test(name)).length;
-    console.log(`🧮 Память (${when}): всего ${total} МБ, процессы ${mb('anon')} МБ, файловый кэш ${mb('file')} МБ, Chromium: ${chromium}`);
+    console.log(`🧮 Память (${when}): всего ${total} МБ, процессы ${mb('anon')} МБ, файловый кэш ${mb('file')} МБ, ядро ${mb('slab')} МБ, Chromium: ${chromium}`);
   } catch (error) {
     console.warn(`⚠️ Замер памяти: ${error.message}`);
   }
