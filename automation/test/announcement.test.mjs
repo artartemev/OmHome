@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { existsSync, readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { parseSchedule, foldIntoMain, formatPost, guessCategory, wantsOnePost, looksStrict, mergeRepeats, toScheduleBlock, toSiteEvent } from '../announcement.mjs';
 
@@ -182,4 +183,17 @@ test('one post keeps one event, the others become its mention', () => {
   assert.equal(folded[0].description, 'Поём');
   assert.match(folded[0].also, /08\/11, 20:30 — Лампады\. Церемония/);
   assert.deepEqual(foldIntoMain(events.slice(0, 1)), events.slice(0, 1));
+});
+
+test('poster templates use only files from automation: the server clone has nothing else', () => {
+  const dir = new URL('../poster/', import.meta.url);
+  for (const name of ['template.html', 'story_frame.html']) {
+    const html = readFileSync(new URL(name, dir), 'utf8');
+    const files = [...html.matchAll(/url\('([^']+)'\)/g)].map((match) => match[1]).filter((path) => !/^(data:|https?:)/.test(path));
+    assert.ok(files.length, name);
+    for (const file of files) {
+      assert.ok(!file.startsWith('..'), `${name}: ${file}`);
+      assert.ok(existsSync(new URL(file, dir)), `${name}: ${file}`);
+    }
+  }
 });
