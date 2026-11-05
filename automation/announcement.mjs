@@ -11,7 +11,8 @@
 //
 // The first line of each block holds the date (18/10, 18.10, 18 октября) with an optional weekday and time.
 // The second line is the title; "Title | subtitle" splits off the small line shown above/below it on the poster.
-// Everything after that is the description.
+// Everything after that is the description. A line «также: …» is a side mention (another program, say): it goes at the
+// end of the post as is, with no poster of its own, and is never shortened or retold.
 
 export const DEFAULTS = {
   mapUrl: 'https://maps.app.goo.gl/Vm2WUEd4D6yL8JQG7',
@@ -168,6 +169,11 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
       continue;
     }
     if (/^(📍|✍️|✍|💰)/u.test(line)) continue;
+    const also = line.match(/^также\s*:\s*(.+)$/i);
+    if (also && current.lines.length) {
+      current.also = [...(current.also ?? []), also[1]];
+      continue;
+    }
     const text = current.lines.length ? takeInstagram(line, current.instagram) : line;
     current.lastBlank = false;
     if (text) current.lines.push(text);
@@ -175,7 +181,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
 
   return blocks
     .filter((block) => block.lines.length > 0)
-    .map(({ dateInfo, instagram, contact, lines: [titleLine, ...rest] }) => {
+    .map(({ dateInfo, instagram, contact, also, lines: [titleLine, ...rest] }) => {
       const [title, subtitle] = titleLine.split('|').map((part) => part.trim());
       return {
         id: `${dateInfo.date}-${slugify(title)}`,
@@ -187,6 +193,7 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
         title,
         ...(subtitle ? { subtitle } : {}),
         ...(rest.length ? { description: rest.join('\n') } : {}),
+        ...(also ? { also: also.join('\n') } : {}),
         ...(instagram.length ? { instagram: [...new Set(instagram)] } : {}),
         ...(contact ? { contact } : {}),
         warnings: dateInfo.warnings
@@ -261,56 +268,44 @@ export function guessCategory(event) {
 }
 
 // Telegram post in the channel's house format (parse_mode: HTML).
-function postHead(event) {
+export function formatPost(event, options = {}) {
+  const { mapUrl, contact, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
   const time = (event.times ?? [event.time]).join(' и ');
   const when = event.dates?.length > 1
     ? `${daysText(event).toUpperCase().replace(/ (И|С|ПО) /g, (word) => word.toLowerCase()).replace(/^С /, 'С ')} ✦ ${time}`
     : `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${time}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
-  return { when: `<b>${escapeHtml(when)}</b>`, title: `<b>${escapeHtml(title)}</b>` };
-}
-
-function postFooter(contact, options) {
-  const { mapUrl, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
   return [
-    `📍 <a href="${mapUrl}">Адрес</a>`,
-    `✍️ Запись: ${escapeHtml(contact)}`,
-    donateLink ? `💰 ${escapeHtml(donation)} · <a href="${donateUrl}">поддержать OmHome</a>` : `💰 ${escapeHtml(donation)}`
-  ];
-}
-
-export function formatPost(event, options = {}) {
-  const { when, title } = postHead(event);
-  return [
-    when,
+    `<b>${escapeHtml(when)}</b>`,
     '',
-    title,
+    `<b>${escapeHtml(title)}</b>`,
     ...(event.description ? ['', escapeHtml(event.description)] : []),
+    ...(event.also ? ['', escapeHtml(event.also)] : []),
     '',
-    ...postFooter(event.contact ?? options.contact ?? DEFAULTS.contact, options)
+    `📍 <a href="${mapUrl}">Адрес</a>`,
+    `✍️ Запись: ${escapeHtml(event.contact ?? contact)}`,
+    donateLink ? `💰 ${escapeHtml(donation)} · <a href="${donateUrl}">поддержать OmHome</a>` : `💰 ${escapeHtml(donation)}`
   ].join('\n');
 }
 
-// Several events asked for as one post: each with its own date and text, the address and donation once at the end.
-export function formatCombinedPost(events, options = {}) {
-  const contacts = [...new Set(events.map((event) => event.contact ?? options.contact ?? DEFAULTS.contact))];
-  const blocks = events.map((event) => {
-    const { when, title } = postHead(event);
-    return [when, title, ...(event.description ? ['', escapeHtml(event.description)] : [])].join('\n');
-  });
-  return [...blocks, postFooter(contacts.join(', '), options).join('\n')].join('\n\n');
+// «в одном посте», «одним анонсом», «общий пост», «объедини в пост», «в этом же анонсе». Gemini catches the other
+// wordings (see structureAnnouncement); the approval preview shows the result either way.
+export function wantsOnePost(text) {
+  return /(?:^|[^а-яё])(?:один|одн[а-яё]+|общ[а-яё]+|един[а-яё]+|(?:эт|т)[а-яё]+\s+же)\s+(?:пост|публикаци|анонс)|объедин[а-яё]*[^.\n]*(?:пост|анонс|публикаци)/i.test(text);
 }
 
-// «в одном посте», «одним анонсом», «общий пост», «объедини в пост». Gemini catches the other wordings (see
-// structureAnnouncement); the approval preview shows the result either way.
-export function wantsOnePost(text) {
-  return /(?:^|[^а-яё])(?:один|одн[а-яё]+|общ[а-яё]+|един[а-яё]+)\s+(?:пост|публикаци|анонс)|объедин[а-яё]*[^.\n]*(?:пост|анонс|публикаци)/i.test(text);
+// One post is one event with one poster: the first event stays, the others become its mention.
+export function foldIntoMain([main, ...others]) {
+  if (!others.length) return main ? [main] : [];
+  const mentions = others.map((event) => `${daysText(event)}, ${event.time} — ${event.title}${event.description ? `. ${event.description.replace(/\s*\n\s*/g, ' ')}` : ''}`);
+  return [{ ...main, also: [main.also, ...mentions].filter(Boolean).join('\n') }];
 }
 
 // Shape stored in public/events.json for the website.
 export function toSiteEvent(event, posterPath) {
-  const { warnings, times, weekday, instagram, contact, formatNote, ...rest } = event;
-  return { ...rest, ...(posterPath ? { poster: posterPath } : {}) };
+  const { warnings, times, weekday, instagram, contact, formatNote, also, ...rest } = event;
+  const description = [rest.description, also].filter(Boolean).join('\n\n');
+  return { ...rest, ...(description ? { description } : {}), ...(posterPath ? { poster: posterPath } : {}) };
 }
 
 // Event → the strict schedule block parseSchedule() reads back (used to edit an announcement with Gemini).
@@ -319,6 +314,7 @@ export function toScheduleBlock(event) {
     `${(event.dates ?? [event.date]).map(shortDate).join(' и ')} ${(event.times ?? [event.time]).join(' ')}`,
     event.subtitle ? `${event.title} | ${event.subtitle}` : event.title,
     ...(event.description ? [event.description.replace(/\n\s*\n/g, '\n')] : []),
+    ...(event.also ? event.also.split('\n').map((line) => `также: ${line}`) : []),
     ...(event.instagram ?? []).map((handle) => `инста: @${handle}`),
     ...(event.contact ? [`✍️ Запись: ${event.contact}`] : [])
   ].join('\n');

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatCombinedPost, formatPost, guessCategory, wantsOnePost, looksStrict, mergeRepeats, toScheduleBlock } from '../announcement.mjs';
+import { parseSchedule, foldIntoMain, formatPost, guessCategory, wantsOnePost, looksStrict, mergeRepeats, toScheduleBlock, toSiteEvent } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -150,7 +150,7 @@ test('days in a row read as a range — in the text, the post and back', () => {
 });
 
 test('notices a request for one post', () => {
-  for (const text of ['сделай два анонса в одном посте', 'Одним постом, пожалуйста', 'общий пост на оба', 'объедини их в пост', 'оба одной публикацией']) {
+  for (const text of ['сделай два анонса в одном посте', 'Одним постом, пожалуйста', 'общий пост на оба', 'объедини их в пост', 'оба одной публикацией', 'и в этом же анонсе добавь информацию', 'в том же посте напиши']) {
     assert.equal(wantsOnePost(text), true, text);
   }
   for (const text of ['в субботу киртан, в воскресенье Шляпа', 'один из лучших фильмов', 'пост в канал']) {
@@ -158,10 +158,28 @@ test('notices a request for one post', () => {
   }
 });
 
-test('one post keeps each event\'s date and text, the footer once', () => {
-  const [a, b] = parseSchedule('сб 17/10 18:00\nКиртан\nПоём\n\nвс 18/10 17:00\nШляпа | игра\nИграем\n✍️ Запись: @Wasyaphi', { today });
-  const post = formatCombinedPost([a, b]);
-  assert.match(post, /17\/10[\s\S]*Киртан[\s\S]*Поём[\s\S]*18\/10[\s\S]*Шляпа — игра[\s\S]*Играем/);
-  assert.equal(post.match(/📍/g).length, 1);
-  assert.match(post, /Запись: @artartemev, @Wasyaphi/);
+test('a mention stays in the post after the description and survives an edit', () => {
+  const [event] = parseSchedule('сб 07/11 18:00\nКиртан\nПоём\nтакже: До понедельника в 20:30 — лампады, подробности: omhome.space/kartika', { today });
+  assert.equal(event.description, 'Поём');
+  assert.match(formatPost(event), /Поём\n\nДо понедельника в 20:30 — лампады, подробности: omhome\.space\/kartika\n\n📍/);
+  const [back] = parseSchedule(toScheduleBlock(event), { today });
+  assert.equal(back.also, event.also);
+  assert.equal(back.description, 'Поём');
+});
+
+test('the site shows the mention as part of the description', () => {
+  const [event] = parseSchedule('сб 07/11 18:00\nКиртан\nПоём\nтакже: Лампады', { today });
+  const site = toSiteEvent(event, '/posters/a.jpg');
+  assert.equal(site.description, 'Поём\n\nЛампады');
+  assert.equal(site.also, undefined);
+});
+
+test('one post keeps one event, the others become its mention', () => {
+  const events = parseSchedule('сб 07/11 18:00\nКиртан\nПоём\n\nвс 08/11 20:30\nЛампады\nЦеремония', { today });
+  const folded = foldIntoMain(events);
+  assert.equal(folded.length, 1);
+  assert.equal(folded[0].title, 'Киртан');
+  assert.equal(folded[0].description, 'Поём');
+  assert.match(folded[0].also, /08\/11, 20:30 — Лампады\. Церемония/);
+  assert.deepEqual(foldIntoMain(events.slice(0, 1)), events.slice(0, 1));
 });
