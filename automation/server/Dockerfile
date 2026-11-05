@@ -4,7 +4,7 @@
 FROM mcr.microsoft.com/playwright:v1.56.1-noble
 
 RUN npm install -g playwright@1.56.1 \
- && apt-get update && apt-get install -y --no-install-recommends git python3-pip \
+ && apt-get update && apt-get install -y --no-install-recommends git python3-pip vmtouch \
  && pip3 install --break-system-packages telethon \
  && rm -rf /var/lib/apt/lists/*
 

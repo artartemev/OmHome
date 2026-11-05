@@ -144,6 +144,8 @@ cd automation/server && railway up        # сборка и запуск
 - `GITHUB_TOKEN` — fine-grained токен только на artartemev/OmHome с правом Contents: Read and write (для обновления афиши на сайте);
 - `TG_API_ID`, `TG_API_HASH`, `TG_SESSION_STRING` — для Волшебного чата и Вероники; строку даёт `python3 automation/server/make_session.py` (отдельная сессия «OmHome bot server», а не сессия guide).
 
+Чтобы не платить за лишнюю память, на сервер клонируются только `automation`, `public/posters` и файлы из корня `public` (без истории). После каждого прогона бот убирает git и Chromium из файлового кэша (`vmtouch`) и пишет в лог строку `🧮 Память`; та же строка выходит раз в час, так что её можно сверить с графиком Railway.
+
 Бот должен работать в одном месте: два процесса с одним токеном мешают друг другу получать сообщения.
 
 ## Отзывы Google на сайте

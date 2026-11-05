@@ -12,7 +12,8 @@
 // one message for Волшебный чат and @VeronikaKirpichenko (weekly.mjs) — previews come for ✅/❌ as usual.
 
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -68,7 +69,7 @@ function runScript(args) {
     try {
       // Exactly main: whatever an earlier run left behind (an abandoned announcement in events.json, its posters)
       // must not reach the site with the next one.
-      execFileSync('git', ['fetch', 'origin', 'main'], { cwd: ROOT, stdio: 'inherit' });
+      execFileSync('git', ['fetch', '--depth', '1', 'origin', 'main'], { cwd: ROOT, stdio: 'inherit' });
       execFileSync('git', ['reset', '--hard', 'origin/main'], { cwd: ROOT, stdio: 'inherit' });
       execFileSync('git', ['clean', '-fd', 'public/posters'], { cwd: ROOT, stdio: 'inherit' });
     } catch (error) {
@@ -77,8 +78,40 @@ function runScript(args) {
   }
   return new Promise((resolve) => {
     const child = spawn(process.execPath, args, { cwd: ROOT, stdio: 'inherit', env: process.env });
-    child.on('exit', (code) => resolve(code));
+    child.on('exit', async (code) => {
+      if (process.env.BOT_SYNC_GIT) {
+        dropFileCache();
+        await logMemory('после прогона');
+      }
+      resolve(code);
+    });
   });
+}
+
+// Railway bills the container's file cache as memory, and it can stay for days after a run: git and Chromium are
+// taken out of it as soon as the run ends.
+function dropFileCache() {
+  const paths = [ROOT, process.env.PLAYWRIGHT_BROWSERS_PATH ?? '/ms-playwright', tmpdir()].filter(existsSync);
+  try {
+    execFileSync('vmtouch', ['-eq', ...paths], { stdio: 'ignore' });
+  } catch (error) {
+    console.warn(`⚠️ vmtouch: ${error.message}`);
+  }
+}
+
+// One line for comparing with the Railway graph: what the processes hold, what is cache, whether a Chromium is left.
+async function logMemory(when) {
+  try {
+    const stat = await readFile('/sys/fs/cgroup/memory.stat', 'utf8');
+    const mb = (key) => Math.round(Number(stat.match(new RegExp(`^${key} (\\d+)`, 'm'))?.[1] ?? 0) / 1e6);
+    const total = Math.round(Number(await readFile('/sys/fs/cgroup/memory.current', 'utf8')) / 1e6);
+    const pids = (await readdir('/proc')).filter((name) => /^\d+$/.test(name));
+    const names = await Promise.all(pids.map((pid) => readFile(`/proc/${pid}/comm`, 'utf8').catch(() => '')));
+    const chromium = names.filter((name) => /chrome|headless/i.test(name)).length;
+    console.log(`🧮 Память (${when}): всего ${total} МБ, процессы ${mb('anon')} МБ, файловый кэш ${mb('file')} МБ, Chromium: ${chromium}`);
+  } catch (error) {
+    console.warn(`⚠️ Замер памяти: ${error.message}`);
+  }
 }
 
 const publish = (file, photos) =>
@@ -131,6 +164,7 @@ for (const file of process.argv.slice(2)) {
 }
 
 console.log('📬 Бот слушает анонсы…');
+if (process.env.BOT_SYNC_GIT) setInterval(() => logMemory('раз в час'), 3_600_000);
 for (;;) {
   try {
     if (weeklyDue()) await weekly();

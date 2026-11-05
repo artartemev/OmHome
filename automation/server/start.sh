@@ -6,9 +6,12 @@ REPO=/app/repo
 # Without GITHUB_TOKEN the (public) repo is still cloned and the bot works; only the site update can't be pushed.
 if [ -n "$GITHUB_TOKEN" ]; then URL="https://x-access-token:${GITHUB_TOKEN}@github.com/artartemev/OmHome.git"
 else URL="https://github.com/artartemev/OmHome.git"; echo "⚠️ GITHUB_TOKEN не задан — афиша на сайте обновляться не будет"; fi
-if [ ! -d "$REPO/.git" ]; then git clone --depth 50 "$URL" "$REPO"; fi
+# Only what the bot uses: the site's videos, audio and books would sit in memory as file cache, and Railway bills that.
+if [ ! -d "$REPO/.git" ]; then git clone --depth 1 --filter=blob:none --sparse "$URL" "$REPO"; fi
 cd "$REPO"
+git sparse-checkout set automation public/posters
+git config gc.auto 0
 git config user.name "OmHome bot"
 git config user.email "bot@omhome.space"
-git fetch origin main && git checkout -B main origin/main
+git fetch --depth 1 origin main && git checkout -B main origin/main
 exec node automation/bot.mjs
