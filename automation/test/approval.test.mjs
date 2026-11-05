@@ -130,3 +130,33 @@ test('telegram: an unanswered preview ends the run, the next actions are not ask
   assert.equal(result.sent.length, 3);
   assert.match(result.sent[2], /без ответа на «чат».*\(2\)/);
 });
+
+test('telegram: a dropped connection while waiting does not end the run', () => {
+  const script = `
+    const answers = [];
+    let failures = 2;
+    globalThis.fetch = async (url, init) => {
+      const method = url.split('/').pop();
+      const body = JSON.parse(init.body);
+      let result = { message_id: 1 };
+      if (method === 'sendMessage') answers.push(body.reply_markup.inline_keyboard[0][0].callback_data);
+      if (method === 'getUpdates') {
+        if (failures-- > 0) throw new TypeError('fetch failed');
+        result = body.offset === -1 ? [] : answers.splice(0).map((data, index) => ({ update_id: index + 1, callback_query: { id: 'q', data, message: { chat: { id: 42 } } } }));
+      }
+      return { json: async () => ({ ok: true, result }) };
+    };
+    const { runWithApproval } = await import(${JSON.stringify(approvalModule)});
+    const ran = [];
+    const results = await runWithApproval([{ label: 'канал', run: async () => ran.push('канал') }]);
+    console.log('RESULT ' + JSON.stringify({ ran, statuses: results.map((r) => r.status) }));
+  `;
+  const out = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    env: { ...process.env, TELEGRAM_BOT_TOKEN: 'test', TELEGRAM_APPROVAL_CHAT_ID: '42' },
+    encoding: 'utf8'
+  });
+  const result = JSON.parse(out.stdout.split('RESULT ')[1]);
+  assert.deepEqual(result.ran, ['канал']);
+  assert.deepEqual(result.statuses, ['done']);
+  assert.match(out.stderr, /fetch failed — спрошу ещё раз/);
+});

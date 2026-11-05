@@ -48,17 +48,24 @@ let updateOffset;
 let downloadDir;
 
 async function nextUpdates() {
-  if (updateOffset === undefined) {
-    const last = await telegram('getUpdates', { offset: -1, timeout: 0 });
-    updateOffset = last.length ? last[last.length - 1].update_id + 1 : 0;
+  try {
+    if (updateOffset === undefined) {
+      const last = await telegram('getUpdates', { offset: -1, timeout: 0 });
+      updateOffset = last.length ? last[last.length - 1].update_id + 1 : 0;
+    }
+    const updates = await telegram('getUpdates', {
+      offset: updateOffset,
+      timeout: 50,
+      allowed_updates: ['callback_query', 'message']
+    });
+    for (const update of updates) updateOffset = update.update_id + 1;
+    return updates;
+  } catch (error) {
+    // The connection to Telegram drops several times a day: a preview keeps waiting for its answer through that.
+    console.warn(`⚠️ getUpdates: ${error.message} — спрошу ещё раз`);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    return [];
   }
-  const updates = await telegram('getUpdates', {
-    offset: updateOffset,
-    timeout: 50,
-    allowed_updates: ['callback_query', 'message']
-  });
-  for (const update of updates) updateOffset = update.update_id + 1;
-  return updates;
 }
 
 async function downloadPhoto(message) {
