@@ -3,7 +3,8 @@
 //
 // With TELEGRAM_APPROVAL_CHAT_ID set, the bot sends the preview (image + text + where it goes) to that chat with
 // ✅ / ❌ buttons and waits for the tap — approve from the phone. Otherwise it asks in the terminal.
-// No answer = no action: a timeout counts as ❌.
+// No answer = no action: after a timeout nothing more of this run is asked, so an abandoned announcement doesn't keep
+// the bot busy (it takes no new announcements meanwhile) for 6 hours per remaining action.
 //
 // ❌ on an editable action (one with onEdit) opens a small dialogue:
 //   «✏️ Что поправить?» — reply to the preview with text and/or a photo → the event is rebuilt and the preview comes
@@ -14,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 
-const APPROVAL_TIMEOUT_MS = 6 * 60 * 60 * 1000;
+const APPROVAL_TIMEOUT_MS = Number(process.env.APPROVAL_TIMEOUT_MS) || 6 * 60 * 60 * 1000;
 const CAPTION_LIMIT = 1024; // Telegram photo caption limit
 
 // Action fields may be functions so the preview always shows the current (possibly edited) version.
@@ -75,7 +76,7 @@ async function setButtons(chatId, messageId, rows) {
   await telegram('editMessageReplyMarkup', { chat_id: chatId, message_id: messageId, reply_markup: { inline_keyboard: rows } });
 }
 
-// → { decision: 'yes' | 'skip' | 'cancel' | 'edit', text?, photo? }
+// → { decision: 'yes' | 'skip' | 'cancel' | 'edit' | 'timeout', text?, photo? }
 async function askTelegram(action, id) {
   const chatId = process.env.TELEGRAM_APPROVAL_CHAT_ID;
   const keyboard = {
@@ -161,7 +162,8 @@ async function askTelegram(action, id) {
       }
     }
   }
-  return { decision: 'skip' };
+  await setButtons(chatId, preview.message_id, [[{ text: '⏰ Время вышло', callback_data: 'done' }]]).catch(() => undefined);
+  return { decision: 'timeout' };
 }
 
 // Asks for a photo in the approval chat: any photo sent as a reply to this message (or right after it) is taken.
@@ -274,6 +276,13 @@ export async function runWithApproval(actions, { onCancel } = {}) {
       }
     }
 
+    if (answer.decision === 'timeout') {
+      const rest = actions.slice(index);
+      for (const left of rest) results.push({ label: value(left.label), status: 'skipped' });
+      const hours = Math.round(APPROVAL_TIMEOUT_MS / 3_600_000);
+      await notify(`⏰ ${hours} ч без ответа на «${value(action.label)}» — этот и следующие шаги пропускаю (${rest.length}). Чтобы опубликовать, пришлите анонс заново.`);
+      break;
+    }
     if (answer.decision === 'cancel') {
       cancelled.add(action.group);
       await onCancel?.(action.group);

@@ -94,3 +94,39 @@ test('telegram: waits for the button of its own preview, ignores other taps', as
   assert.deepEqual(results.map((r) => r.status), ['skipped', 'done']);
   assert.ok(calls.includes('answerCallbackQuery'));
 });
+
+test('telegram: an unanswered preview ends the run, the next actions are not asked', () => {
+  const script = `
+    const sent = [];
+    const answers = [];
+    globalThis.fetch = async (url, init) => {
+      const method = url.split('/').pop();
+      const body = JSON.parse(init.body);
+      let result = { message_id: sent.length + 1 };
+      if (method === 'sendMessage') {
+        sent.push(body.text);
+        // Only the first preview gets its ✅.
+        if (sent.length === 1) answers.push(body.reply_markup.inline_keyboard[0][0].callback_data);
+      }
+      if (method === 'getUpdates') {
+        result = body.offset === -1 ? [] : answers.splice(0).map((data, index) => ({ update_id: index + 1, callback_query: { id: 'q', data, message: { chat: { id: 42 } } } }));
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      return { json: async () => ({ ok: true, result }) };
+    };
+    const { runWithApproval } = await import(${JSON.stringify(approvalModule)});
+    const ran = [];
+    const results = await runWithApproval(['канал', 'чат', 'сайт'].map((name) => ({ label: name, run: async () => ran.push(name) })));
+    console.log('RESULT ' + JSON.stringify({ ran, statuses: results.map((r) => r.status), sent }));
+  `;
+  const out = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+    env: { ...process.env, TELEGRAM_BOT_TOKEN: 'test', TELEGRAM_APPROVAL_CHAT_ID: '42', APPROVAL_TIMEOUT_MS: '200' },
+    encoding: 'utf8'
+  });
+  const result = JSON.parse(out.stdout.split('RESULT ')[1]);
+  assert.deepEqual(result.ran, ['канал']);
+  assert.deepEqual(result.statuses, ['done', 'skipped', 'skipped']);
+  // Previews of «канал» and «чат», then the notice; «сайт» is never asked.
+  assert.equal(result.sent.length, 3);
+  assert.match(result.sent[2], /без ответа на «чат».*\(2\)/);
+});
