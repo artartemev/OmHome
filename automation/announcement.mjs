@@ -261,24 +261,50 @@ export function guessCategory(event) {
 }
 
 // Telegram post in the channel's house format (parse_mode: HTML).
-export function formatPost(event, options = {}) {
-  const { mapUrl, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
-  const contact = event.contact ?? options.contact ?? DEFAULTS.contact;
+function postHead(event) {
   const time = (event.times ?? [event.time]).join(' и ');
   const when = event.dates?.length > 1
     ? `${daysText(event).toUpperCase().replace(/ (И|С|ПО) /g, (word) => word.toLowerCase()).replace(/^С /, 'С ')} ✦ ${time}`
     : `${event.weekday.toUpperCase()} ✦ ${shortDate(event.date)} ✦ ${time}`;
   const title = event.subtitle ? `${event.title} — ${event.subtitle}` : event.title;
+  return { when: `<b>${escapeHtml(when)}</b>`, title: `<b>${escapeHtml(title)}</b>` };
+}
+
+function postFooter(contact, options) {
+  const { mapUrl, donation, donateUrl, donateLink } = { ...DEFAULTS, ...options };
   return [
-    `<b>${escapeHtml(when)}</b>`,
-    '',
-    `<b>${escapeHtml(title)}</b>`,
-    ...(event.description ? ['', escapeHtml(event.description)] : []),
-    '',
     `📍 <a href="${mapUrl}">Адрес</a>`,
     `✍️ Запись: ${escapeHtml(contact)}`,
     donateLink ? `💰 ${escapeHtml(donation)} · <a href="${donateUrl}">поддержать OmHome</a>` : `💰 ${escapeHtml(donation)}`
+  ];
+}
+
+export function formatPost(event, options = {}) {
+  const { when, title } = postHead(event);
+  return [
+    when,
+    '',
+    title,
+    ...(event.description ? ['', escapeHtml(event.description)] : []),
+    '',
+    ...postFooter(event.contact ?? options.contact ?? DEFAULTS.contact, options)
   ].join('\n');
+}
+
+// Several events asked for as one post: each with its own date and text, the address and donation once at the end.
+export function formatCombinedPost(events, options = {}) {
+  const contacts = [...new Set(events.map((event) => event.contact ?? options.contact ?? DEFAULTS.contact))];
+  const blocks = events.map((event) => {
+    const { when, title } = postHead(event);
+    return [when, title, ...(event.description ? ['', escapeHtml(event.description)] : [])].join('\n');
+  });
+  return [...blocks, postFooter(contacts.join(', '), options).join('\n')].join('\n\n');
+}
+
+// «в одном посте», «одним анонсом», «общий пост», «объедини в пост». Gemini catches the other wordings (see
+// structureAnnouncement); the approval preview shows the result either way.
+export function wantsOnePost(text) {
+  return /(?:^|[^а-яё])(?:один|одн[а-яё]+|общ[а-яё]+|един[а-яё]+)\s+(?:пост|публикаци|анонс)|объедин[а-яё]*[^.\n]*(?:пост|анонс|публикаци)/i.test(text);
 }
 
 // Shape stored in public/events.json for the website.

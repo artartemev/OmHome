@@ -61,13 +61,17 @@ async function publish(params, localPath) {
   await assertOnline(params.image_url, localPath);
   const container = await graph(`${account()}/media`, params);
   await waitUntilReady(container.id);
+  return publishContainer(container.id);
+}
+
+async function publishContainer(containerId) {
   // Right after FINISHED Instagram often answers "Media ID is not available" / "resource does not exist" for a few
   // seconds: wait and retry the publish step a few times before giving up.
   let lastError;
   for (let attempt = 0; attempt < 6; attempt++) {
     await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 5000 : 10_000));
     try {
-      return await graph(`${account()}/media_publish`, { creation_id: container.id });
+      return await graph(`${account()}/media_publish`, { creation_id: containerId });
     } catch (error) {
       lastError = error;
       if (!/not available|does not exist|not ready/i.test(error.message)) throw error;
@@ -78,7 +82,25 @@ async function publish(params, localPath) {
 
 // → link to the published post (for the «поделись в историю» reminder).
 export async function publishPost(imagePath, caption) {
-  const { id } = await publish({ image_url: publicUrl(imagePath), caption }, imagePath);
+  return permalink(await publish({ image_url: publicUrl(imagePath), caption }, imagePath));
+}
+
+// Several posters as one post (a carousel), with one caption.
+export async function publishCarousel(imagePaths, caption) {
+  const children = [];
+  for (const path of imagePaths) {
+    const url = publicUrl(path);
+    await assertOnline(url, path);
+    const child = await graph(`${account()}/media`, { image_url: url, is_carousel_item: 'true' });
+    await waitUntilReady(child.id);
+    children.push(child.id);
+  }
+  const container = await graph(`${account()}/media`, { media_type: 'CAROUSEL', children: children.join(','), caption });
+  await waitUntilReady(container.id);
+  return permalink(await publishContainer(container.id));
+}
+
+async function permalink({ id }) {
   try {
     const response = await fetch(`${GRAPH}/${id}?fields=permalink&access_token=${process.env.IG_ACCESS_TOKEN}`);
     return (await response.json()).permalink ?? null;

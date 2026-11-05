@@ -255,6 +255,7 @@ export async function structureAnnouncement(text, today) {
 4) если сказано про инстаграм человека — строка «инста: @ник»;
 5) если сказано, к кому записываться, — строка «✍️ Запись: @ник».
 Ничего не выдумывай и не добавляй лишнего текста, только расписание.
+Просьбы о том, как публиковать («в одном посте», «объедини», «не разделяй»), — не описание: в текст события их не переноси. Если организатор просит выпустить события одним постом, первой строкой ответа напиши «ОДИН ПОСТ».
 
 Пример.
 Анонс: «в пятницу в 7 смотрим Интерстеллар, обсуждаем после. в субботу киртан с Сашей, инста у него sasha.music»
@@ -280,7 +281,7 @@ export async function structureAnnouncement(text, today) {
 // An edit from the approval dialogue («время 19:00», «убери последнее предложение», «подзаголовок — с Сашей»):
 // the current announcement as a strict block + the instruction → the whole block again, changed only where asked.
 export async function editAnnouncement(block, instruction, today) {
-  const prompt = `Сегодня ${today}. Вот анонс события OmHome в строгом формате расписания:
+  const prompt = `Сегодня ${today}. Вот анонс OmHome в строгом формате расписания (если событий несколько, между ними пустая строка — верни их столько же и в том же порядке):
 
 ${block}
 

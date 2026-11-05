@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSchedule, formatPost, guessCategory, looksStrict, mergeRepeats, toScheduleBlock } from '../announcement.mjs';
+import { parseSchedule, formatCombinedPost, formatPost, guessCategory, wantsOnePost, looksStrict, mergeRepeats, toScheduleBlock } from '../announcement.mjs';
 
 const today = '2026-10-11';
 
@@ -147,4 +147,21 @@ test('days in a row read as a range — in the text, the post and back', () => {
   const [listed] = parseSchedule('26/10 и 27/10 и 28/10 и 31/10 20:30\nКиртан', { today: '2026-10-22' });
   assert.match(formatPost(listed), /^<b>С 26\/10 по 28\/10 и СБ 31\/10 ✦ 20:30<\/b>/);
   assert.deepEqual(parseSchedule(toScheduleBlock(event), { today: '2026-10-22' })[0].dates, event.dates);
+});
+
+test('notices a request for one post', () => {
+  for (const text of ['сделай два анонса в одном посте', 'Одним постом, пожалуйста', 'общий пост на оба', 'объедини их в пост', 'оба одной публикацией']) {
+    assert.equal(wantsOnePost(text), true, text);
+  }
+  for (const text of ['в субботу киртан, в воскресенье Шляпа', 'один из лучших фильмов', 'пост в канал']) {
+    assert.equal(wantsOnePost(text), false, text);
+  }
+});
+
+test('one post keeps each event\'s date and text, the footer once', () => {
+  const [a, b] = parseSchedule('сб 17/10 18:00\nКиртан\nПоём\n\nвс 18/10 17:00\nШляпа | игра\nИграем\n✍️ Запись: @Wasyaphi', { today });
+  const post = formatCombinedPost([a, b]);
+  assert.match(post, /17\/10[\s\S]*Киртан[\s\S]*Поём[\s\S]*18\/10[\s\S]*Шляпа — игра[\s\S]*Играем/);
+  assert.equal(post.match(/📍/g).length, 1);
+  assert.match(post, /Запись: @artartemev, @Wasyaphi/);
 });

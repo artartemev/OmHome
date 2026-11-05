@@ -38,6 +38,7 @@ import { parseArgs } from 'node:util';
 import {
   CATEGORY_PALETTE,
   daysText,
+  formatCombinedPost,
   formatPost,
   guessCategory,
   looksStrict,
@@ -45,7 +46,8 @@ import {
   parseSchedule,
   todayIso,
   toScheduleBlock,
-  toSiteEvent
+  toSiteEvent,
+  wantsOnePost
 } from './announcement.mjs';
 import { notify, requestPhoto, runWithApproval } from './approval.mjs';
 import {
@@ -56,7 +58,7 @@ import {
   rewriteDescription,
   structureAnnouncement
 } from './gemini.mjs';
-import { instagramConfigured, publishPost, toInstagramCaption } from './instagram.mjs';
+import { instagramConfigured, publishCarousel, publishPost, toInstagramCaption } from './instagram.mjs';
 import { markPoolPhotoUsed, pickPoolPhoto } from './photo_pool.mjs';
 import { renderPoster, storyFromPoster } from './poster/render.mjs';
 
@@ -108,6 +110,24 @@ async function sendPhoto(chatId, posterPath, caption) {
     });
   }
   return photo;
+}
+
+// Several posters as one post: an album with one caption. Returns the first message (its link is the post's link).
+async function sendAlbum(chatId, posterPaths, caption) {
+  const fits = visibleLength(caption) <= CAPTION_LIMIT;
+  const form = new FormData();
+  form.set('chat_id', chatId);
+  form.set('media', JSON.stringify(posterPaths.map((_, index) => ({
+    type: 'photo',
+    media: `attach://p${index}`,
+    ...(index === 0 && fits ? { caption, parse_mode: 'HTML' } : {})
+  }))));
+  for (const [index, path] of posterPaths.entries()) form.set(`p${index}`, new Blob([await readFile(path)], { type: 'image/jpeg' }), `p${index}.jpg`);
+  const messages = await telegram('sendMediaGroup', form, true);
+  const textMessage = fits
+    ? undefined
+    : await telegram('sendMessage', { chat_id: chatId, text: caption, parse_mode: 'HTML', link_preview_options: { is_disabled: true } });
+  return { message_id: messages[0].message_id, ids: [...messages, ...(textMessage ? [textMessage] : [])].map((message) => message.message_id) };
 }
 
 const repostChats = () =>
@@ -167,6 +187,75 @@ function eventActions(state) {
     )
   ];
   return actions;
+}
+
+// The same actions when several events were asked for as one post: one approval, one album, one caption.
+function groupActions(group) {
+  const channel = process.env.TELEGRAM_CHANNEL_ID;
+  const title = () => group.members.map((state) => state.event.title).join(' + ');
+  const posters = () => group.members.map((state) => state.posterPath);
+  const published = () => group.members.some((state) => state.published);
+  const editable = (action) =>
+    Object.defineProperty(action, 'onEdit', { get: () => (published() ? undefined : (edit) => editGroup(group, edit)) });
+  const markPublished = () => {
+    for (const state of group.members) state.published = true;
+  };
+  const common = { kind: 'telegram', group, image: () => posters()[0], images: posters, text: () => group.caption };
+  return [
+    editable({
+      ...common,
+      label: () => `📣 Один пост в канал ${channel} — ${title()}`,
+      run: async () => {
+        group.channelMessage = await sendAlbum(channel, posters(), group.caption);
+        markPublished();
+        if (/^@/.test(channel)) {
+          const post = `https://t.me/${channel.slice(1)}/${group.channelMessage.message_id}`;
+          for (const state of group.members) state.event.post = post;
+          const ids = group.members.map((state) => state.event.id);
+          site.events = site.events.map((existing) => (ids.includes(existing.id) ? { ...existing, post } : existing));
+          await saveSite();
+        }
+      }
+    }),
+    ...repostChats().map((chat) =>
+      editable({
+        ...common,
+        label: () => `🔁 Репост в «${chat.name}» — ${title()}`,
+        run: async () => {
+          if (group.channelMessage) {
+            await telegram('forwardMessages', { chat_id: chat.id, from_chat_id: channel, message_ids: group.channelMessage.ids });
+          } else {
+            await sendAlbum(chat.id, posters(), group.caption);
+          }
+          markPublished();
+        }
+      })
+    )
+  ];
+}
+
+function groupInstagramActions(group) {
+  if (!instagramConfigured()) return [];
+  const title = () => group.members.map((state) => state.event.title).join(' + ');
+  const posters = () => group.members.map((state) => state.posterPath);
+  const caption = () => {
+    const tags = [...new Set(group.members.flatMap((state) => state.event.instagram ?? []))].map((handle) => `@${handle}`).join(' ');
+    return toInstagramCaption(group.caption, `${tags ? `\n\n${tags}` : ''}\n\nАдрес и запись — в шапке профиля и в Telegram: t.me/omhome_thai`);
+  };
+  return [
+    {
+      kind: 'instagram',
+      group,
+      label: () => `📸 Один пост в Instagram (карусель) — ${title()}`,
+      image: () => posters()[0],
+      images: posters,
+      text: caption,
+      run: async () => {
+        const link = await publishCarousel(posters(), caption());
+        await notify(`📱 Не забудь поделиться постом «${title()}» в историю${link ? `:\n${link}` : ' — он уже в профиле omhome.cnx.'}`);
+      }
+    }
+  ];
 }
 
 // Instagram downloads the poster from omhome.space, so these run after the site update (and are not editable:
@@ -242,7 +331,9 @@ const states = [];
 // Free text works too: if the message is not in the strict format (or --ai-parse), Gemini turns it into that format
 // first, and the result is printed so you can see exactly how it was understood.
 const message = await readFile(positionals[0], 'utf8');
-let events = values['ai-parse'] ? [] : mergeRepeats(parseSchedule(message));
+// A request for one post goes through Gemini even in the strict format, so its words don't end up in a description.
+let onePost = wantsOnePost(message);
+let events = values['ai-parse'] || onePost ? [] : mergeRepeats(parseSchedule(message));
 if (!looksStrict(events)) {
   let structured;
   try {
@@ -252,16 +343,19 @@ if (!looksStrict(events)) {
     process.exit(1);
   }
   console.log(`\n🧠 Gemini разобрал анонс так:\n${structured}\n`);
+  onePost ||= /^\s*ОДИН ПОСТ/i.test(structured);
   events = mergeRepeats(parseSchedule(structured));
   // A short summary, not the intermediate text: the post itself comes in the house format with the preview.
   if (events.length) {
     const list = events.map((event) => `• ${daysText(event)}, ${event.time} — ${event.title}`);
-    await notify(`🧠 Понял анонс: ${events.length === 1 ? 'одно событие' : `событий: ${events.length}`}\n${list.join('\n')}\n\nПревью постов придут следом.`);
+    const together = onePost && events.length > 1;
+    await notify(`🧠 Понял анонс: ${events.length === 1 ? 'одно событие' : `событий: ${events.length}`}${together ? ', всё одним постом' : ''}\n${list.join('\n')}\n\n${together ? 'Превью поста придёт' : 'Превью постов придут'} следом.`);
   } else {
     await notify('⚠️ Не нашёл в тексте ни одного события с датой. Напишите, когда и что будет.');
   }
 }
 const defaults = JSON.parse(await readFile(resolve('automation/defaults.json'), 'utf8'));
+const combined = onePost && events.length > 1;
 
 // Photos attached without a title (--photo ./a.jpg ./b.jpg) go to the events in the same order as in the text:
 // the first photo to the first event, and so on. Events here look alike, so guessing by the picture is unreliable;
@@ -282,8 +376,10 @@ if (loosePhotos.length) {
     if (match[index] < 0 && spare.length) match[index] = spare.shift();
     if (match[index] >= 0 && !photos[event.title.toLowerCase()]) photos[event.title.toLowerCase()] = loosePhotos[match[index]];
   });
+  // One post with fewer photos than events: the last photo serves the rest instead of drawing new ones.
+  if (combined) photos['*'] ??= loosePhotos.at(-1);
   console.log('📎 Фото по событиям:');
-  for (const event of events) console.log(`   ${event.title} ← ${photos[event.title.toLowerCase()]?.split('/').pop() ?? 'без фото'}`);
+  for (const event of events) console.log(`   ${event.title} ← ${(photos[event.title.toLowerCase()] ?? photos['*'])?.split('/').pop() ?? 'без фото'}`);
 }
 // On the server the afisha starts from main exactly: an abandoned earlier run must not leave its event behind
 // to be committed together with this one.
@@ -333,7 +429,8 @@ async function build(state) {
     console.warn(`⚠️  ${event.title}: нет фото (--photo "${event.title}=path" или --ai-photo), афиша не собрана`);
   }
   state.caption = formatPost(event);
-  await fitCaption(state);
+  // Events of one post share a caption: it is fitted as a whole (fitCombined), the site keeps their full texts.
+  if (!combined) await fitCaption(state);
   if (!state.posterPath) {
     site.events = site.events.filter((existing) => existing.id !== event.id);
     return;
@@ -360,15 +457,49 @@ async function fitCaption(state) {
     state.caption = formatPost(event);
     console.log(`✂️  ${event.title}: текст сокращён, чтобы влезть под афишу (${visibleLength(state.caption)} знаков)`);
   }
-  // Last resort without Gemini: cut the description on a sentence end.
+  // Last resort without Gemini.
   const over = visibleLength(state.caption) - CAPTION_TARGET;
   if (over > 0 && event.description) {
-    const room = event.description.slice(0, Math.max(0, event.description.length - over - 1));
-    const end = Math.max(room.lastIndexOf('. '), room.lastIndexOf('! '), room.lastIndexOf('? '), room.lastIndexOf('\n'));
-    event.description = `${end > 0 ? room.slice(0, end + 1) : `${room}…`}`.trim();
+    event.description = cutAtSentence(event.description, event.description.length - over - 1);
     state.caption = formatPost(event);
     console.warn(`✂️  ${event.title}: текст обрезан по предложению, чтобы влезть под афишу`);
   }
+}
+
+function cutAtSentence(text, maxChars) {
+  const room = text.slice(0, Math.max(0, maxChars));
+  const end = Math.max(room.lastIndexOf('. '), room.lastIndexOf('! '), room.lastIndexOf('? '), room.lastIndexOf('\n'));
+  return (end > 0 ? room.slice(0, end + 1) : `${room}…`).trim();
+}
+
+// The caption of one post for several events: each description gives up its share of the overflow.
+async function fitCombined(events) {
+  const parts = events.map((event) => ({ ...event }));
+  const overflow = () => visibleLength(formatCombinedPost(parts)) - CAPTION_TARGET;
+  const share = (part, over) => {
+    const total = parts.reduce((sum, other) => sum + (other.description?.length ?? 0), 0);
+    return Math.max(60, Math.floor(part.description.length - (over * part.description.length) / total));
+  };
+  const texts = () => parts.filter((part) => part.description);
+  for (let attempt = 0; attempt < 3 && overflow() > 0 && texts().length; attempt++) {
+    const over = overflow() + 40 * attempt;
+    try {
+      await Promise.all(texts().map(async (part) => {
+        part.description = await fitDescription(part, share(part, over));
+      }));
+    } catch (error) {
+      console.warn(`⚠️  Один пост: не удалось сократить текст — ${error.message}`);
+      break;
+    }
+    console.log(`✂️  Один пост: текст сокращён, чтобы влезть под афиши (${visibleLength(formatCombinedPost(parts))} знаков)`);
+  }
+  const over = overflow();
+  if (over > 0 && texts().length) {
+    const limits = new Map(texts().map((part) => [part, share(part, over + 1)]));
+    for (const [part, limit] of limits) part.description = cutAtSentence(part.description, limit);
+    console.warn('✂️  Один пост: текст обрезан по предложениям, чтобы влезть под афиши');
+  }
+  return formatCombinedPost(parts);
 }
 
 // An edit from the approval dialogue: text goes to Gemini together with the announcement, a photo replaces the one in
@@ -392,6 +523,37 @@ async function editState(state, { text, photo }) {
   await build(state);
   await saveSite();
   console.log(`\n──── ${state.event.title} (после правки) ────\n${state.caption}`);
+}
+
+// An edit of one post: the text goes to Gemini with all its events; a photo replaces the poster of the event named in
+// the reply (the first one otherwise).
+async function editGroup(group, { text, photo }) {
+  const { members } = group;
+  const before = members.map((state) => state.event.id);
+  if (photo) {
+    const named = members.find((state) => text?.toLowerCase().includes(state.event.title.toLowerCase())) ?? members[0];
+    named.photo = photo;
+    named.readyPoster = undefined;
+    await notify(`🖼 Новое фото — в афишу «${named.event.title}»`);
+  }
+  if (text) {
+    const answer = await editAnnouncement(members.map((state) => toScheduleBlock(state.event)).join('\n\n'), text, todayIso());
+    const edited = parseSchedule(answer);
+    if (edited.length !== members.length) throw new Error(`Gemini вернул ${edited.length} событ. вместо ${members.length}:\n${answer}`);
+    edited.forEach((event, index) => {
+      for (const warning of event.warnings) console.warn(`⚠️  ${event.title}: ${warning}`);
+      event.category = guessCategory(event);
+      members[index].event = event;
+    });
+  }
+  for (const [index, state] of members.entries()) {
+    if (state.event.id !== before[index]) await dropEvent(before[index]);
+    state.rebuilt = true;
+    await build(state);
+  }
+  await saveSite();
+  group.caption = await fitCombined(members.map((state) => state.event));
+  console.log(`\n──── Один пост (после правки) ────\n${group.caption}`);
 }
 
 const live = () => states.filter((state) => !state.cancelled && state.posterPath);
@@ -466,10 +628,18 @@ for (const event of events) {
 }
 await saveSite();
 
+// Asked for one post, but a poster failed and one event is left: it simply goes as a usual post.
+const ready = states.filter((state) => state.posterPath);
+const group = combined && ready.length > 1 ? { members: ready } : null;
+if (group) {
+  group.caption = await fitCombined(ready.map((state) => state.event));
+  console.log(`\n──── Один пост ────\n${group.caption}`);
+}
+
 const actions = [];
 if (values.send) {
-  const ready = states.filter((state) => state.posterPath);
-  for (const state of ready) actions.push(...eventActions(state));
+  if (group) actions.push(...groupActions(group));
+  else for (const state of ready) actions.push(...eventActions(state));
 
   // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko) get the whole week in one message once a week,
   // not a post per announcement — see weekly.mjs (the bot runs it on schedule and on /week).
@@ -499,7 +669,8 @@ if (values.send) {
     });
   }
 
-  if (canPushSite) for (const state of ready) actions.push(...instagramActions(state));
+  if (canPushSite && group) actions.push(...groupInstagramActions(group));
+  else if (canPushSite) for (const state of ready) actions.push(...instagramActions(state));
 }
 
 // --only instagram,site — ask only about these kinds (e.g. Instagram for an event already posted to Telegram).
@@ -509,11 +680,13 @@ const selected = onlyKinds ? actions.filter((action) => onlyKinds.includes(actio
 if (selected.length) {
   const results = await runWithApproval(selected, {
     // «🗑 Отменить анонс»: the event leaves the afisha (unless it is already published somewhere).
-    onCancel: async (state) => {
-      state.cancelled = true;
-      if (!state.published) {
-        await dropEvent(state.event.id);
-        await saveSite();
+    onCancel: async (cancelled) => {
+      for (const state of cancelled.members ?? [cancelled]) {
+        state.cancelled = true;
+        if (!state.published) {
+          await dropEvent(state.event.id);
+          await saveSite();
+        }
       }
     }
   });

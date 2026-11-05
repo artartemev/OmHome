@@ -87,7 +87,16 @@ async function askTelegram(action, id) {
 
   let preview;
   const image = value(action.image);
-  if (image) {
+  const album = value(action.images);
+  if (album?.length > 1) {
+    // One post with several posters: the album first, then its text with the buttons (an album can't carry buttons).
+    const form = new FormData();
+    form.set('chat_id', chatId);
+    form.set('media', JSON.stringify(album.map((_, index) => ({ type: 'photo', media: `attach://p${index}` }))));
+    for (const [index, path] of album.entries()) form.set(`p${index}`, new Blob([await readFile(path)], { type: 'image/jpeg' }), `p${index}.jpg`);
+    await telegram('sendMediaGroup', form, true);
+    preview = await telegram('sendMessage', { chat_id: chatId, text: previewText(action), parse_mode: 'HTML', reply_markup: keyboard, link_preview_options: { is_disabled: true } });
+  } else if (image) {
     const form = new FormData();
     form.set('chat_id', chatId);
     form.set('caption', previewText(action));
@@ -229,7 +238,7 @@ async function askTerminal(action) {
 
 /**
  * Asks for approval of every action in order and runs the approved ones.
- * action: { label, text?, image?, run, group?, prepare?(), skip?(), onEdit?({ text, photo }) } — label/text/image may be functions.
+ * action: { label, text?, image?, images? (several posters of one post), run, group?, prepare?(), skip?(), onEdit?({ text, photo }) } — label/text/image may be functions.
  * onCancel(group) is called when an announcement is cancelled; its remaining actions are skipped.
  * Returns [{ label, status: 'done' | 'skipped' | 'cancelled' | 'failed', error? }].
  */
