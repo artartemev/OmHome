@@ -164,15 +164,40 @@ export type Archive = {
   events: ArchiveEvent[];
 };
 
+// archive.json is a snapshot of the channel built once by automation/archive; everything the afisha announced after
+// its last day comes from events.json, so the archive keeps growing without rebuilding the snapshot.
+const withAfisha = (archive: Archive, events: OmEvent[], today: string): Archive => {
+  const cutoff = archive.events.reduce((last, event) => (event.date > last ? event.date : last), '');
+  const added: ArchiveEvent[] = events
+    .filter((event) => event.date > cutoff && lastDate(event) < today)
+    .map((event) => ({
+      date: event.date,
+      time: event.time || null,
+      title: event.title,
+      description: event.description ?? event.subtitle ?? '',
+      category: event.category ?? 'other',
+      post: event.post ?? '',
+      photo: event.poster ?? null
+    }));
+  const merged = [...archive.events, ...added].sort((a, b) => (a.date + (a.time ?? '')).localeCompare(b.date + (b.time ?? '')));
+  const byCategory: Record<string, number> = {};
+  for (const event of merged) byCategory[event.category] = (byCategory[event.category] ?? 0) + 1;
+  return { ...archive, total: merged.length, byCategory, events: merged };
+};
+
 export function useArchive() {
   const [archive, setArchive] = useState<Archive | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${import.meta.env.BASE_URL}archive.json`)
-      .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
-      .then((json: Archive) => {
-        if (!cancelled) setArchive(json);
+    const load = (url: string, init?: RequestInit) =>
+      fetch(url, init).then((response) => (response.ok ? response.json() : Promise.reject(response.status)));
+    Promise.all([
+      load(`${import.meta.env.BASE_URL}archive.json`) as Promise<Archive>,
+      (load(`${import.meta.env.BASE_URL}events.json`, { cache: 'no-cache' }) as Promise<EventsFile>).catch(() => null)
+    ])
+      .then(([json, events]) => {
+        if (!cancelled) setArchive(withAfisha(json, events?.events ?? [], todayInChiangMai()));
       })
       .catch(() => undefined);
     return () => {

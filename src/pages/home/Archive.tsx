@@ -80,14 +80,11 @@ export function ArchiveSection({ archive, today }: { archive: ArchiveData | null
         <div className={styles.archiveGrid}>
           {filtered.slice(0, visible).map((event) => {
             const [, month, day] = event.date.split('-').map(Number);
+            // Early afisha entries have no link to the channel post: the card stays, just not clickable.
+            const Card = event.post ? 'a' : 'div';
+            const link = event.post ? { href: event.post, target: '_blank', rel: 'noreferrer' } : {};
             return (
-              <a
-                key={`${event.date}-${event.title}`}
-                className={styles.archiveCard}
-                href={event.post}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <Card key={`${event.date}-${event.title}`} className={styles.archiveCard} {...link}>
                 <div className={styles.archivePhoto}>
                   {event.photo ? <img src={event.photo} alt="" loading="lazy" /> : <span>{CATEGORY_LABELS[event.category]}</span>}
                 </div>
@@ -99,10 +96,10 @@ export function ArchiveSection({ archive, today }: { archive: ArchiveData | null
                   <h3>{event.title}</h3>
                   {event.description && <p className={styles.archiveDescription}>{event.description}</p>}
                   <span className={styles.archiveTag}>
-                    {CATEGORY_LABELS[event.category]} <ArrowUpRight size={14} />
+                    {CATEGORY_LABELS[event.category]} {event.post && <ArrowUpRight size={14} />}
                   </span>
                 </div>
-              </a>
+              </Card>
             );
           })}
         </div>
