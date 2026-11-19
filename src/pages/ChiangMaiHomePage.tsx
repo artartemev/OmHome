@@ -56,6 +56,7 @@ const ADDRESS = 'OmHome Space, Pa Daet, Chiang Mai';
 const NAV = [
   { href: '/kartika', label: 'Картика' },
   { href: '#afisha', label: 'Афиша' },
+  { href: '#host', label: 'Провести вечер' },
   { href: '#about', label: 'О доме' },
   { href: '#archive', label: 'Архив' },
   { href: '#support', label: 'Поддержать' },
@@ -71,6 +72,22 @@ const FORMATS = [
 ];
 
 const PEOPLE_PER_YEAR = '≈400';
+
+// The house exists so that people can bring their own evenings: this block says how.
+const HOST_OFFERS = [
+  { title: 'Зал и атмосфера', text: 'Уютный зал, проектор для кино и презентаций, чай и тёплая компания.' },
+  { title: 'Афиша и анонс', text: 'Сделаем афишу и расскажем о вашем вечере в канале, чатах и на сайте.' },
+  { title: 'Поддержка', text: 'Поможем с форматом, если вы проводите что-то впервые, и встретим гостей вместе с вами.' }
+];
+
+const HOST_STEPS = [
+  'Напишите пару строк об идее — даже если она пока сырая',
+  'Вместе выберем формат и дату',
+  'Сделаем афишу и анонс, а вы приходите и проводите'
+];
+
+const HOST_EXAMPLES = ['мастер-класс', 'лекция', 'квартирник', 'йога и практики', 'настолка или RPG', 'кинопоказ', 'выставка', 'читка пьесы'];
+
 
 const GALLERY_TOP = [photoHall, photoKirtan, photoFriends, photoAltar, photoLaugh, photoStreet, photoPrasad];
 const GALLERY_BOTTOM = [photoSmile, photoYoga, photoLamp, photoKirtan2, photoTrip, photoHarmonium, photoKids];
@@ -368,7 +385,8 @@ export function ChiangMaiHomePage() {
             </h1>
             <p className={styles.heroLead}>
               OmHome — живое пространство встреч, практик, разговоров и людей. Киртаны, кино, квизы, йога и чайные
-              вечера: без алкоголя и мяса, по донейшену. Приходите как домой.
+              вечера: без алкоголя и мяса, по донейшену. Приходите как домой — и приносите свои идеи: здесь можно
+              провести свой вечер.
             </p>
             <div className={styles.heroActions}>
               <a className={styles.buttonGold} href="#afisha">
@@ -378,6 +396,9 @@ export function ChiangMaiHomePage() {
                 Войти в чат сообщества
               </a>
             </div>
+            <a className={styles.heroHostLink} href="#host">
+              <Sparkles size={16} /> Есть идея для вечера? Проведите его у нас
+            </a>
           </motion.div>
 
           <div className={styles.heroArches} aria-hidden="true">
@@ -425,6 +446,60 @@ export function ChiangMaiHomePage() {
       </section>
 
       <Afisha />
+
+      <section id="host" className={styles.initiativeSection}>
+        <div className={styles.container}>
+          <div className={styles.initiativeHead}>
+            <motion.div {...reveal}>
+              <span className={styles.eyebrow}>
+                <Sparkles size={14} /> Провести вечер
+              </span>
+              <h2>
+                Есть идея для <em>вечера?</em>
+              </h2>
+              <p className={styles.initiativeLead}>
+                OmHome — это не только наши события. Дом существует, чтобы у каждого было место для своей идеи: провести
+                первый мастер-класс, собрать друзей на квартирник, рассказать о том, что вдохновляет. Многие вечера
+                в нашей афише начинались именно так.
+              </p>
+            </motion.div>
+            <motion.div className={styles.initiativeCta} {...reveal}>
+              <a className={styles.buttonGold} href={LINKS.contact} target="_blank" rel="noreferrer">
+                Предложить событие <ArrowUpRight size={18} />
+              </a>
+              <span>Напишите @artartemev в Telegram</span>
+            </motion.div>
+          </div>
+
+          <motion.ul className={styles.initiativeExamples} {...reveal}>
+            {HOST_EXAMPLES.map((example) => (
+              <li key={example}>{example}</li>
+            ))}
+          </motion.ul>
+
+          <div className={styles.initiativeGrid}>
+            <motion.div className={styles.initiativeCard} {...reveal}>
+              <h3>Что даёт дом</h3>
+              <ul className={styles.initiativeOffers}>
+                {HOST_OFFERS.map((offer) => (
+                  <li key={offer.title}>
+                    <strong>{offer.title}</strong>
+                    <span>{offer.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+            <motion.div className={styles.initiativeCard} {...reveal}>
+              <h3>Как это устроено</h3>
+              <ol className={styles.initiativeSteps}>
+                {HOST_STEPS.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
       <section id="about" className={styles.aboutSection}>
         <div className={styles.container}>
@@ -527,24 +602,6 @@ export function ChiangMaiHomePage() {
               </motion.a>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className={styles.initiativeSection}>
-        <div className={`${styles.container} ${styles.initiativeInner}`}>
-          <motion.div {...reveal}>
-            <Sparkles className={styles.initiativeIcon} size={36} />
-            <h2>
-              Есть идея для <em>вечера?</em>
-            </h2>
-            <p>
-              Йога, мастер-класс, квартирник, лекция или настолка — OmHome живая площадка, и ваше событие может стать
-              частью афиши.
-            </p>
-          </motion.div>
-          <motion.a className={styles.buttonGold} href={LINKS.contact} target="_blank" rel="noreferrer" {...reveal}>
-            Предложить событие
-          </motion.a>
         </div>
       </section>
 

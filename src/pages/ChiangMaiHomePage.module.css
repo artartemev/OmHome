@@ -1122,36 +1122,157 @@
 /* ---------- Initiative ---------- */
 
 .initiativeSection {
-  padding: 96px 0;
+  padding: clamp(80px, 10vw, 128px) 0;
   background:
-    radial-gradient(80% 120% at 100% 0%, rgba(207, 186, 139, 0.18), transparent 60%),
+    radial-gradient(70% 90% at 100% 0%, rgba(207, 186, 139, 0.22), transparent 60%),
+    radial-gradient(60% 80% at 0% 100%, rgba(207, 186, 139, 0.1), transparent 60%),
     var(--night);
+  border-top: 1px solid var(--gold-line);
+  border-bottom: 1px solid var(--gold-line);
+  scroll-margin-top: 80px;
 }
 
-.initiativeInner {
+.initiativeHead {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 32px;
+  gap: 32px 48px;
   flex-wrap: wrap;
 }
 
-.initiativeInner h2 {
-  font-size: clamp(32px, 4.4vw, 56px);
+.initiativeHead h2 {
+  font-size: clamp(40px, 6vw, 80px);
+  line-height: 1;
   font-weight: 500;
-  letter-spacing: -0.02em;
-  margin: 16px 0 !important;
+  letter-spacing: -0.025em;
+  margin: 20px 0 24px;
 }
 
-.initiativeInner p {
-  max-width: 620px;
-  font-size: 18px;
+.initiativeLead {
+  max-width: 680px;
+  font-size: clamp(17px, 1.6vw, 20px);
   line-height: 1.55;
   color: var(--muted-light);
 }
 
-.initiativeIcon {
+.initiativeCta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.initiativeCta span {
+  font-size: 14px;
+  color: var(--muted-light);
+}
+
+.initiativeExamples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.initiativeExamples li {
+  padding: 8px 16px;
+  border: 1px solid var(--gold-line);
+  border-radius: 999px;
+  font-size: 15px;
+  color: var(--gold-bright);
+}
+
+.initiativeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.initiativeCard {
+  padding: clamp(24px, 3vw, 36px);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  background: rgba(13, 57, 60, 0.55);
+}
+
+.initiativeCard h3 {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--gold-bright);
+  margin-bottom: 20px;
+}
+
+.initiativeOffers,
+.initiativeSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.initiativeOffers li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.initiativeOffers span,
+.initiativeSteps li {
+  color: var(--muted-light);
+  line-height: 1.5;
+}
+
+.initiativeSteps {
+  counter-reset: step;
+}
+
+.initiativeSteps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.initiativeSteps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
   color: var(--gold);
+  font-size: 15px;
+}
+
+.heroHostLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  margin-top: -8px;
+  color: var(--gold-bright);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-line);
+  padding-bottom: 2px;
+}
+
+.heroHostLink:hover {
+  border-bottom-color: var(--gold);
+}
+
+@media (max-width: 760px) {
+  .initiativeGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- Location ---------- */
