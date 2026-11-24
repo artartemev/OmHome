@@ -171,6 +171,40 @@ function eventActions(state) {
   return actions;
 }
 
+// Puts one event on omhome.space: events.json as it is in main plus this event only, and its posters. Other events
+// of the run stay out until their own step is approved.
+function siteAction(state) {
+  return {
+    kind: 'site',
+    group: state,
+    label: () => `🌐 Афиша на omhome.space — ${state.event.title}`,
+    image: () => state.posterPath,
+    text: () => `Добавлю «${state.event.title}» (${state.event.date} ${state.event.time}) в афишу сайта — Vercel пересоберёт его за пару минут.`,
+    run: async () => {
+      const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
+      const entry = site.events.find((existing) => existing.id === state.event.id);
+      const committed = JSON.parse(execFileSync('git', ['show', 'HEAD:public/events.json'], { encoding: 'utf8' }));
+      committed.events = [...committed.events.filter((existing) => existing.id !== state.event.id), ...(entry ? [entry] : [])];
+      committed.events.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+      committed.updatedAt = new Date().toISOString().slice(0, 10);
+      await writeFile(EVENTS_FILE, `${JSON.stringify(committed, null, 2)}\n`);
+      const posters = [`${POSTERS_DIR}/${state.event.id}.jpg`, `${POSTERS_DIR}/${state.event.id}-story.jpg`].filter((path) => existsSync(path));
+      try {
+        git('add', 'public/events.json', ...posters, 'automation/photos/history.json');
+        // Nothing new for the site (the same event is already there) — nothing to commit, and that is fine.
+        const staged = execFileSync('git', ['diff', '--cached', '--name-only'], { encoding: 'utf8' }).trim();
+        if (staged) {
+          git('commit', '-m', `Афиша: ${state.event.title}`);
+          git('push', 'origin', 'HEAD:main');
+        }
+      } finally {
+        await saveSite(); // the working copy keeps the whole run again
+      }
+      state.published = true;
+    }
+  };
+}
+
 // Instagram downloads the poster from omhome.space, so these run after the site update (and are not editable:
 // the site already has this version of the poster).
 function instagramActions(state) {
@@ -387,13 +421,30 @@ function cutAtSentence(text, maxChars) {
 // the arch frame. Everything is rebuilt; the preview is then asked again.
 async function editState(state, { text, photo }) {
   const oldId = state.event.id;
-  if (text) {
+  // «картинка: два человека у костра» / «нарисуй …» on its own is about the photo only: no text edit at all.
+  const pictureOnly = text?.trim().match(/^(?:картинк[аеуой]|фото|изображени[ея])\s*[:—–-]\s*([\s\S]+)$|^(?:на)?рисуй\s+([\s\S]+)$/i);
+  let wish = pictureOnly ? (pictureOnly[1] ?? pictureOnly[2]).trim() : undefined;
+  if (text && !pictureOnly) {
     const answer = await editAnnouncement(toScheduleBlock(state.event), text, todayIso());
     const [edited] = parseSchedule(answer);
     if (!edited) throw new Error(`Gemini вернул анонс, который не читается:\n${answer}`);
     for (const warning of edited.warnings) console.warn(`⚠️  ${edited.title}: ${warning}`);
     edited.category = guessCategory(edited);
-    state.event = edited;
+    // «картинка: …» from Gemini — the organizer wants another picture: FLUX draws it, the text stays as it is.
+    const { picture, ...event } = edited;
+    state.event = event;
+    wish = picture;
+  }
+  {
+    const { event } = state;
+    if (wish && !photo) {
+      await notify(`🎨 ${event.title}: рисую новое фото — «${wish}», это ~полминуты…`);
+      try {
+        photo = await generatePhoto(event, join(workDir, `${event.id}-${Date.now()}.png`), { wish });
+      } catch (error) {
+        await notify(`⚠️ ${event.title}: новое фото не получилось нарисовать — ${error.message}. Пришлите фото реплаем на превью.`);
+      }
+    }
   }
   if (photo) {
     state.photo = photo;
@@ -482,10 +533,8 @@ const ready = states.filter((state) => state.posterPath);
 
 const actions = [];
 if (values.send) {
-  for (const state of ready) actions.push(...eventActions(state));
-
-  // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko) get the whole week in one message once a week,
-  // not a post per announcement — see weekly.mjs (the bot runs it on schedule and on /week).
+  // Friendly chats (Волшебный чат) and partners (@VeronikaKirpichenko) get the whole week in one message on /week
+  // (weekly.mjs), not a post per announcement.
 
   // On the server the site is updated by a push with GITHUB_TOKEN; without it the push (and Instagram, which takes the
   // poster from the site) can only fail — say so once instead of offering them.
@@ -494,25 +543,12 @@ if (values.send) {
     await notify('ℹ️ Сайт и Instagram пропускаю: на сервере нет GITHUB_TOKEN. Пост в канал — как обычно.');
   }
 
-  if (values.site && ready.length && canPushSite) {
-    const titles = () => live().map((state) => state.event.title).join(', ');
-    actions.push({
-      kind: 'site',
-      label: () => `🌐 Афиша на omhome.space: ${titles()}`,
-      image: () => live()[0]?.posterPath,
-      text: 'Коммит public/events.json и афиш в main — Vercel пересоберёт сайт за пару минут.',
-      skip: () => !live().length,
-      run: async () => {
-        const git = (...args) => execFileSync('git', args, { stdio: 'inherit' });
-        git('add', 'public/events.json', POSTERS_DIR, 'automation/photos/history.json');
-        git('commit', '-m', `Афиша: ${titles()}`);
-        git('push', 'origin', 'HEAD:main');
-        for (const state of live()) state.published = true;
-      }
-    });
+  // Each announcement goes through its own steps in order — channel, site, Instagram — so every event gets its own
+  // site preview (one shared step for several events showed only the first poster and looked like the rest were skipped).
+  for (const state of ready) {
+    actions.push(...eventActions(state));
+    if (canPushSite) actions.push(...(values.site ? [siteAction(state)] : []), ...instagramActions(state));
   }
-
-  if (canPushSite) for (const state of ready) actions.push(...instagramActions(state));
 }
 
 // --only instagram,site — ask only about these kinds (e.g. Instagram for an event already posted to Telegram).

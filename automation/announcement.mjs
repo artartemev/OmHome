@@ -174,14 +174,21 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
       current.also = [...(current.also ?? []), also[1]];
       continue;
     }
+    const picture = line.match(/^картинка\s*:\s*(.+)$/i);
+    if (picture && current.lines.length) {
+      current.picture = picture[1];
+      continue;
+    }
     const text = current.lines.length ? takeInstagram(line, current.instagram) : line;
+    // A blank line inside the description is a paragraph break and stays one (not between title and description).
+    if (text && current.lastBlank && current.lines.length > 1) current.lines.push('');
     current.lastBlank = false;
     if (text) current.lines.push(text);
   }
 
   return blocks
     .filter((block) => block.lines.length > 0)
-    .map(({ dateInfo, instagram, contact, also, lines: [titleLine, ...rest] }) => {
+    .map(({ dateInfo, instagram, contact, also, picture, lines: [titleLine, ...rest] }) => {
       const [title, subtitle] = titleLine.split('|').map((part) => part.trim());
       return {
         id: `${dateInfo.date}-${slugify(title)}`,
@@ -196,12 +203,18 @@ export function parseSchedule(message, { today = todayIso() } = {}) {
         ...(also ? { also: also.join('\n') } : {}),
         ...(instagram.length ? { instagram: [...new Set(instagram)] } : {}),
         ...(contact ? { contact } : {}),
+        ...(picture ? { picture } : {}),
         warnings: dateInfo.warnings
       };
     });
 }
 
 const escapeHtml = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// «**жирный**» in a description (asked for in an edit) becomes real bold in Telegram; stray asterisks go away.
+export const boldHtml = (text) => escapeHtml(text).replace(/\*\*([^*\n]+?)\*\*/g, '<b>$1</b>').replace(/\*\*/g, '');
+// The site and Instagram show plain text: no asterisks there.
+export const stripBold = (text) => text.replace(/\*\*/g, '');
 
 const weekdayOf = (date) => WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()];
 
@@ -279,8 +292,8 @@ export function formatPost(event, options = {}) {
     `<b>${escapeHtml(when)}</b>`,
     '',
     `<b>${escapeHtml(title)}</b>`,
-    ...(event.description ? ['', escapeHtml(event.description)] : []),
-    ...(event.also ? ['', escapeHtml(event.also)] : []),
+    ...(event.description ? ['', boldHtml(event.description)] : []),
+    ...(event.also ? ['', boldHtml(event.also)] : []),
     '',
     `📍 <a href="${mapUrl}">Адрес</a>`,
     `✍️ Запись: ${escapeHtml(event.contact ?? contact)}`,
@@ -303,8 +316,8 @@ export function foldIntoMain([main, ...others]) {
 
 // Shape stored in public/events.json for the website.
 export function toSiteEvent(event, posterPath) {
-  const { warnings, times, weekday, instagram, contact, formatNote, also, ...rest } = event;
-  const description = [rest.description, also].filter(Boolean).join('\n\n');
+  const { warnings, times, weekday, instagram, contact, formatNote, also, picture, ...rest } = event;
+  const description = stripBold([rest.description, also].filter(Boolean).join('\n\n'));
   return { ...rest, ...(description ? { description } : {}), ...(posterPath ? { poster: posterPath } : {}) };
 }
 
@@ -313,7 +326,7 @@ export function toScheduleBlock(event) {
   return [
     `${(event.dates ?? [event.date]).map(shortDate).join(' и ')} ${(event.times ?? [event.time]).join(' ')}`,
     event.subtitle ? `${event.title} | ${event.subtitle}` : event.title,
-    ...(event.description ? [event.description.replace(/\n\s*\n/g, '\n')] : []),
+    ...(event.description ? [event.description] : []),
     ...(event.also ? event.also.split('\n').map((line) => `также: ${line}`) : []),
     ...(event.instagram ?? []).map((handle) => `инста: @${handle}`),
     ...(event.contact ? [`✍️ Запись: ${event.contact}`] : [])

@@ -197,3 +197,35 @@ test('poster templates use only files from automation: the server clone has noth
     }
   }
 });
+
+test('paragraphs of the description survive an edit round trip', () => {
+  const [event] = parseSchedule(
+    `сб 22/11 15:00
+Актерский мастер-класс | со Стасом
+Тема: как не потерять себя
+
+Ведёт Стас — актёр театра.
+
+Возьмите удобную одежду.`,
+    { today: '2026-11-20' }
+  );
+  assert.equal(event.description, 'Тема: как не потерять себя\n\nВедёт Стас — актёр театра.\n\nВозьмите удобную одежду.');
+  const [again] = parseSchedule(toScheduleBlock(event), { today: '2026-11-20' });
+  assert.equal(again.description, event.description);
+  assert.match(formatPost(again), /себя\n\nВедёт/);
+});
+
+test('**bold** becomes bold in Telegram and plain text on the site', () => {
+  const [event] = parseSchedule(`сб 22/11 15:00\nМастер-класс\n**Тема: как не потерять себя**\nДальше текст **без пары`, { today: '2026-11-20' });
+  const post = formatPost(event);
+  assert.match(post, /<b>Тема: как не потерять себя<\/b>/);
+  assert.doesNotMatch(post, /\*/);
+  assert.doesNotMatch(toSiteEvent(event).description, /\*/);
+});
+
+test('a «картинка:» line is a wish for the photo, not part of the text', () => {
+  const [event] = parseSchedule(`сб 22/11 15:00\nМастер-класс\nТекст.\nкартинка: сближение двух людей, парня и девушки`, { today: '2026-11-20' });
+  assert.equal(event.description, 'Текст.');
+  assert.equal(event.picture, 'сближение двух людей, парня и девушки');
+  assert.equal(toSiteEvent(event).picture, undefined);
+});

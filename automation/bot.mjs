@@ -8,8 +8,8 @@
 // PUBLISH_ARGS (default "--send --site --ai-photo": FLUX draws a photo when none is attached) — flags for publish.mjs.
 // A file path as an argument is published first (e.g. to redo an announcement): node automation/bot.mjs ann.txt
 //
-// Once a week (WEEKLY_AT, default "mon 11:00", Chiang Mai time) and on /week the bot gathers the week's afisha into
-// one message for Волшебный чат and @VeronikaKirpichenko (weekly.mjs) — previews come for ✅/❌ as usual.
+// On /week (only on request — no schedule) the bot gathers the week's afisha into one message for Волшебный чат and
+// @VeronikaKirpichenko (weekly.mjs) — previews come for ✅/❌ as usual.
 
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -21,11 +21,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CHAT = String(process.env.TELEGRAM_APPROVAL_CHAT_ID ?? '');
 const PUBLISH_ARGS = (process.env.PUBLISH_ARGS ?? '--send --site --ai-photo').split(/\s+/).filter(Boolean);
-const WEEKLY_AT = (process.env.WEEKLY_AT ?? 'mon 11:00').toLowerCase();
 const HELP = `Пришлите анонс одним сообщением — в строгом формате или свободным текстом, можно с фото (альбомом, подпись — анонс).
 Я соберу афиши и пришлю каждое действие на ✅/❌. На ❌ можно ответить правкой текстом или новым фото.
 
-/week — собрать подборку на неделю для Волшебного чата и Вероники («/week фитильки» — в центре другое событие) (сама собирается по расписанию: ${WEEKLY_AT}, время Чиангмая).`;
+/week — собрать подборку на неделю для Волшебного чата и Вероники («/week фитильки» — в центре другое событие) — только по этой команде, сама не собирается.`;
 
 if (!process.env.TELEGRAM_BOT_TOKEN || !CHAT) {
   console.error('Нужны TELEGRAM_BOT_TOKEN и TELEGRAM_APPROVAL_CHAT_ID');
@@ -125,21 +124,6 @@ async function weekly(feature = '') {
   if (code !== 0) await say(`⚠️ Подборка на неделю упала (код ${code}) — подробности в логе.`);
 }
 
-// WEEKLY_AT «mon 11:00» in Chiang Mai time (UTC+7). Checked between polls; remembered per date, so it runs once a week.
-const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-let weeklyDoneFor = null;
-function weeklyDue() {
-  const [day, time = '11:00'] = WEEKLY_AT.split(/\s+/);
-  const [hour, minute] = time.split(':').map(Number);
-  const local = new Date(Date.now() + 7 * 3_600_000);
-  const today = local.toISOString().slice(0, 10);
-  const due =
-    WEEKDAYS[local.getUTCDay()] === day && local.getUTCHours() * 60 + local.getUTCMinutes() >= hour * 60 + (minute || 0);
-  if (!due || weeklyDoneFor === today) return false;
-  weeklyDoneFor = today;
-  return true;
-}
-
 async function handle(messages) {
   const text = messages.map((message) => message.text ?? message.caption ?? '').filter(Boolean).join('\n\n').trim();
   if (/^\/(start|help)\b/.test(text)) return say(HELP);
@@ -169,7 +153,6 @@ console.log('📬 Бот слушает анонсы…');
 if (process.env.BOT_SYNC_GIT) setInterval(() => logMemory('раз в час'), 3_600_000);
 for (;;) {
   try {
-    if (weeklyDue()) await weekly();
     const messages = await poll(50);
     if (!messages.length) continue;
     // An album arrives as several messages in a row: give the rest of it a moment to come.

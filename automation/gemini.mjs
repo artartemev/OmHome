@@ -171,10 +171,10 @@ const IMAGE_STYLES = {
 };
 
 // Gemini turns the event into a short English scene for FLUX: concrete objects of this event, no text, no alcohol.
-async function imagePrompt(event, style) {
+async function imagePrompt(event, style, wish) {
   const ask = `Write one English prompt (max 45 words) for an image generator, describing a single scene for the event poster below.
-Show concrete objects or actions of this exact event (e.g. a glowing projector beam in a dark room for a movie night, a straw hat with folded blank paper slips for the word game "Шляпа", a teapot and small cups for a tea evening, a harmonium and karatals for kirtan).
-Few people or none, faces not in focus. Image generators draw broken lettering, so choose only objects that carry no writing at all: no signs, posters, books, notes with words, labels, screens, packaging, logos; also no bottles or alcohol.
+${wish ? `The organizer asked for exactly this picture — follow it: «${wish}».\n` : ''}Show concrete objects or actions of this exact event (e.g. a glowing projector beam in a dark room for a movie night, a straw hat with folded blank paper slips for the word game "Шляпа", a teapot and small cups for a tea evening, a harmonium and karatals for kirtan).
+Few people or none (unless the organizer asked for people), faces not in focus. Image generators draw broken lettering, so choose only objects that carry no writing at all: no signs, posters, books, notes with words, labels, screens, packaging, logos; also no bottles or alcohol.
 Do not mention text, letters or words in the prompt at all — just describe what IS in the scene. Only the prompt, nothing else.
 Event: ${event.title}${event.subtitle ? ` (${event.subtitle})` : ''}. ${event.description ?? ''}`;
   try {
@@ -203,8 +203,9 @@ async function hasLettering(path) {
   return /yes/i.test(json.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('') ?? '');
 }
 
-export async function generatePhoto(event, out, { style = process.env.IMAGE_STYLE || 'photo', attempts = 3 } = {}) {
-  const prompt = await imagePrompt(event, style);
+// `wish` — the organizer's own words about the picture («сближение двух людей, парня и девушки»).
+export async function generatePhoto(event, out, { style = process.env.IMAGE_STYLE || 'photo', attempts = 3, wish } = {}) {
+  const prompt = await imagePrompt(event, style, wish);
   let cloudflareError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
@@ -298,8 +299,10 @@ ${block}
 
 Правка организатора: «${instruction.trim()}»
 
-Внеси эту правку и верни весь анонс целиком в том же формате. Меняй только то, о чём просят, остальное оставь дословно.
+Внеси эту правку и верни весь анонс целиком в том же формате. Меняй только то, о чём просят, остальное оставь дословно — вместе с пустыми строками между абзацами описания.
 Если просят переписать текст — пиши тепло и по-дружески, в стиле OmHome, без новых фактов.
+Жирный шрифт — только если о нём просят, и только так: **текст**. Другого markdown (*, _, #, списки со звёздочками) не используй.
+Если правка про картинку или фото на афише («картинка: …», «нарисуй…», «на фото пусть будет…») — текст анонса не трогай, а добавь отдельной строкой «картинка: что нарисовать» (по-русски, своими словами организатора). Это не описание — в текст события не переноси.
 Верни только анонс, без пояснений.`;
   const { json } = await generate(TEXT_MODELS, {
     contents: [{ parts: [{ text: prompt }] }],

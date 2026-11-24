@@ -121,9 +121,13 @@
         backdrop-filter: blur(18px);
         box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.5);
       }
+      /* The outlined pill keeps the same dark fill: over a light photo a see-through one left white text unreadable. */
       .pill.bordered {
         border: 3px solid rgba(255, 255, 255, 0.9);
-        background: color-mix(in srgb, var(--bg) 55%, transparent);
+      }
+      .pill .title,
+      .pill .subtitle {
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
       }
       .pill .title {
         font-size: 80px;
